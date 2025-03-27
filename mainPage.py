@@ -1,14 +1,9 @@
 from tkinter import *
 from tkinter import ttk
 from OpenGL.GL import *
-from OpenGL.GLUT import *
 from pyopengltk import OpenGLFrame
 from Reta import Reta
 from Circunferencia import Circunferencia
-
-coordenadas_Mundo = []
-coordenadas_OpenGL = []
-coordenadas_Tela = []
 
 def LIMPA_CT(array):
     for objeto in array:
@@ -17,7 +12,6 @@ def LIMPA_CT(array):
         else:
             objeto.delete(0,END)
 
-#LIMPA O FRAME E COMPORTA CADA ABA
 def limpa_frame(frame:Widget):
     for widget in frame.winfo_children():
         widget.place_forget()
@@ -28,57 +22,16 @@ def insertDataTreeview(tree=ttk.Treeview, data=[]):
     for x, y in data:
         tree.insert(parent='', index='end', text='', values=(x,y))
 
-def converter_coordenadas_mouse(windowSize, coords):
-
-    mouse_x = int(coords[0])
-    mouse_y = int(coords[1])
-    
-    mouseMin_x = 0
-    mouseMax_x = windowSize[0]
-    
-    mouseMin_y = windowSize[1]
-    mouseMax_y = 0
-
-    glMin = -1
-    glMax = 1
-
-    point_x = ((mouse_x - mouseMin_x) * (glMax - glMin) / (mouseMax_x - mouseMin_x)) + glMin
-    point_y = ((mouse_y - mouseMin_y) * (glMax - glMin) / (mouseMax_y - mouseMin_y)) + glMin
-
-    return [point_x, point_y]
-
-def converter_coordenadas_tela(screenSize, coords):
-
-    screen_x = coords[0]
-    screen_y = coords[1]
-    
-    screenMin_x = 0
-    screenMax_x = screenSize[0]
-    
-    screenMin_y = screenSize[1]
-    screenMax_y = 0
-
-    glMin = -1
-    glMax = 1
-    
-    point_x = (screen_x + 1) / 2 * screenMax_x
-    point_y = (-screen_y + 1) / 2 * screenMin_y
-
-    return [f"{point_x:.3f}", f"{point_y:.3f}"]
-
-def mostrar_coordenadas(window,state,coords):
-    normalized_x, normalized_y = converter_coordenadas_mouse([window[0],window[1]],coords)
-    coord_tela = converter_coordenadas_tela([1920,1080],[normalized_x,normalized_y])
-
-    global coordenadas_Mundo
-    coordenadas_Mundo.append(converter_coordenadas_tela([1920,1080],[normalized_x,normalized_y]))
-    global coordenadas_Tela
-    coordenadas_Tela.append((round(coords[0]),round(coords[1])))
-
 class GLUTFrame(OpenGLFrame):
     def __init__(self, master, forma, **kwargs):
         super().__init__(master,**kwargs)
+        
         self.bind("<Button>", self.mouseClick)
+        
+        self.coordenadas_Mundo = []
+        self.coordenadas_OpenGL = []
+        self.coordenadas_Tela = []
+        
         self.clicked_points_line = []
         self.clicked_points = []
         self.point_color = (1.0,1.0,1.0)
@@ -117,52 +70,34 @@ class GLUTFrame(OpenGLFrame):
         glEnd()
 
         self.tkSwapBuffers()
-
-    def retaDadosFornecidos(self, x1, y1, x2, y2):
-        clicked_points = self.forma.drawFunction([x1,y1,x2,y2])
         
-                
-        global coordenadas_Mundo
-        coordenadas_Mundo = []
-        global coordenadas_OpenGL
-        coordenadas_OpenGL = []
-        global coordenadas_Tela
-        coordenadas_Tela = []
+    def dadosFornecidos(self,x1,y1,x2=False,y2=False,raio=False):
+        if raio:
+            clicked_points = self.forma.drawFunction(self.clicked_points_line,[x1,y1], raio)
+        else:
+            clicked_points = self.forma.drawFunction([x1,y1,x2,y2])
+        
+        self.coordenadas_Mundo = []
+        self.coordenadas_OpenGL = []
+        self.coordenadas_Tela = []
 
         for x1, y1 in clicked_points:
-            mostrar_coordenadas([window_width,window_height],state=0,coords=[x1,y1])
+            self.mostrar_coordenadas([self.width,self.height],state=0,coords=[x1,y1])
             self.normalizeAndAddPoints(x1,y1)
         
         self.redraw()
-        insertDataTreeview(treeCoordinates,coordenadas_Mundo)
-        
-    def circunferenciaDadosFornecidos(self,x1,y1,raio):
-        clicked_points = self.forma.drawFunction(self.clicked_points_line,[x1,y1], raio)
-        
-        global coordenadas_Mundo
-        coordenadas_Mundo = []
-        global coordenadas_OpenGL
-        coordenadas_OpenGL = []
-        global coordenadas_Tela
-        coordenadas_Tela = []
-
-        for x1, y1 in clicked_points:
-            mostrar_coordenadas([window_width,window_height],state=0,coords=[x1,y1])
-            self.normalizeAndAddPoints(x1,y1)
-        
-        self.redraw()
-        insertDataTreeview(treeCoordinates,coordenadas_Mundo)
     
     def mouseClick(self, event):
         """ Captura cliques do mouse e converte para coordenadas normalizadas"""
-        global window_width, window_height
+        window_width = self.width
+        window_height = self.height
 
         x,y = event.x, event.y
         
         if event.num == 1:
             # Converte as coordenadas da tela para coordenadas normalizadas OpenGL
             self.normalizeAndAddPoints(event.x,event.y)
-            mostrar_coordenadas(window=[int(window_width),int(window_height)],state=0,coords=[x,y])
+            self.mostrar_coordenadas(window=[int(window_width),int(window_height)],state=0,coords=[x,y])
         elif event.num == 3:
             # Desenha uma linha nos pontos escolhidos
             
@@ -179,33 +114,70 @@ class GLUTFrame(OpenGLFrame):
     def algoritmoDoisPontos(self):
         clicked_points = self.forma.drawFunction(self.clicked_points_line)
         
-        global coordenadas_Mundo
-        coordenadas_Mundo = []
-        global coordenadas_OpenGL
-        coordenadas_OpenGL = []
-        global coordenadas_Tela
-        coordenadas_Tela = []
+        self.coordenadas_Mundo = []
+        self.coordenadas_OpenGL = []
+        self.coordenadas_Tela = []
 
         for x1, y1 in clicked_points:
-            mostrar_coordenadas([window_width,window_height],state=0,coords=[x1,y1])
+            self.mostrar_coordenadas([self.width,self.height],state=0,coords=[x1,y1])
             self.normalizeAndAddPoints(x1,y1)
         
-        insertDataTreeview(treeCoordinates,coordenadas_Mundo)
             
     def normalizeAndAddPoints(self,x,y):
-        normalized_x = (x / window_width) * 2 - 1
-        normalized_y = -((y / window_height) * 2 - 1)
+        normalized_x = (x / self.width) * 2 - 1
+        normalized_y = -((y / self.height) * 2 - 1)
 
         # Armazena o ponto clicado
-        global coordenadas_OpenGL
-        coordenadas_OpenGL.append((f"{normalized_x:.3f}",f"{normalized_y:.3f}"))
+        self.coordenadas_OpenGL.append((f"{normalized_x:.3f}",f"{normalized_y:.3f}"))
         self.clicked_points.append((normalized_x, normalized_y))
+        
+    def converter_coordenadas_mouse(self,windowSize, coords):
+
+        mouse_x = int(coords[0])
+        mouse_y = int(coords[1])
+        
+        mouseMin_x = 0
+        mouseMax_x = windowSize[0]
+        
+        mouseMin_y = windowSize[1]
+        mouseMax_y = 0
+
+        glMin = -1
+        glMax = 1
+
+        point_x = ((mouse_x - mouseMin_x) * (glMax - glMin) / (mouseMax_x - mouseMin_x)) + glMin
+        point_y = ((mouse_y - mouseMin_y) * (glMax - glMin) / (mouseMax_y - mouseMin_y)) + glMin
+
+        return [point_x, point_y]
+
+    def converter_coordenadas_tela(self,screenSize, coords):
+
+        screen_x = coords[0]
+        screen_y = coords[1]
+        
+        screenMin_x = 0
+        screenMax_x = screenSize[0]
+        
+        screenMin_y = screenSize[1]
+        screenMax_y = 0
+
+        glMin = -1
+        glMax = 1
+        
+        point_x = (screen_x + 1) / 2 * screenMax_x
+        point_y = (-screen_y + 1) / 2 * screenMin_y
+
+        return [f"{point_x:.3f}", f"{point_y:.3f}"]
+
+    def mostrar_coordenadas(self,window,state,coords):
+        normalized_x, normalized_y = self.converter_coordenadas_mouse([window[0],window[1]],coords)
+        coord_tela = self.converter_coordenadas_tela([1920,1080],[normalized_x,normalized_y])
+
+        self.coordenadas_Mundo.append(self.converter_coordenadas_tela([1920,1080],[normalized_x,normalized_y]))
+        self.coordenadas_Tela.append((round(coords[0]),round(coords[1])))
     
     def setForma(self,novaForma):
         self.forma = novaForma
-    
-    def setAlgoritmo(self,novoAlgoritmo):
-        self.forma.setAlgoritmo(novoAlgoritmo)
     
     def invertColors(self):
         if self.modoEscuro:
@@ -223,174 +195,196 @@ class GLUTFrame(OpenGLFrame):
         self.clicked_points = []
         self.redraw()
 
-# Criação das formas:
-reta = Reta()
-circunferencia = Circunferencia()
+class Main():
+    def __init__(self):
+        self.reta = Reta()
+        self.circunferencia = Circunferencia()
 
-# Tamanho inicial do GL
-window_width = 800
-window_height = 680
+        # Tamanho inicial do GL
+        self.window_width = 800
+        self.window_height = 680
 
-# Tamanho da janela TK
-tkwindow_width = 1200
-tkwindow_height = 700
+        # Tamanho da janela TK
+        self.tkwindow_width = 1200
+        self.tkwindow_height = 700
 
-root = Tk()
-root.geometry(f"{tkwindow_width}x{tkwindow_height}")
-root.resizable = False
-root.title("Computação Gráfica")
+        self.root = Tk()
+        self.root.geometry(f"{self.tkwindow_width}x{self.tkwindow_height}")
+        self.root.resizable = False
+        self.root.title("Computação Gráfica")
 
-formaFrame = Frame(root,bg="gray", width=300,height=680)
-formaFrame.place(x=25,y=10)
+        self.formaFrame = Frame(self.root,bg="gray", width=300,height=680)
+        self.formaFrame.place(x=25,y=10)
+                
+        self.generateWidgets()
+        
+        self.frameReta()
+        
+        self.root.mainloop()
+        
+    def generateWidgets(self):
+        self.glFrame = GLUTFrame(self.root,width=self.window_width,height=self.window_height,forma=self.reta)
+        self.glFrame.place(x=350,y=10)
 
-def frameReta(glut=GLUTFrame):
-    labelForma = Label(formaFrame, text="RETA", bg="grey", font=("Segoe UI Black", 17))
-    labelForma.place(relx=0.40,rely=0.01)
+        #Criando Menus
+        self.menu = Menu(self.root)
+        self.root.config(menu=self.menu)
+        
+        filemenu = Menu(self.menu)
+        self.menu.add_cascade(label='Menu', menu=filemenu)
+        filemenu.add_command(label='Limpar GL', command= lambda: [self.glFrame.clearScreen()])
+        filemenu.add_command(label='Inverter Cores', command=lambda: [self.glFrame.invertColors()])
+        filemenu.add_separator()
+        filemenu.add_command(label='Exit', command=self.root.quit)
+        formas = Menu(self.menu)
+        self.menu.add_cascade(label='Formas', menu=formas)
+        formas.add_command(label='Reta', command= lambda: [self.glFrame.setForma(self.reta),
+                                                           limpa_frame(self.formaFrame), 
+                                                           self.frameReta()])
+        formas.add_command(label="Circunferência", command= lambda: [self.glFrame.setForma(self.circunferencia), 
+                                                                     limpa_frame(self.formaFrame), 
+                                                                     self.frameCircunferencia()])
+        
+        Graphic2D = Menu(self.menu)
+        self.menu.add_cascade(label='Algoritmo', menu=Graphic2D)
+        Graphic2D.add_command(label='DDA', command=lambda:[self.reta.setAlgoritmo(self.reta.DDA)])
+        Graphic2D.add_command(label="Ponto Medio", command=lambda:[self.reta.setAlgoritmo(self.reta.pontoMedio)])
+        Graphic2D.add_separator()
+        Graphic2D.add_command(label='Equação Explicita', command=lambda:[self.circunferencia.setAlgoritmo(self.circunferencia.metodo_equacao_explicita)])
+        Graphic2D.add_command(label='Ponto Medio', command=lambda:[self.circunferencia.setAlgoritmo(self.circunferencia.pontoMedio)])
+        Graphic2D.add_command(label='Metodo Polinomial', command=lambda:[self.circunferencia.setAlgoritmo(self.circunferencia.metodo_polinomial)])
+        Graphic2D.add_command(label='Metodo Trigonometrico', command=lambda:[self.circunferencia.setAlgoritmo(self.circunferencia.metodo_trigonometrico)])
+        
+        transformacoes = Menu(self.menu)
+        self.menu.add_cascade(label='Transformações', menu=transformacoes)
+        transformacoes.add_command(label='Translação', command=lambda:[self.reta.setAlgoritmo(self.reta.DDA)])
+        transformacoes.add_command(label='Escala', command=lambda:[self.reta.setAlgoritmo(self.reta.DDA)])
+        transformacoes.add_command(label='Rotação', command=lambda:[self.reta.setAlgoritmo(self.reta.DDA)])
+        transformacoes.add_separator()
+        transformacoes.add_command(label='Reflexão', command=lambda:[self.reta.setAlgoritmo(self.reta.DDA)])
+        transformacoes.add_command(label='Cisalhamento', command=lambda:[self.reta.setAlgoritmo(self.reta.DDA)])
+        
+        self.labelForma = Label(self.formaFrame, text="RETA", bg="grey", font=("Segoe UI Black", 17))
+        
+        #Widgets da Reta
+        valorX1Reta = IntVar()
+        valorY1Reta = IntVar()
+        valorX2Reta = IntVar()
+        valorY2Reta = IntVar()
+        
+        self.labelX1Reta = Label(self.formaFrame,text="X1", bg="grey", font=("Segoe UI Black", 17))
+        self.entryX1Reta = Entry(self.formaFrame,textvariable=valorX1Reta, font=("Segoe UI Black", 17))
+        
+        self.labelY1Reta = Label(self.formaFrame,text="Y1", bg="grey", font=("Segoe UI Black", 17))
+        self.entryY1Reta = Entry(self.formaFrame,textvariable=valorY1Reta, font=("Segoe UI Black", 17))
+        
+        self.labelX2Reta = Label(self.formaFrame,text="X2", bg="grey", font=("Segoe UI Black", 17))
+        self.entryX2Reta = Entry(self.formaFrame,textvariable=valorX2Reta, font=("Segoe UI Black", 17))
+        
+        self.labelY2Reta = Label(self.formaFrame,text="Y2", bg="grey", font=("Segoe UI Black", 17))
+        self.entryY2Reta = Entry(self.formaFrame,textvariable=valorY2Reta, font=("Segoe UI Black", 17))
+        
+        self.buttonDesenharReta = Button(self.formaFrame, text="Desenhar", font=("Segoe UI Black", 17), command=lambda:[
+            self.glFrame.dadosFornecidos(x1=int(self.entryX1Reta.get()),
+                                         y1=int(self.entryY1Reta.get()),
+                                         x2=int(self.entryX2Reta.get()),
+                                         y2=int(self.entryY2Reta.get())),
+            LIMPA_CT([self.entryX1Reta,self.entryY1Reta,self.entryX2Reta,self.entryY2Reta])
+        ])
+        
+        #Widgets da Circunferencia       
+        valorX1Circ = IntVar()
+        valorY1Circ = IntVar()
+        
+        valorRaio = IntVar()
+        
+        self.labelX1Circ = Label(self.formaFrame,text="X1", bg="grey", font=("Segoe UI Black", 17))
+        self.entryX1Circ = Entry(self.formaFrame,textvariable=valorX1Circ, font=("Segoe UI Black", 17))
+        
+        self.labelY1Circ = Label(self.formaFrame,text="Y1", bg="grey", font=("Segoe UI Black", 17))
+        self.entryY1Circ = Entry(self.formaFrame,textvariable=valorY1Circ, font=("Segoe UI Black", 17))
+        
+        self.labelRaioCirc = Label(self.formaFrame,text="Raio", bg="grey", font=("Segoe UI Black", 17))
+        self.entryRaioCirc = Entry(self.formaFrame,textvariable=valorRaio, font=("Segoe UI Black", 17))
+        
+        self.buttonDesenharCirc = Button(self.formaFrame, text="Desenhar", font=("Segoe UI Black", 17), command=lambda:[
+            self.glFrame.dadosFornecidos(x1=int(self.entryX1Circ.get()),
+                                         y1=int(self.entryY1Circ.get()),
+                                         raio=int(self.entryRaioCirc.get())),
+            LIMPA_CT([self.entryX1Circ,self.entryY1Circ,self.entryRaioCirc])
+        ])
+        
+        #Treeview das coordenadas (Utilizado por todos os widgets acima)
+        self.coordinateFrame = Frame(self.formaFrame, bg="red")
+        
+        self.treeCoordinates = ttk.Treeview(self.coordinateFrame)
+        self.treeCoordinates['columns'] = ("X","Y")
+        self.treeCoordinates.column("#0",width=0, minwidth=25)
+        self.treeCoordinates.column("X",width=130, minwidth=25)
+        self.treeCoordinates.column("Y",width=130, minwidth=25)
+        
+        self.treeCoordinates.heading("#0",text="")
+        self.treeCoordinates.heading("X",text="X")
+        self.treeCoordinates.heading("Y",text="Y")
+        
+        self.treeScroll = Scrollbar(self.treeCoordinates)
+        self.treeScroll.pack(side=RIGHT,fill=Y)
+        
+        self.treeScroll.config(command=self.treeCoordinates.yview)
+        
+        self.coordMundo = Button(self.formaFrame, text="Mundo", font=("Segoe UI Black", 17), command=lambda: insertDataTreeview(self.treeCoordinates,self.glFrame.coordenadas_Mundo))
+        
+        self.coordOpenGL = Button(self.formaFrame, text="OpenGL", font=("Segoe UI Black", 17), command=lambda: insertDataTreeview(self.treeCoordinates,self.glFrame.coordenadas_OpenGL))
+        
+        self.coordTela = Button(self.formaFrame, text="Tela", font=("Segoe UI Black", 17), command=lambda: insertDataTreeview(self.treeCoordinates,self.glFrame.coordenadas_Tela))
+        
+    def frameReta(self):
+        self.labelForma.config(text="RETA")
+        self.labelForma.place(relx=0.40,rely=0.01)
+        
+        self.labelX1Reta.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.entryX1Reta.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
+        
+        self.labelY1Reta.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.entryY1Reta.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
+        
+        self.labelX2Reta.place(relx=0.1,rely=0.2,relheight=0.1,relwidth=0.1)
+        self.entryX2Reta.place(relx=0.25,rely=0.225,relheight=0.05,relwidth=0.2)
+        
+        self.labelY2Reta.place(relx=0.5,rely=0.2,relheight=0.1,relwidth=0.1)
+        self.entryY2Reta.place(relx=0.65,rely=0.225,relheight=0.05,relwidth=0.2)
+        
+        self.buttonDesenharReta.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
+        
+        self.setTreeViewLoc()
+        
+    def frameCircunferencia(self):
+        self.labelForma.config(text="CIRCUNFERENCIA")
+        self.labelForma.place(relx=0.150,rely=0.01)
+        
+        
+        self.labelX1Circ.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.entryX1Circ.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
+        
+        self.labelY1Circ.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.entryY1Circ.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
+        
+        self.labelRaioCirc.place(relx=0.25,rely=0.2,relheight=0.1,relwidth=0.2)
+        self.entryRaioCirc.place(relx=0.50,rely=0.225,relheight=0.05,relwidth=0.2)
+        
+        self.buttonDesenharCirc.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
+        
+        self.setTreeViewLoc()
     
-    valorX1 = IntVar()
-    valorY1 = IntVar()
-    valorX2 = IntVar()
-    valorY2 = IntVar()
-    
-    labelX1 = Label(formaFrame,text="X1", bg="grey", font=("Segoe UI Black", 17))
-    labelX1.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
-    entryX1 = Entry(formaFrame,textvariable=valorX1, font=("Segoe UI Black", 17))
-    entryX1.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
-    
-    labelY1 = Label(formaFrame,text="Y1", bg="grey", font=("Segoe UI Black", 17))
-    labelY1.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
-    entryY1 = Entry(formaFrame,textvariable=valorY1, font=("Segoe UI Black", 17))
-    entryY1.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
-    
-    labelX2 = Label(formaFrame,text="X2", bg="grey", font=("Segoe UI Black", 17))
-    labelX2.place(relx=0.1,rely=0.2,relheight=0.1,relwidth=0.1)
-    entryX2 = Entry(formaFrame,textvariable=valorX2, font=("Segoe UI Black", 17))
-    entryX2.place(relx=0.25,rely=0.225,relheight=0.05,relwidth=0.2)
-    
-    labelY2 = Label(formaFrame,text="Y2", bg="grey", font=("Segoe UI Black", 17))
-    labelY2.place(relx=0.5,rely=0.2,relheight=0.1,relwidth=0.1)
-    entryY2 = Entry(formaFrame,textvariable=valorY2, font=("Segoe UI Black", 17))
-    entryY2.place(relx=0.65,rely=0.225,relheight=0.05,relwidth=0.2)
-    
-    buttonDesenhar = Button(formaFrame, text="Desenhar", font=("Segoe UI Black", 17), command=lambda:[
-        glut.retaDadosFornecidos(int(entryX1.get()),int(entryY1.get()),int(entryX2.get()),int(entryY2.get())),LIMPA_CT([entryX1,entryY1,entryX2,entryY2])
-    ])
-    buttonDesenhar.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
-    
-    coordinateFrame = Frame(formaFrame, bg="red")
-    coordinateFrame.place(relx=0.0,rely=0.5,relheight=0.5,relwidth=1)
-    
-    global treeCoordinates
-    treeCoordinates = ttk.Treeview(coordinateFrame)
-    treeCoordinates['columns'] = ("X","Y")
-    treeCoordinates.column("#0",width=0, minwidth=25)
-    treeCoordinates.column("X",width=130, minwidth=25)
-    treeCoordinates.column("Y",width=130, minwidth=25)
-    
-    treeCoordinates.heading("#0",text="")
-    treeCoordinates.heading("X",text="X")
-    treeCoordinates.heading("Y",text="Y")
-    
-    treeScroll = Scrollbar(treeCoordinates)
-    treeScroll.pack(side=RIGHT,fill=Y)
-    
-    treeScroll.config(command=treeCoordinates.yview)
-    
-    treeCoordinates.place(relx=0.0,rely=0.0,relheight=1,relwidth=1)
-    
-    coordMundo = Button(formaFrame, text="Mundo", font=("Segoe UI Black", 17), command=lambda: insertDataTreeview(treeCoordinates,coordenadas_Mundo))
-    coordMundo.place(relx=0.0,rely=0.425,relheight=0.08,relwidth=0.34)
-    
-    coordOpenGL = Button(formaFrame, text="OpenGL", font=("Segoe UI Black", 17), command=lambda: insertDataTreeview(treeCoordinates,coordenadas_OpenGL))
-    coordOpenGL.place(relx=0.34,rely=0.425,relheight=0.08,relwidth=0.33)
-    
-    coordTela = Button(formaFrame, text="Tela", font=("Segoe UI Black", 17), command=lambda: insertDataTreeview(treeCoordinates,coordenadas_Tela))
-    coordTela.place(relx=0.67,rely=0.425,relheight=0.08,relwidth=0.33)
-    
-def frameCircunferencia(glut=GLUTFrame):
-    labelForma = Label(formaFrame, text="CIRCUNFERENCIA", bg="grey", font=("Segoe UI Black", 17))
-    labelForma.place(relx=0.150,rely=0.01)
-    
-    valorX1 = IntVar()
-    valorY1 = IntVar()
-    valorRaio = IntVar()
-    
-    labelX1 = Label(formaFrame,text="X1", bg="grey", font=("Segoe UI Black", 17))
-    labelX1.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
-    entryX1 = Entry(formaFrame,textvariable=valorX1, font=("Segoe UI Black", 17))
-    entryX1.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
-    
-    labelY1 = Label(formaFrame,text="Y1", bg="grey", font=("Segoe UI Black", 17))
-    labelY1.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
-    entryY1 = Entry(formaFrame,textvariable=valorY1, font=("Segoe UI Black", 17))
-    entryY1.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
-    
-    labelRaio = Label(formaFrame,text="Raio", bg="grey", font=("Segoe UI Black", 17))
-    labelRaio.place(relx=0.25,rely=0.2,relheight=0.1,relwidth=0.2)
-    entryRaio = Entry(formaFrame,textvariable=valorRaio, font=("Segoe UI Black", 17))
-    entryRaio.place(relx=0.50,rely=0.225,relheight=0.05,relwidth=0.2)
-    
-    buttonDesenhar = Button(formaFrame, text="Desenhar", font=("Segoe UI Black", 17), command=lambda:[
-        glut.circunferenciaDadosFornecidos(int(entryX1.get()),int(entryY1.get()),int(entryRaio.get())), LIMPA_CT([entryX1,entryY1,entryRaio])
-    ])
-    buttonDesenhar.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
-    
-    coordinateFrame = Frame(formaFrame, bg="red")
-    coordinateFrame.place(relx=0.0,rely=0.5,relheight=0.5,relwidth=1)
-    
-    treeCoordinates = ttk.Treeview(coordinateFrame)
-    treeCoordinates['columns'] = ("X","Y")
-    treeCoordinates.column("#0",width=0, minwidth=25)
-    treeCoordinates.column("X",width=130, minwidth=25)
-    treeCoordinates.column("Y",width=130, minwidth=25)
-    
-    treeCoordinates.heading("#0",text="")
-    treeCoordinates.heading("X",text="X")
-    treeCoordinates.heading("Y",text="Y")
-    
-    treeScroll = Scrollbar(treeCoordinates)
-    treeScroll.pack(side=RIGHT,fill=Y)
-    
-    treeScroll.config(command=treeCoordinates.yview)
-    
-    treeCoordinates.place(relx=0.0,rely=0.0,relheight=1,relwidth=1)
-    
-    coordMundo = Button(formaFrame, text="Mundo", font=("Segoe UI Black", 17), command=lambda: insertDataTreeview(treeCoordinates,coordenadas_Mundo))
-    coordMundo.place(relx=0.0,rely=0.425,relheight=0.08,relwidth=0.34)
-    
-    coordOpenGL = Button(formaFrame, text="OpenGL", font=("Segoe UI Black", 17), command=lambda: insertDataTreeview(treeCoordinates,coordenadas_OpenGL))
-    coordOpenGL.place(relx=0.34,rely=0.425,relheight=0.08,relwidth=0.33)
-    
-    coordTela = Button(formaFrame, text="Tela", font=("Segoe UI Black", 17), command=lambda: insertDataTreeview(treeCoordinates,coordenadas_Tela))
-    coordTela.place(relx=0.67,rely=0.425,relheight=0.08,relwidth=0.33)
-    
+    def setTreeViewLoc(self):
+        self.coordinateFrame.place(relx=0.0,rely=0.5,relheight=0.5,relwidth=1)
+        
+        self.treeCoordinates.place(relx=0.0,rely=0.0,relheight=1,relwidth=1)
+        
+        self.coordMundo.place(relx=0.0,rely=0.425,relheight=0.08,relwidth=0.34)
+        
+        self.coordOpenGL.place(relx=0.34,rely=0.425,relheight=0.08,relwidth=0.33)
+        
+        self.coordTela.place(relx=0.67,rely=0.425,relheight=0.08,relwidth=0.33)
 
-glFrame = GLUTFrame(root,width=window_width,height=window_height,forma=reta)
-glFrame.place(x=350,y=10)
-
-frameReta(glFrame)
-
-menu = Menu(root)
-root.config(menu=menu)
-filemenu = Menu(menu)
-menu.add_cascade(label='Menu', menu=filemenu)
-filemenu.add_command(label='Limpar GL', command= lambda: [glFrame.clearScreen()])
-filemenu.add_command(label='Inverter Cores', command=lambda: [glFrame.invertColors()])
-filemenu.add_separator()
-filemenu.add_command(label='Exit', command=root.quit)
-formas = Menu(menu)
-menu.add_cascade(label='Formas', menu=formas)
-formas.add_command(label='Reta', command= lambda: [glFrame.setForma(reta),limpa_frame(formaFrame), frameReta(glFrame)])
-formas.add_command(label="Circunferência", command= lambda: [glFrame.setForma(circunferencia), limpa_frame(formaFrame), frameCircunferencia(glFrame)])
-Graphic2D = Menu(menu)
-menu.add_cascade(label='Algoritmo', menu=Graphic2D)
-Graphic2D.add_command(label='DDA', command=lambda:[reta.setAlgoritmo(reta.DDA)])
-Graphic2D.add_command(label="Ponto Medio", command=lambda:[reta.setAlgoritmo(reta.pontoMedio)])
-Graphic2D.add_separator()
-
-Graphic2D.add_command(label='Equação Explicita', command=lambda:[circunferencia.setAlgoritmo(circunferencia.metodo_equacao_explicita)])
-Graphic2D.add_command(label='Ponto Medio', command=lambda:[circunferencia.setAlgoritmo(circunferencia.pontoMedio)])
-Graphic2D.add_command(label='Metodo Polinomial', command=lambda:[circunferencia.setAlgoritmo(circunferencia.metodo_polinomial)])
-Graphic2D.add_command(label='Metodo Trigonometrico', command=lambda:[circunferencia.setAlgoritmo(circunferencia.metodo_trigonometrico)])
-
-root.mainloop()
+Main()
