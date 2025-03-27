@@ -64,22 +64,16 @@ def converter_coordenadas_tela(screenSize, coords):
     point_x = (screen_x + 1) / 2 * screenMax_x
     point_y = (-screen_y + 1) / 2 * screenMin_y
 
-    return [point_x, point_y]
+    return [f"{point_x:.3f}", f"{point_y:.3f}"]
 
 def mostrar_coordenadas(window,state,coords):
     normalized_x, normalized_y = converter_coordenadas_mouse([window[0],window[1]],coords)
     coord_tela = converter_coordenadas_tela([1920,1080],[normalized_x,normalized_y])
-    
-    
+
     global coordenadas_Mundo
     coordenadas_Mundo.append(converter_coordenadas_tela([1920,1080],[normalized_x,normalized_y]))
-    global coordenadas_OpenGL
-    coordenadas_OpenGL.append(converter_coordenadas_mouse([window[0],window[1]],coords))
-    
-    if state == 0:
-        print(f'coordenadas mundo: ({coord_tela[0]:.3f},{coord_tela[1]:.3f})')
-        print(f'coordenadas convertidas OpenGL: ({normalized_x:.3f}, {normalized_y:.3f})')
-        print(f'coordenadas convertidas tela: ({coords[0]}, {coords[1]})\n')
+    global coordenadas_Tela
+    coordenadas_Tela.append((round(coords[0]),round(coords[1])))
 
 class GLUTFrame(OpenGLFrame):
     def __init__(self, master, forma, **kwargs):
@@ -126,10 +120,16 @@ class GLUTFrame(OpenGLFrame):
 
     def retaDadosFornecidos(self, x1, y1, x2, y2):
         clicked_points = self.forma.drawFunction([x1,y1,x2,y2])
-        global coordenadas_Tela
         
+                
+        global coordenadas_Mundo
+        coordenadas_Mundo = []
+        global coordenadas_OpenGL
+        coordenadas_OpenGL = []
+        global coordenadas_Tela
+        coordenadas_Tela = []
+
         for x1, y1 in clicked_points:
-            coordenadas_Tela.append((x1,y1))
             mostrar_coordenadas([window_width,window_height],state=0,coords=[x1,y1])
             self.normalizeAndAddPoints(x1,y1)
         
@@ -138,10 +138,15 @@ class GLUTFrame(OpenGLFrame):
         
     def circunferenciaDadosFornecidos(self,x1,y1,raio):
         clicked_points = self.forma.drawFunction(self.clicked_points_line,[x1,y1], raio)
-        global coordenadas_Tela
         
+        global coordenadas_Mundo
+        coordenadas_Mundo = []
+        global coordenadas_OpenGL
+        coordenadas_OpenGL = []
+        global coordenadas_Tela
+        coordenadas_Tela = []
+
         for x1, y1 in clicked_points:
-            coordenadas_Tela.append((x1,y1))
             mostrar_coordenadas([window_width,window_height],state=0,coords=[x1,y1])
             self.normalizeAndAddPoints(x1,y1)
         
@@ -153,13 +158,6 @@ class GLUTFrame(OpenGLFrame):
         global window_width, window_height
 
         x,y = event.x, event.y
-        
-        global coordenadas_Mundo
-        coordenadas_Mundo = []
-        global coordenadas_OpenGL
-        coordenadas_OpenGL = []
-        global coordenadas_Tela
-        coordenadas_Tela = []
         
         if event.num == 1:
             # Converte as coordenadas da tela para coordenadas normalizadas OpenGL
@@ -180,10 +178,15 @@ class GLUTFrame(OpenGLFrame):
         
     def algoritmoDoisPontos(self):
         clicked_points = self.forma.drawFunction(self.clicked_points_line)
-        global coordenadas_Tela
         
+        global coordenadas_Mundo
+        coordenadas_Mundo = []
+        global coordenadas_OpenGL
+        coordenadas_OpenGL = []
+        global coordenadas_Tela
+        coordenadas_Tela = []
+
         for x1, y1 in clicked_points:
-            coordenadas_Tela.append((x1,y1))
             mostrar_coordenadas([window_width,window_height],state=0,coords=[x1,y1])
             self.normalizeAndAddPoints(x1,y1)
         
@@ -194,6 +197,8 @@ class GLUTFrame(OpenGLFrame):
         normalized_y = -((y / window_height) * 2 - 1)
 
         # Armazena o ponto clicado
+        global coordenadas_OpenGL
+        coordenadas_OpenGL.append((f"{normalized_x:.3f}",f"{normalized_y:.3f}"))
         self.clicked_points.append((normalized_x, normalized_y))
     
     def setForma(self,novaForma):
@@ -294,7 +299,7 @@ def frameReta(glut=GLUTFrame):
     treeCoordinates.place(relx=0.0,rely=0.0,relheight=1,relwidth=1)
     
     coordMundo = Button(formaFrame, text="Mundo", font=("Segoe UI Black", 17), command=lambda: insertDataTreeview(treeCoordinates,coordenadas_Mundo))
-    coordMundo.place(relx=0.01,rely=0.425,relheight=0.08,relwidth=0.33)
+    coordMundo.place(relx=0.0,rely=0.425,relheight=0.08,relwidth=0.34)
     
     coordOpenGL = Button(formaFrame, text="OpenGL", font=("Segoe UI Black", 17), command=lambda: insertDataTreeview(treeCoordinates,coordenadas_OpenGL))
     coordOpenGL.place(relx=0.34,rely=0.425,relheight=0.08,relwidth=0.33)
@@ -351,7 +356,7 @@ def frameCircunferencia(glut=GLUTFrame):
     treeCoordinates.place(relx=0.0,rely=0.0,relheight=1,relwidth=1)
     
     coordMundo = Button(formaFrame, text="Mundo", font=("Segoe UI Black", 17), command=lambda: insertDataTreeview(treeCoordinates,coordenadas_Mundo))
-    coordMundo.place(relx=0.01,rely=0.425,relheight=0.08,relwidth=0.33)
+    coordMundo.place(relx=0.0,rely=0.425,relheight=0.08,relwidth=0.34)
     
     coordOpenGL = Button(formaFrame, text="OpenGL", font=("Segoe UI Black", 17), command=lambda: insertDataTreeview(treeCoordinates,coordenadas_OpenGL))
     coordOpenGL.place(relx=0.34,rely=0.425,relheight=0.08,relwidth=0.33)
@@ -363,7 +368,7 @@ def frameCircunferencia(glut=GLUTFrame):
 glFrame = GLUTFrame(root,width=window_width,height=window_height,forma=reta)
 glFrame.place(x=350,y=10)
 
-frameReta()
+frameReta(glFrame)
 
 menu = Menu(root)
 root.config(menu=menu)
@@ -379,9 +384,13 @@ formas.add_command(label='Reta', command= lambda: [glFrame.setForma(reta),limpa_
 formas.add_command(label="Circunferência", command= lambda: [glFrame.setForma(circunferencia), limpa_frame(formaFrame), frameCircunferencia(glFrame)])
 Graphic2D = Menu(menu)
 menu.add_cascade(label='Algoritmo', menu=Graphic2D)
-Graphic2D.add_command(label='DDA', command=lambda:[glFrame.setAlgoritmo(reta.DDA)])
-Graphic2D.add_command(label="Ponto Medio", command=lambda:[glFrame.setAlgoritmo(reta.pontoMedio)])
+Graphic2D.add_command(label='DDA', command=lambda:[reta.setAlgoritmo(reta.DDA)])
+Graphic2D.add_command(label="Ponto Medio", command=lambda:[reta.setAlgoritmo(reta.pontoMedio)])
 Graphic2D.add_separator()
-Graphic2D.add_command(label='Ponto Medio', command=root.quit)
+
+Graphic2D.add_command(label='Equação Explicita', command=lambda:[circunferencia.setAlgoritmo(circunferencia.metodo_equacao_explicita)])
+Graphic2D.add_command(label='Ponto Medio', command=lambda:[circunferencia.setAlgoritmo(circunferencia.pontoMedio)])
+Graphic2D.add_command(label='Metodo Polinomial', command=lambda:[circunferencia.setAlgoritmo(circunferencia.metodo_polinomial)])
+Graphic2D.add_command(label='Metodo Trigonometrico', command=lambda:[circunferencia.setAlgoritmo(circunferencia.metodo_trigonometrico)])
 
 root.mainloop()
