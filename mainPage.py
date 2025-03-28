@@ -7,10 +7,7 @@ from Circunferencia import Circunferencia
 
 def LIMPA_CT(array):
     for objeto in array:
-        if isinstance(objeto,Text):
-            objeto.delete("1.0",END)
-        else:
-            objeto.delete(0,END)
+        objeto.delete(0,END)
 
 def limpa_frame(frame:Widget):
     for widget in frame.winfo_children():
@@ -226,6 +223,10 @@ class Main():
         self.glFrame = GLUTFrame(self.root,width=self.window_width,height=self.window_height,forma=self.reta)
         self.glFrame.place(x=350,y=10)
 
+        self.labelAlgoritmoUsado = Label(self.formaFrame, text="DDA", bg="grey", font=("Segoe UI Black", 13))
+
+        self.labelForma = Label(self.formaFrame, text="RETA", bg="grey", font=("Segoe UI Black", 17))
+
         #Criando Menus
         self.menu = Menu(self.root)
         self.root.config(menu=self.menu)
@@ -264,8 +265,6 @@ class Main():
         transformacoes.add_command(label='Reflexão', command=lambda:[self.reta.setAlgoritmo(self.reta.DDA)])
         transformacoes.add_command(label='Cisalhamento', command=lambda:[self.reta.setAlgoritmo(self.reta.DDA)])
         
-        self.labelForma = Label(self.formaFrame, text="RETA", bg="grey", font=("Segoe UI Black", 17))
-        
         #Widgets da Reta
         valorX1Reta = IntVar()
         valorY1Reta = IntVar()
@@ -284,7 +283,8 @@ class Main():
         self.labelY2Reta = Label(self.formaFrame,text="Y2", bg="grey", font=("Segoe UI Black", 17))
         self.entryY2Reta = Entry(self.formaFrame,textvariable=valorY2Reta, font=("Segoe UI Black", 17))
         
-        self.buttonDesenharReta = Button(self.formaFrame, text="Desenhar", font=("Segoe UI Black", 17), command=lambda:[
+        self.buttonDesenharReta = Button(self.formaFrame, text="Desenhar", font=("Segoe UI Black", 17),
+                                         bg='#000000',fg="white", command=lambda:[
             self.glFrame.dadosFornecidos(x1=int(self.entryX1Reta.get()),
                                          y1=int(self.entryY1Reta.get()),
                                          x2=int(self.entryX2Reta.get()),
@@ -307,7 +307,8 @@ class Main():
         self.labelRaioCirc = Label(self.formaFrame,text="Raio", bg="grey", font=("Segoe UI Black", 17))
         self.entryRaioCirc = Entry(self.formaFrame,textvariable=valorRaio, font=("Segoe UI Black", 17))
         
-        self.buttonDesenharCirc = Button(self.formaFrame, text="Desenhar", font=("Segoe UI Black", 17), command=lambda:[
+        self.buttonDesenharCirc = Button(self.formaFrame, text="Desenhar", font=("Segoe UI Black", 17),
+                                         bg='#000000',fg="white", command=lambda:[
             self.glFrame.dadosFornecidos(x1=int(self.entryX1Circ.get()),
                                          y1=int(self.entryY1Circ.get()),
                                          raio=int(self.entryRaioCirc.get())),
@@ -332,15 +333,26 @@ class Main():
         
         self.treeScroll.config(command=self.treeCoordinates.yview)
         
-        self.coordMundo = Button(self.formaFrame, text="Mundo", font=("Segoe UI Black", 17), command=lambda: insertDataTreeview(self.treeCoordinates,self.glFrame.coordenadas_Mundo))
+        self.coordMundo = Button(self.formaFrame, text="Mundo", font=("Segoe UI Black", 17),bg="#999999", 
+                                 command=lambda: [insertDataTreeview(self.treeCoordinates,self.glFrame.coordenadas_Mundo),
+                                                  self.focusTable(self.coordMundo, [self.coordTela, self.coordOpenGL])])
         
-        self.coordOpenGL = Button(self.formaFrame, text="OpenGL", font=("Segoe UI Black", 17), command=lambda: insertDataTreeview(self.treeCoordinates,self.glFrame.coordenadas_OpenGL))
+        self.coordOpenGL = Button(self.formaFrame, text="OpenGL", font=("Segoe UI Black", 17),bg="#999999", 
+                                  command=lambda: [insertDataTreeview(self.treeCoordinates,self.glFrame.coordenadas_OpenGL),
+                                                   self.focusTable(self.coordOpenGL, [self.coordMundo, self.coordTela])])
         
-        self.coordTela = Button(self.formaFrame, text="Tela", font=("Segoe UI Black", 17), command=lambda: insertDataTreeview(self.treeCoordinates,self.glFrame.coordenadas_Tela))
+        self.coordTela = Button(self.formaFrame, text="Tela", font=("Segoe UI Black", 17),bg="#999999", 
+                                command=lambda: [insertDataTreeview(self.treeCoordinates,self.glFrame.coordenadas_Tela), 
+                                                 self.focusTable(self.coordTela, [self.coordMundo, self.coordOpenGL])])
+        
+        #Bidings Adicionais
+        self.root.bind("r", lambda _: self.glFrame.clearScreen())
         
     def frameReta(self):
+        self.labelAlgoritmoUsado.place(relx=0.01,rely=0.01)
+        
         self.labelForma.config(text="RETA")
-        self.labelForma.place(relx=0.40,rely=0.01)
+        self.labelForma.place(relx=0.40,rely=0.05)
         
         self.labelX1Reta.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
         self.entryX1Reta.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
@@ -356,12 +368,21 @@ class Main():
         
         self.buttonDesenharReta.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
         
+        # self.unbindEvents(self.formaFrame)
+            
+        # self.formaFrame.bind("<Enter>", func=lambda _: self.glFrame.dadosFornecidos(
+        #     x1=int(self.entryX1Reta.get()),
+        #     y1=int(self.entryY1Reta.get()),
+        #                                  x2=int(self.entryX2Reta.get()),
+        #                                  y2=int(self.entryY2Reta.get())))
+        
         self.setTreeViewLoc()
         
     def frameCircunferencia(self):
-        self.labelForma.config(text="CIRCUNFERENCIA")
-        self.labelForma.place(relx=0.150,rely=0.01)
+        self.labelAlgoritmoUsado.place(relx=0.01,rely=0.01)
         
+        self.labelForma.config(text="CIRCUNFERENCIA")
+        self.labelForma.place(relx=0.150,rely=0.05)
         
         self.labelX1Circ.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
         self.entryX1Circ.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
@@ -373,6 +394,12 @@ class Main():
         self.entryRaioCirc.place(relx=0.50,rely=0.225,relheight=0.05,relwidth=0.2)
         
         self.buttonDesenharCirc.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
+        
+        # self.unbindEvents(self.formaFrame)
+        
+        # self.formaFrame.bind("<Enter>", lambda _: self.glFrame.dadosFornecidos(x1=int(self.entryX1Circ.get()),
+        #                                  y1=int(self.entryY1Circ.get()),
+        #                                  raio=int(self.entryRaioCirc.get())))
         
         self.setTreeViewLoc()
     
@@ -386,5 +413,15 @@ class Main():
         self.coordOpenGL.place(relx=0.34,rely=0.425,relheight=0.08,relwidth=0.33)
         
         self.coordTela.place(relx=0.67,rely=0.425,relheight=0.08,relwidth=0.33)
+        
+    def unbindEvents(self,widget):
+            for event in widget.bind():
+                widget.unbind(event)
+                
+    def focusTable(self, focused=Button, unfocus=Button):
+        focused.config(bg="#000000", fg="white")
+        
+        for button in unfocus:
+            button.config(bg="#999999", fg="black")
 
 Main()
