@@ -4,7 +4,6 @@ from OpenGL.GL import *
 from pyopengltk import OpenGLFrame
 from Reta import Reta
 from Circunferencia import Circunferencia
-
 def LIMPA_CT(array):
     for objeto in array:
         objeto.delete(0,END)
@@ -257,7 +256,7 @@ class Main():
         Graphic2D.add_command(label='Metodo Trigonometrico', command=lambda:[self.circunferencia.setAlgoritmo(self.circunferencia.metodo_trigonometrico)])
         
         transformacoes = Menu(self.menu)
-        self.menu.add_cascade(label='Transformações', menu=transformacoes)
+        self.menu.add_cascade(label='Transformações 2D', menu=transformacoes)
         transformacoes.add_command(label='Translação', command=lambda:[self.reta.setAlgoritmo(self.reta.DDA)])
         transformacoes.add_command(label='Escala', command=lambda:[self.reta.setAlgoritmo(self.reta.DDA)])
         transformacoes.add_command(label='Rotação', command=lambda:[self.reta.setAlgoritmo(self.reta.DDA)])
@@ -402,6 +401,12 @@ class Main():
         #                                  raio=int(self.entryRaioCirc.get())))
         
         self.setTreeViewLoc()
+        
+    def frameTransform2D(self):
+        pass
+
+    def frameTransform3D(self):
+        pass
     
     def setTreeViewLoc(self):
         self.coordinateFrame.place(relx=0.0,rely=0.5,relheight=0.5,relwidth=1)
