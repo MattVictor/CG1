@@ -77,7 +77,6 @@ class Reta():
         return lighted_pixels
     
     def pontoMedioStatic(clicked_points_line):
-        print("USANDO PONTO MÉDIO")
         lighted_pixels = []
         
         x1,x2 = clicked_points_line[0], clicked_points_line[2]

@@ -1,4 +1,6 @@
 from Point import Point
+from Reta import Reta
+import numpy as np
 
 class Quadrado():
     def __init__(self, x1 = 100, y1 = 100, x2 = 200, y2 = 200):
@@ -11,17 +13,26 @@ class Quadrado():
     def drawPoints(self):
         lighted_pixels = []
         
+        drawedPoints = []
+        
+        drawedPoints.append(Reta.pontoMedioStatic([self.A.X,self.A.Y,self.B.X,self.B.Y]))
+        drawedPoints.append(Reta.pontoMedioStatic([self.B.X,self.B.Y,self.C.X,self.C.Y]))
+        drawedPoints.append(Reta.pontoMedioStatic([self.C.X,self.C.Y,self.D.X,self.D.Y]))
+        drawedPoints.append(Reta.pontoMedioStatic([self.D.X,self.D.Y,self.A.X,self.A.Y]))
+        
         #Desenhando Lado Esquerdo e Direito
-        for i in range(self.A.Y, self.C.Y):
-            lighted_pixels.append((self.A.X,i))
-            lighted_pixels.append((self.B.X,i))
+        # for i in range(self.A.Y, self.C.Y):
+        #     lighted_pixels.append((self.A.X,i))
+        #     lighted_pixels.append((self.B.X,i))
             
-        #Desenhando Lado Superior e Inferior
-        for i in range(self.A.X,self.C.X):
-            lighted_pixels.append((i,self.A.Y))
-            lighted_pixels.append((i,self.C.Y))
+        # #Desenhando Lado Superior e Inferior
+        # for i in range(self.A.X,self.C.X):
+        #     lighted_pixels.append((i,self.A.Y))
+        #     lighted_pixels.append((i,self.C.Y))
     
-        self.pontos = lighted_pixels
+        for i in drawedPoints:
+            for j in i:
+                lighted_pixels.append(j)
 
         return lighted_pixels
     

@@ -264,16 +264,16 @@ class Main():
         transformacoes2D = Menu(self.menu)
         self.menu.add_cascade(label='Transformações 2D', menu=transformacoes2D)
         transformacoes2D.add_command(label='Translação', command=lambda:[limpa_frame(self.formaFrame), 
-                                                                        self.frameTransform2D()])
+                                                                        self.frameTranslation2D()])
         transformacoes2D.add_command(label='Escala', command=lambda:[limpa_frame(self.formaFrame), 
-                                                                        self.frameTransform2D()])
+                                                                        self.frameScale2D()])
         transformacoes2D.add_command(label='Rotação', command=lambda:[limpa_frame(self.formaFrame), 
-                                                                        self.frameTransform2D()])
+                                                                        self.frameRotation2D()])
         transformacoes2D.add_separator()
         transformacoes2D.add_command(label='Reflexão', command=lambda:[limpa_frame(self.formaFrame), 
-                                                                        self.frameTransform2D()])
+                                                                        self.frameReflex2D()])
         transformacoes2D.add_command(label='Cisalhamento', command=lambda:[limpa_frame(self.formaFrame), 
-                                                                        self.frameTransform2D()])
+                                                                        self.frameSchear2D()])
         
         transformacoes3D = Menu(self.menu)
         self.menu.add_cascade(label='Transformações 3D', menu=transformacoes3D)
@@ -344,6 +344,30 @@ class Main():
         self.labelY1Trans = Label(self.formaFrame,text="Y", bg="grey", font=("Segoe UI Black", 17))
         self.entryY1Trans = Entry(self.formaFrame,textvariable=valorYTrans, font=("Segoe UI Black", 17))
         
+        #Página da Escala
+        valorXEscala = IntVar()
+        valorYEscala = IntVar()
+        
+        self.labelXEscala = Label(self.formaFrame,text="X", bg="grey", font=("Segoe UI Black", 17))
+        self.EntryXescala = Entry(self.formaFrame,textvariable=valorXEscala, font=("Segoe UI Black", 17))
+        
+        self.labelYEscala = Label(self.formaFrame,text="Y", bg="grey", font=("Segoe UI Black", 17))
+        self.entryYEscala = Entry(self.formaFrame,textvariable=valorYEscala, font=("Segoe UI Black", 17))
+        
+        #Página da Rotação
+        valorXRotacao= IntVar()
+        valorYRotacao = IntVar()
+        valorRotacao = IntVar()
+        
+        self.labelXRotacao = Label(self.formaFrame,text="X", bg="grey", font=("Segoe UI Black", 17))
+        self.EntryXRotacao = Entry(self.formaFrame,textvariable=valorXRotacao, font=("Segoe UI Black", 17))
+        
+        self.labelYRotacao = Label(self.formaFrame,text="Y", bg="grey", font=("Segoe UI Black", 17))
+        self.entryYRotacao = Entry(self.formaFrame,textvariable=valorYRotacao, font=("Segoe UI Black", 17))
+        
+        self.labelRotacao = Label(self.formaFrame,text="º", bg="grey", font=("Segoe UI Black", 17))
+        self.entryRotacao = Entry(self.formaFrame,textvariable=valorRotacao, font=("Segoe UI Black", 17))
+        
         #Botão de Desenhar o quadrado
         self.buttonDesenharQuadrado = Button(self.formaFrame, text="Desenhar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
@@ -353,6 +377,20 @@ class Main():
         self.buttonTranslation = Button(self.formaFrame, text="Transladar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.quadrado.setPoints(Transform2D.transposition(self.quadrado.getPoints(), [int(self.entryX1Trans.get()),int(self.entryY1Trans.get())])),
+            self.glFrame.clearScreen(),
+            self.glFrame.dadosFornecidos(figura=self.quadrado)
+        ])
+        
+        self.buttonScale = Button(self.formaFrame, text="Escalar", font=("Segoe UI Black", 17),
+                                         bg='#000000',fg="white", command=lambda:[
+            self.quadrado.setPoints(Transform2D.scale(self.quadrado.getPoints(), [int(self.EntryXescala.get()),int(self.entryYEscala.get())])),
+            self.glFrame.clearScreen(),
+            self.glFrame.dadosFornecidos(figura=self.quadrado)
+        ])
+        
+        self.buttonRotation = Button(self.formaFrame, text="Rotacionar", font=("Segoe UI Black", 17),
+                                         bg='#000000',fg="white", command=lambda:[
+            self.quadrado.setPoints(Transform2D.rotation(self.quadrado.getPoints(), int(self.entryRotacao.get()))),
             self.glFrame.clearScreen(),
             self.glFrame.dadosFornecidos(figura=self.quadrado)
         ])
@@ -431,7 +469,54 @@ class Main():
         
         self.setTreeViewLoc()
         
-    def frameTransform2D(self):
+    def frameTranslation2D(self):
+        self.buttonDesenharQuadrado.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
+        
+        self.buttonTranslation.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
+        
+        self.labelX1Trans.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.entryX1Trans.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
+        
+        self.labelY1Trans.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.entryY1Trans.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
+        
+    def frameScale2D(self):
+        self.buttonDesenharQuadrado.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
+        
+        self.buttonScale.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
+        
+        self.labelXEscala.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.EntryXescala.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
+        
+        self.labelYEscala.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.entryYEscala.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
+
+    def frameRotation2D(self):
+        self.buttonDesenharQuadrado.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
+        
+        self.buttonRotation.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
+        
+        self.labelXRotacao.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.EntryXRotacao.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
+        
+        self.labelYRotacao.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.entryYRotacao.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
+        
+        self.labelRotacao.place(relx=0.5,rely=0.200,relheight=0.1,relwidth=0.1)
+        self.entryRotacao.place(relx=0.65,rely=0.200,relheight=0.05,relwidth=0.2)
+
+    def frameReflex2D(self):
+        self.buttonDesenharQuadrado.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
+        
+        self.buttonTranslation.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
+        
+        self.labelX1Trans.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.entryX1Trans.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
+        
+        self.labelY1Trans.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.entryY1Trans.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
+        
+    def frameSchear2D(self):
         self.buttonDesenharQuadrado.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
         
         self.buttonTranslation.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
