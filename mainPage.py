@@ -4,6 +4,8 @@ from OpenGL.GL import *
 from pyopengltk import OpenGLFrame
 from Reta import Reta
 from Circunferencia import Circunferencia
+from PoligonoRegular import Quadrado
+
 def LIMPA_CT(array):
     for objeto in array:
         objeto.delete(0,END)
@@ -67,9 +69,11 @@ class GLUTFrame(OpenGLFrame):
 
         self.tkSwapBuffers()
         
-    def dadosFornecidos(self,x1,y1,x2=False,y2=False,raio=False):
+    def dadosFornecidos(self,x1=0,y1=0,x2=False,y2=False,raio=False,figura=False):
         if raio:
             clicked_points = self.forma.drawFunction(self.clicked_points_line,[x1,y1], raio)
+        if figura:
+            clicked_points = figura.drawPoints()
         else:
             clicked_points = self.forma.drawFunction([x1,y1,x2,y2])
         
@@ -257,12 +261,17 @@ class Main():
         
         transformacoes2D = Menu(self.menu)
         self.menu.add_cascade(label='Transformações 2D', menu=transformacoes2D)
-        transformacoes2D.add_command(label='Translação', command=lambda:[self.reta.setAlgoritmo(self.reta.DDA)])
-        transformacoes2D.add_command(label='Escala', command=lambda:[self.reta.setAlgoritmo(self.reta.DDA)])
-        transformacoes2D.add_command(label='Rotação', command=lambda:[self.reta.setAlgoritmo(self.reta.DDA)])
+        transformacoes2D.add_command(label='Translação', command=lambda:[limpa_frame(self.formaFrame), 
+                                                                        self.frameTransform2D()])
+        transformacoes2D.add_command(label='Escala', command=lambda:[limpa_frame(self.formaFrame), 
+                                                                        self.frameTransform2D()])
+        transformacoes2D.add_command(label='Rotação', command=lambda:[limpa_frame(self.formaFrame), 
+                                                                        self.frameTransform2D()])
         transformacoes2D.add_separator()
-        transformacoes2D.add_command(label='Reflexão', command=lambda:[self.reta.setAlgoritmo(self.reta.DDA)])
-        transformacoes2D.add_command(label='Cisalhamento', command=lambda:[self.reta.setAlgoritmo(self.reta.DDA)])
+        transformacoes2D.add_command(label='Reflexão', command=lambda:[limpa_frame(self.formaFrame), 
+                                                                        self.frameTransform2D()])
+        transformacoes2D.add_command(label='Cisalhamento', command=lambda:[limpa_frame(self.formaFrame), 
+                                                                        self.frameTransform2D()])
         
         transformacoes3D = Menu(self.menu)
         self.menu.add_cascade(label='Transformações 3D', menu=transformacoes3D)
@@ -323,6 +332,12 @@ class Main():
             LIMPA_CT([self.entryX1Circ,self.entryY1Circ,self.entryRaioCirc])
         ])
         
+        #Botão de Desenhar o quadrado
+        self.buttonDesenharQuadrado = Button(self.formaFrame, text="Desenhar", font=("Segoe UI Black", 17),
+                                         bg='#000000',fg="white", command=lambda:[
+            self.glFrame.dadosFornecidos(figura=Quadrado())
+        ])
+        
         #Treeview das coordenadas (Utilizado por todos os widgets acima)
         self.coordinateFrame = Frame(self.formaFrame, bg="red")
         
@@ -376,14 +391,6 @@ class Main():
         
         self.buttonDesenharReta.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
         
-        # self.unbindEvents(self.formaFrame)
-            
-        # self.formaFrame.bind("<Enter>", func=lambda _: self.glFrame.dadosFornecidos(
-        #     x1=int(self.entryX1Reta.get()),
-        #     y1=int(self.entryY1Reta.get()),
-        #                                  x2=int(self.entryX2Reta.get()),
-        #                                  y2=int(self.entryY2Reta.get())))
-        
         self.setTreeViewLoc()
         
     def frameCircunferencia(self):
@@ -403,16 +410,10 @@ class Main():
         
         self.buttonDesenharCirc.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
         
-        # self.unbindEvents(self.formaFrame)
-        
-        # self.formaFrame.bind("<Enter>", lambda _: self.glFrame.dadosFornecidos(x1=int(self.entryX1Circ.get()),
-        #                                  y1=int(self.entryY1Circ.get()),
-        #                                  raio=int(self.entryRaioCirc.get())))
-        
         self.setTreeViewLoc()
         
     def frameTransform2D(self):
-        pass
+        self.buttonDesenharQuadrado.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
 
     def frameTransform3D(self):
         pass
@@ -429,8 +430,8 @@ class Main():
         self.coordTela.place(relx=0.67,rely=0.425,relheight=0.08,relwidth=0.33)
         
     def unbindEvents(self,widget):
-            for event in widget.bind():
-                widget.unbind(event)
+        for event in widget.bind():
+            widget.unbind(event)
                 
     def focusTable(self, focused=Button, unfocus=Button):
         focused.config(bg="#000000", fg="white")
