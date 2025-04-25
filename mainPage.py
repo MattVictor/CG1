@@ -5,6 +5,7 @@ from pyopengltk import OpenGLFrame
 from Reta import Reta
 from Circunferencia import Circunferencia
 from PoligonoRegular import Quadrado
+from Transform2D import Transform2D
 
 def LIMPA_CT(array):
     for objeto in array:
@@ -199,6 +200,7 @@ class Main():
     def __init__(self):
         self.reta = Reta()
         self.circunferencia = Circunferencia()
+        self.quadrado = Quadrado()
 
         # Tamanho inicial do GL
         self.window_width = 800
@@ -332,10 +334,27 @@ class Main():
             LIMPA_CT([self.entryX1Circ,self.entryY1Circ,self.entryRaioCirc])
         ])
         
+        #Página da Tranlação
+        valorXTrans = IntVar()
+        valorYTrans = IntVar()
+        
+        self.labelX1Trans = Label(self.formaFrame,text="X", bg="grey", font=("Segoe UI Black", 17))
+        self.entryX1Trans = Entry(self.formaFrame,textvariable=valorXTrans, font=("Segoe UI Black", 17))
+        
+        self.labelY1Trans = Label(self.formaFrame,text="Y", bg="grey", font=("Segoe UI Black", 17))
+        self.entryY1Trans = Entry(self.formaFrame,textvariable=valorYTrans, font=("Segoe UI Black", 17))
+        
         #Botão de Desenhar o quadrado
         self.buttonDesenharQuadrado = Button(self.formaFrame, text="Desenhar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
-            self.glFrame.dadosFornecidos(figura=Quadrado())
+            self.glFrame.dadosFornecidos(figura=self.quadrado)
+        ])
+        
+        self.buttonTranslation = Button(self.formaFrame, text="Transladar", font=("Segoe UI Black", 17),
+                                         bg='#000000',fg="white", command=lambda:[
+            self.quadrado.setPoints(Transform2D.transposition(self.quadrado.getPoints(), [int(self.entryX1Trans.get()),int(self.entryY1Trans.get())])),
+            self.glFrame.clearScreen(),
+            self.glFrame.dadosFornecidos(figura=self.quadrado)
         ])
         
         #Treeview das coordenadas (Utilizado por todos os widgets acima)
@@ -414,6 +433,14 @@ class Main():
         
     def frameTransform2D(self):
         self.buttonDesenharQuadrado.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
+        
+        self.buttonTranslation.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
+        
+        self.labelX1Trans.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.entryX1Trans.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
+        
+        self.labelY1Trans.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.entryY1Trans.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
 
     def frameTransform3D(self):
         pass

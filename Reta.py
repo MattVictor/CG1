@@ -75,3 +75,42 @@ class Reta():
         lighted_pixels.append((x2, y2))
 
         return lighted_pixels
+    
+    def pontoMedioStatic(clicked_points_line):
+        print("USANDO PONTO MÉDIO")
+        lighted_pixels = []
+        
+        x1,x2 = clicked_points_line[0], clicked_points_line[2]
+        y1,y2 = clicked_points_line[1], clicked_points_line[3]
+        
+        dx = abs(x2 - x1)
+        dy = abs(y2 - y1)
+        
+        sx = 1 if x1 < x2 else -1
+        sy = 1 if y1 < y2 else -1
+
+        a = dy
+        b = -dx
+        
+        if dx > dy:
+            d = 2*a + b
+            while x1 != x2:
+                lighted_pixels.append((x1, y1))
+                if d >= 0:
+                    y1 += sy
+                    d -= 2 * dx
+                x1 += sx
+                d += 2 * dy
+        else:
+            d = a + 2*b
+            while y1 != y2:
+                lighted_pixels.append((x1, y1))
+                if d >= 0:
+                    x1 += sx
+                    d -= 2 * dy
+                y1 += sy
+                d += 2 * dx
+        
+        lighted_pixels.append((x2, y2))
+
+        return lighted_pixels
