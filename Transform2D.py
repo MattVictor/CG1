@@ -1,14 +1,28 @@
 import numpy as np
 
 class Transform2D():
-    def transposition(points, movedPoints):
-        newPosition = []
-        
-        #transformando em coordenadas homogêneas
+    def homogenCoordinates(points):
         homogenCoords = []
         
         for x,y in points:
             homogenCoords.append([x,y,1])
+            
+    def multiplyMatrix(matrix1,matrix2):
+        newPosition = []
+        
+        for point in matrix2:
+            newPoint = [(matrix1[0][0] * point[0] + matrix1 [0][1] * point[1] + matrix1[0][2] * point[2]),
+                        (matrix1[1][0] * point[0] + matrix1 [1][1] * point[1] + matrix1[1][2] * point[2]),
+                        (matrix1[2][0] * point[0] + matrix1 [2][1] * point[1] + matrix1[2][2] * point[2])]
+                
+            newPosition.append((newPoint[0],newPoint[1]))
+                
+                
+    def transposition(points, movedPoints):
+        newPosition = []
+        
+        #transformando em coordenadas homogêneas
+        homogenCoords = Transform2D.homogenCoordinates(points)
             
         #matriz para transposição
         transpositionMatrix = [
@@ -17,12 +31,7 @@ class Transform2D():
             [0, 0, 1]
         ]
         
-        for point in homogenCoords:
-            newPoint = [(transpositionMatrix[0][0] * point[0] + transpositionMatrix [0][1] * point[1] + transpositionMatrix[0][2] * point[2]),
-                        (transpositionMatrix[1][0] * point[0] + transpositionMatrix [1][1] * point[1] + transpositionMatrix[1][2] * point[2]),
-                        (transpositionMatrix[2][0] * point[0] + transpositionMatrix [2][1] * point[1] + transpositionMatrix[2][2] * point[2])]
-            
-            newPosition.append((newPoint[0],newPoint[1]))
+        newPosition = Transform2D.multiplyMatrix(transpositionMatrix, homogenCoords)
         
         return newPosition
 
@@ -30,24 +39,16 @@ class Transform2D():
         newPosition = []
         
         #transformando em coordenadas homogêneas
-        homogenCoords = []
-        
-        for x,y in points:
-            homogenCoords.append([x,y,1])
+        homogenCoords = Transform2D.homogenCoordinates(points)
             
-        #matriz para transposição
-        transpositionMatrix = [
+        #matriz para escala
+        scaleMatrix = [
             [movedPoints[0], 0, 0],
             [0, movedPoints[1], 0],
             [0, 0, 1]
         ]
         
-        for point in homogenCoords:
-            newPoint = [(transpositionMatrix[0][0] * point[0] + transpositionMatrix [0][1] * point[1] + transpositionMatrix[0][2] * point[2]),
-                        (transpositionMatrix[1][0] * point[0] + transpositionMatrix [1][1] * point[1] + transpositionMatrix[1][2] * point[2]),
-                        (transpositionMatrix[2][0] * point[0] + transpositionMatrix [2][1] * point[1] + transpositionMatrix[2][2] * point[2])]
-            
-            newPosition.append((newPoint[0],newPoint[1]))
+        newPosition = Transform2D.multiplyMatrix(scaleMatrix, homogenCoords)
         
         return newPosition
     
@@ -55,24 +56,16 @@ class Transform2D():
         newPosition = []
         
         #transformando em coordenadas homogêneas
-        homogenCoords = []
-        
-        for x,y in points:
-            homogenCoords.append([x,y,1])
+        homogenCoords = Transform2D.homogenCoordinates(points)
             
         theta = np.radians(angle)
         #matriz para transposição
-        transpositionMatrix = [
+        rotationMatrix = [
             [np.cos(theta), -np.sin(theta), 0],
             [np.sin(theta), np.cos(theta), 0],
             [0, 0, 1]
         ]
         
-        for point in homogenCoords:
-            newPoint = [(transpositionMatrix[0][0] * point[0] + transpositionMatrix [0][1] * point[1] + transpositionMatrix[0][2] * point[2]),
-                        (transpositionMatrix[1][0] * point[0] + transpositionMatrix [1][1] * point[1] + transpositionMatrix[1][2] * point[2]),
-                        (transpositionMatrix[2][0] * point[0] + transpositionMatrix [2][1] * point[1] + transpositionMatrix[2][2] * point[2])]
-            
-            newPosition.append((int(newPoint[0]),int(newPoint[1])))
+        newPosition = Transform2D.homogenCoordinates(rotationMatrix,homogenCoords)
         
         return newPosition
