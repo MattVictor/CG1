@@ -47,7 +47,7 @@ class GLUTFrame(OpenGLFrame):
         window_width = width
         window_height = height
 
-        glViewport(0, 0, width, height)
+        glViewport(-400, -400, 400, 400)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
         glOrtho(-1, 1, -1, 1, -1, 1)  # Mantém coordenadas normalizadas
