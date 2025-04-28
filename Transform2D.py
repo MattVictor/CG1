@@ -17,7 +17,7 @@ class Transform2D():
                         (matrix1[1][0] * point[0] + matrix1 [1][1] * point[1] + matrix1[1][2] * point[2]),
                         (matrix1[2][0] * point[0] + matrix1 [2][1] * point[1] + matrix1[2][2] * point[2])]
                 
-            newPosition.append((int(newPoint[0]),int(newPoint[1])))
+            newPosition.append((round(newPoint[0]), round(newPoint[1])))
             
         return newPosition
                 
