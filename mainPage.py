@@ -44,7 +44,7 @@ class GLUTFrame(OpenGLFrame):
         #glViewport(0, 0, 800, 800)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-400, 400, -400, 400, -1, 1)  # Mantém coordenadas normalizadas
+        glOrtho(-1, 1, -1, 1, -1, 1)  # Mantém coordenadas normalizadas
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         
@@ -60,14 +60,14 @@ class GLUTFrame(OpenGLFrame):
         glLineWidth(1)
         glColor3f(1.0, 0.0, 0.0)  # vermelho
         glBegin(GL_LINES)
-        glVertex2f(-400, 0)
-        glVertex2f(400, 0)
+        glVertex2f(-1, 0)
+        glVertex2f(1, 0)
         glEnd()
 
         glColor3f(0.0, 1.0, 0.0)  # verde
         glBegin(GL_LINES)
-        glVertex2f(0, -400)
-        glVertex2f(0, 400)
+        glVertex2f(0, -1)
+        glVertex2f(0, 1)
         glEnd()
 
         # Desenha os pontos clicados
