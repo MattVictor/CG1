@@ -23,10 +23,10 @@ class Transform2D():
                 
                 
     def transposition(points, movedPoints):
-        newPosition = []
+        newPosition = points
         
         #transformando em coordenadas homogêneas
-        homogenCoords = Transform2D.homogenCoordinates(points)
+        homogenCoords = Transform2D.homogenCoordinates(newPosition)
             
         #matriz para transposição
         transpositionMatrix = [
@@ -40,10 +40,14 @@ class Transform2D():
         return newPosition
 
     def scale(points, movedPoints):
-        newPosition = []
+        newPosition = points
+        
+        transpositionPoints = newPosition[0]
+        
+        newPosition = Transform2D.transposition(newPosition, [transpositionPoints[0]*-1,transpositionPoints[1]*-1])
         
         #transformando em coordenadas homogêneas
-        homogenCoords = Transform2D.homogenCoordinates(points)
+        homogenCoords = Transform2D.homogenCoordinates(newPosition)
             
         #matriz para escala
         scaleMatrix = [
@@ -54,13 +58,23 @@ class Transform2D():
         
         newPosition = Transform2D.multiplyMatrix(scaleMatrix, homogenCoords)
         
+        newPosition = Transform2D.transposition(newPosition, transpositionPoints)
+        
         return newPosition
     
-    def rotation(points, angle):
-        newPosition = []
+    def rotation(points,angle,x,y):
+        newPosition = points
+        
+        reposition = False
+        
+        if (x != 0) or (y != 0):
+            reposition = True
+            transpositionPoints = newPosition[0]
+        
+            newPosition = Transform2D.transposition(newPosition, [transpositionPoints[0]*-1,transpositionPoints[1]*-1])
         
         #transformando em coordenadas homogêneas
-        homogenCoords = Transform2D.homogenCoordinates(points)
+        homogenCoords = Transform2D.homogenCoordinates(newPosition)
             
         theta = np.radians(angle)
         
@@ -72,5 +86,92 @@ class Transform2D():
         ]
         
         newPosition = Transform2D.multiplyMatrix(rotationMatrix, homogenCoords)
+        
+        if reposition:
+            newPosition = Transform2D.transposition(newPosition, transpositionPoints)
+        
+        return newPosition
+    
+    def reflectionX(points):
+        newPosition = points
+        
+        #transformando em coordenadas homogêneas
+        homogenCoords = Transform2D.homogenCoordinates(points)
+        
+        #matriz para Reflexão em X
+        reflectioMatrix = [
+            [1, 0, 0],
+            [0, -1, 0],
+            [0, 0, 1]
+        ]
+        
+        newPosition = Transform2D.multiplyMatrix(reflectioMatrix, homogenCoords)
+        
+        return newPosition
+    
+    def reflectionY(points):
+        newPosition = points
+        
+        #transformando em coordenadas homogêneas
+        homogenCoords = Transform2D.homogenCoordinates(points)
+        
+        #matriz para Reflexão em Y
+        reflectioMatrix = [
+            [-1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+        ]
+        
+        newPosition = Transform2D.multiplyMatrix(reflectioMatrix, homogenCoords)
+        
+        return newPosition
+    
+    def schear(points, x, y):
+        newPosition = points
+        
+        transpositionPoints = newPosition[0]
+        
+        newPosition = Transform2D.transposition(newPosition, [transpositionPoints[0]*-1,transpositionPoints[1]*-1])
+        
+        if x != 0:
+            newPosition = Transform2D.schearX(newPosition,x)
+        if y != 0:
+            newPosition = Transform2D.schearY(newPosition,y)
+            
+        newPosition = Transform2D.transposition(newPosition, transpositionPoints)
+            
+        return newPosition
+    
+    def schearX(points, value):
+        newPosition = points
+        
+        #transformando em coordenadas homogêneas
+        homogenCoords = Transform2D.homogenCoordinates(points)
+        
+        #matriz para Cisalhamento em X
+        schearMatrix = [
+            [1, value, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+        ]
+        
+        newPosition = Transform2D.multiplyMatrix(schearMatrix, homogenCoords)
+        
+        return newPosition
+    
+    def schearY(points, value):
+        newPosition = points
+        
+        #transformando em coordenadas homogêneas
+        homogenCoords = Transform2D.homogenCoordinates(points)
+        
+        #matriz para Cisalhamento em Y
+        schearMatrix = [
+            [1, 0, 0],
+            [value, 1, 0],
+            [0, 0, 1]
+        ]
+        
+        newPosition = Transform2D.multiplyMatrix(schearMatrix, homogenCoords)
         
         return newPosition

@@ -137,8 +137,6 @@ class GLUTFrame(OpenGLFrame):
     def normalizeAndAddPoints(self,x,y):
         normalized_x = x
         normalized_y = y
-
-        print(x, y)
         
         # Armazena o ponto clicado
         self.coordenadas_OpenGL.append((f"{(normalized_x/400):.3f}",f"{(normalized_y/400):.3f}"))
@@ -380,6 +378,16 @@ class Main():
         self.labelRotacao = Label(self.formaFrame,text="º", bg="grey", font=("Segoe UI Black", 17))
         self.entryRotacao = Entry(self.formaFrame,textvariable=valorRotacao, font=("Segoe UI Black", 17))
         
+        #Página da Cisalhamento
+        valorXCisalhamento = DoubleVar()
+        valorYCisalhamento = DoubleVar()
+        
+        self.labelXCisalhamento = Label(self.formaFrame,text="X", bg="grey", font=("Segoe UI Black", 17))
+        self.EntryXCisalhamento = Entry(self.formaFrame,textvariable=valorXCisalhamento, font=("Segoe UI Black", 17))
+        
+        self.labelYCisalhamento = Label(self.formaFrame,text="Y", bg="grey", font=("Segoe UI Black", 17))
+        self.entryYCisalhamento = Entry(self.formaFrame,textvariable=valorYCisalhamento, font=("Segoe UI Black", 17))
+        
         #Botão de Desenhar o quadrado
         self.buttonDesenharQuadrado = Button(self.formaFrame, text="Desenhar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
@@ -402,7 +410,31 @@ class Main():
         
         self.buttonRotation = Button(self.formaFrame, text="Rotacionar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
-            self.quadrado.setPoints(Transform2D.rotation(self.quadrado.getPoints(), int(self.entryRotacao.get()))),
+            self.quadrado.setPoints(Transform2D.rotation(self.quadrado.getPoints(), 
+                                                         int(self.entryRotacao.get()),
+                                                         int(self.EntryXRotacao.get()),
+                                                         int(self.entryYRotacao.get()))),
+            self.glFrame.clearScreen(),
+            self.glFrame.dadosFornecidos(figura=self.quadrado)
+        ])
+        
+        self.buttonReflexX = Button(self.formaFrame, text="Reflexão em X", font=("Segoe UI Black", 17),
+                                         bg='#000000',fg="white", command=lambda:[
+            self.quadrado.setPoints(Transform2D.reflectionX(self.quadrado.getPoints())),
+            self.glFrame.clearScreen(),
+            self.glFrame.dadosFornecidos(figura=self.quadrado)
+        ])
+                
+        self.buttonReflexY = Button(self.formaFrame, text="Reflexão em Y", font=("Segoe UI Black", 17),
+                                         bg='#000000',fg="white", command=lambda:[
+            self.quadrado.setPoints(Transform2D.reflectionY(self.quadrado.getPoints())),
+            self.glFrame.clearScreen(),
+            self.glFrame.dadosFornecidos(figura=self.quadrado)
+        ])
+        
+        self.buttonSchear = Button(self.formaFrame, text="Cisalhamento", font=("Segoe UI Black", 17),
+                                         bg='#000000',fg="white", command=lambda:[
+            self.quadrado.setPoints(Transform2D.schear(self.quadrado.getPoints(),x=float(self.EntryXCisalhamento.get()),y=float(self.entryYCisalhamento.get()))),
             self.glFrame.clearScreen(),
             self.glFrame.dadosFornecidos(figura=self.quadrado)
         ])
@@ -518,26 +550,21 @@ class Main():
         self.entryRotacao.place(relx=0.65,rely=0.200,relheight=0.05,relwidth=0.2)
 
     def frameReflex2D(self):
-        self.buttonDesenharQuadrado.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
+        self.buttonDesenharQuadrado.place(relx=0.260,rely=0.125,relheight=0.08,relwidth=0.5)
         
-        self.buttonTranslation.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
-        
-        self.labelX1Trans.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
-        self.entryX1Trans.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
-        
-        self.labelY1Trans.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
-        self.entryY1Trans.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
+        self.buttonReflexX.place(relx=0.260,rely=0.3,relheight=0.08,relwidth=0.7)
+        self.buttonReflexY.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.7)
         
     def frameSchear2D(self):
         self.buttonDesenharQuadrado.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
         
-        self.buttonTranslation.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
+        self.buttonSchear.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
         
-        self.labelX1Trans.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
-        self.entryX1Trans.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
+        self.labelXCisalhamento.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.EntryXCisalhamento.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
         
-        self.labelY1Trans.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
-        self.entryY1Trans.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
+        self.labelYCisalhamento.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.entryYCisalhamento.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
 
     def frameTransform3D(self):
         pass
