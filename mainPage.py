@@ -40,24 +40,35 @@ class GLUTFrame(OpenGLFrame):
     def initgl(self):
         glClearColor(0.0, 0.0, 0.0, 1.0)  # Fundo preto
         glPointSize(1)  # Tamanho dos pontos
-    
-    def reshape(width, height):
-        """ Ajusta a projeção ao redimensionar a janela """
-        global window_width, window_height
-        window_width = width
-        window_height = height
-
-        glViewport(-400, -400, 400, 400)
+        
+        #glViewport(0, 0, 800, 800)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-1, 1, -1, 1, -1, 1)  # Mantém coordenadas normalizadas
+        glOrtho(-400, 400, -400, 400, -1, 1)  # Mantém coordenadas normalizadas
         glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+        
+        self.redraw()
         
     def redraw(self):
         """ Função para desenhar os pontos na tela """
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         GL_PIXEL = GL_POINTS
         glLoadIdentity()
+
+        # --- Eixos ---
+        glLineWidth(1)
+        glColor3f(1.0, 0.0, 0.0)  # vermelho
+        glBegin(GL_LINES)
+        glVertex2f(-400, 0)
+        glVertex2f(400, 0)
+        glEnd()
+
+        glColor3f(0.0, 1.0, 0.0)  # verde
+        glBegin(GL_LINES)
+        glVertex2f(0, -400)
+        glVertex2f(0, 400)
+        glEnd()
 
         # Desenha os pontos clicados
         glColor3f(*self.point_color)
@@ -102,8 +113,8 @@ class GLUTFrame(OpenGLFrame):
         elif event.num == 3:
             # Desenha uma linha nos pontos escolhidos
             
-            self.clicked_points_line.append(x)
-            self.clicked_points_line.append(y)
+            self.clicked_points_line.append((x / self.width) * 800 - 400)
+            self.clicked_points_line.append((1 - (y / self.height)) * 800 - 400)
             
             if(len(self.clicked_points_line) == 4):
                 self.algoritmoDoisPontos()
@@ -122,14 +133,15 @@ class GLUTFrame(OpenGLFrame):
         for x1, y1 in clicked_points:
             self.mostrar_coordenadas([self.width,self.height],state=0,coords=[x1,y1])
             self.normalizeAndAddPoints(x1,y1)
-        
             
     def normalizeAndAddPoints(self,x,y):
-        normalized_x = (x / self.width) * 2 - 1
-        normalized_y = -((y / self.height) * 2 - 1)
+        normalized_x = x
+        normalized_y = y
 
+        print(x, y)
+        
         # Armazena o ponto clicado
-        self.coordenadas_OpenGL.append((f"{normalized_x:.3f}",f"{normalized_y:.3f}"))
+        self.coordenadas_OpenGL.append((f"{(normalized_x/400):.3f}",f"{(normalized_y/400):.3f}"))
         self.clicked_points.append((normalized_x, normalized_y))
         
     def converter_coordenadas_mouse(self,windowSize, coords):
@@ -174,8 +186,8 @@ class GLUTFrame(OpenGLFrame):
         normalized_x, normalized_y = self.converter_coordenadas_mouse([window[0],window[1]],coords)
         coord_tela = self.converter_coordenadas_tela([1920,1080],[normalized_x,normalized_y])
 
-        self.coordenadas_Mundo.append(self.converter_coordenadas_tela([1920,1080],[normalized_x,normalized_y]))
-        self.coordenadas_Tela.append((round(coords[0]),round(coords[1])))
+        self.coordenadas_Mundo.append((coords[0],coords[1]))
+        self.coordenadas_Tela.append((round(coords[0]+400),round((coords[1]-400)*-1)))
     
     def setForma(self,novaForma):
         self.forma = novaForma
