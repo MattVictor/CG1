@@ -13,11 +13,16 @@ class Transform3D():
         newPosition = []
         
         for point in matrix2:
-            newPoint = [(matrix1[0][0] * point[0] + matrix1[0][1] * point[1] + matrix1[0][2] * point[2] + matrix1[0][3] * point[3]),
-                        (matrix1[1][0] * point[0] + matrix1[1][1] * point[1] + matrix1[1][2] * point[2] + matrix1[1][3] * point[3]),
-                        (matrix1[2][0] * point[0] + matrix1[2][1] * point[1] + matrix1[2][2] * point[2] + matrix1[2][3] * point[3]),
-                        (matrix1[3][0] * point[0] + matrix1[3][1] * point[1] + matrix1[3][2] * point[2] + matrix1[3][3] * point[3])]
+            newPoint = []
+            for i in range(len(matrix1)):
+                value = 0
+                for j in range(len(point)):
+                    value += matrix1[i][j] * point[j]
                 
+                newPoint.append(value)
+            
+            print(newPoint)
+            
             newPosition.append((round(newPoint[0]), round(newPoint[1]), round(newPoint[2])))
             
         return newPosition
