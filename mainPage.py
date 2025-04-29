@@ -43,7 +43,6 @@ class GLUTFrame2D(OpenGLFrame):
         glClearColor(0.0, 0.0, 0.0, 1.0)  # Fundo preto
         glPointSize(1)  # Tamanho dos pontos
         
-        #glViewport(0, 0, 800, 800)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
         glOrtho(-400, 400, -400, 400, -1, 1)  # Mantém coordenadas normalizadas
@@ -303,68 +302,12 @@ class GLUTFrame3D(OpenGLFrame):
             (0, 4), (1, 5), (2, 6), (3, 7)
         ]
 
-        glColor3f(1.0, 1.0, 0.0)  # Cubo amarelo
+        glColor3f(*self.point_color)  # Cubo amarelo
         glBegin(GL_LINES)
         for edge in edges:
             for vertex in edge:
                 glVertex3fv(self.vertices[vertex])
         glEnd()
-            
-    def normalizeAndAddPoints(self,x,y):
-        normalized_x = x
-        normalized_y = y
-        
-        # Armazena o ponto clicado
-        self.coordenadas_OpenGL.append((f"{(normalized_x/400):.3f}",f"{(normalized_y/400):.3f}"))
-        self.clicked_points.append((normalized_x, normalized_y))
-        
-    def converter_coordenadas_mouse(self,windowSize, coords):
-
-        mouse_x = int(coords[0])
-        mouse_y = int(coords[1])
-        
-        mouseMin_x = 0
-        mouseMax_x = windowSize[0]
-        
-        mouseMin_y = windowSize[1]
-        mouseMax_y = 0
-
-        glMin = -1
-        glMax = 1
-
-        point_x = ((mouse_x - mouseMin_x) * (glMax - glMin) / (mouseMax_x - mouseMin_x)) + glMin
-        point_y = ((mouse_y - mouseMin_y) * (glMax - glMin) / (mouseMax_y - mouseMin_y)) + glMin
-
-        return [point_x, point_y]
-
-    def converter_coordenadas_tela(self,screenSize, coords):
-
-        screen_x = coords[0]
-        screen_y = coords[1]
-        
-        screenMin_x = 0
-        screenMax_x = screenSize[0]
-        
-        screenMin_y = screenSize[1]
-        screenMax_y = 0
-
-        glMin = -1
-        glMax = 1
-        
-        point_x = (screen_x + 1) / 2 * screenMax_x
-        point_y = (-screen_y + 1) / 2 * screenMin_y
-
-        return [f"{point_x:.3f}", f"{point_y:.3f}"]
-
-    def mostrar_coordenadas(self,window,state,coords):
-        normalized_x, normalized_y = self.converter_coordenadas_mouse([window[0],window[1]],coords)
-        coord_tela = self.converter_coordenadas_tela([1920,1080],[normalized_x,normalized_y])
-
-        self.coordenadas_Mundo.append((coords[0],coords[1]))
-        self.coordenadas_Tela.append((round(coords[0]+400),round((coords[1]-400)*-1)))
-    
-    def setForma(self,novaForma):
-        self.forma = novaForma
     
     def zoom(self,event):
         # respond to Linux or Windows wheel event
@@ -464,8 +407,6 @@ class Main():
         self.glFrame3D = GLUTFrame3D(self.root,width=self.window_width,height=self.window_height,forma=self.reta)
         self.glFrame.place(x=350,y=10)
 
-        self.labelAlgoritmoUsado = Label(self.formaFrame, text="DDA", bg="grey", font=("Segoe UI Black", 13))
-
         self.labelForma = Label(self.formaFrame, text="RETA", bg="grey", font=("Segoe UI Black", 17))
 
         #Criando Menus
@@ -478,7 +419,7 @@ class Main():
         filemenu.add_command(label='3D', command= lambda: [self.glFrame.place_forget(), self.glFrame3D.place(x=350,y=10)])
         filemenu.add_separator()
         filemenu.add_command(label='Limpar GL', command= lambda: [self.glFrame.clearScreen()])
-        filemenu.add_command(label='Inverter Cores', command=lambda: [self.glFrame.invertColors()])
+        filemenu.add_command(label='Inverter Cores', command=lambda: [self.glFrame.invertColors(), self.glFrame3D.invertColors()])
         filemenu.add_separator()
         filemenu.add_command(label='Exit', command=self.root.quit)
         formas = Menu(self.menu)
@@ -503,30 +444,30 @@ class Main():
         transformacoes2D = Menu(self.menu)
         self.menu.add_cascade(label='Transformações 2D', menu=transformacoes2D)
         transformacoes2D.add_command(label='Translação', command=lambda:[limpa_frame(self.formaFrame), 
-                                                                        self.frameTranslation2D()])
+                                                                        self.Transformation2DFrame(0, "TRANSLAÇÃO")])
         transformacoes2D.add_command(label='Escala', command=lambda:[limpa_frame(self.formaFrame), 
-                                                                        self.frameScale2D()])
+                                                                        self.Transformation2DFrame(1, "ESCALA")])
         transformacoes2D.add_command(label='Rotação', command=lambda:[limpa_frame(self.formaFrame), 
-                                                                        self.frameRotation2D()])
+                                                                        self.Transformation2DFrame(2,"ROTAÇÃO")])
         transformacoes2D.add_separator()
         transformacoes2D.add_command(label='Reflexão', command=lambda:[limpa_frame(self.formaFrame), 
-                                                                        self.frameReflex2D()])
+                                                                        self.Transformation2DFrame(3, "REFLEXÃO")])
         transformacoes2D.add_command(label='Cisalhamento', command=lambda:[limpa_frame(self.formaFrame), 
-                                                                        self.frameSchear2D()])
+                                                                        self.Transformation2DFrame(4, "CISALHAMENTO")])
         
         transformacoes3D = Menu(self.menu)
         self.menu.add_cascade(label='Transformações 3D', menu=transformacoes3D)
         transformacoes3D.add_command(label='Translação', command=lambda:[limpa_frame(self.formaFrame),
-                                                                         self.frameTransposition3D()])
+                                                                         self.Transformation3DFrame(0, "TRANSLAÇÃO")])
         transformacoes3D.add_command(label='Escala', command=lambda:[limpa_frame(self.formaFrame),
-                                                                         self.frameScale3D()])
+                                                                         self.Transformation3DFrame(1, "ESCALA")])
         transformacoes3D.add_command(label='Rotação', command=lambda:[limpa_frame(self.formaFrame),
-                                                                         self.frameRotation3D()])
+                                                                         self.Transformation3DFrame(2, "ROTAÇÃO")])
         transformacoes3D.add_separator()
         transformacoes3D.add_command(label='Reflexão', command=lambda:[limpa_frame(self.formaFrame),
-                                                                         self.frameReflex3D()])
+                                                                         self.Transformation3DFrame(3, "REFLEXÃO")])
         transformacoes3D.add_command(label='Cisalhamento', command=lambda:[limpa_frame(self.formaFrame),
-                                                                         self.frameSchear3D()])
+                                                                         self.Transformation3DFrame(4, "CISALHAMENTO")])
         
         #Widgets da Reta
         valorX1Reta = IntVar()
@@ -578,9 +519,10 @@ class Main():
             LIMPA_CT([self.entryX1Circ,self.entryY1Circ,self.entryRaioCirc])
         ])
         
-        #Página da Tranlação
+        #Página das Transformações 2D
         valorXTrans = IntVar()
         valorYTrans = IntVar()
+        valorRotacao = IntVar()
         
         self.labelX1Trans = Label(self.formaFrame,text="X", bg="grey", font=("Segoe UI Black", 17))
         self.entryX1Trans = Entry(self.formaFrame,textvariable=valorXTrans, font=("Segoe UI Black", 17))
@@ -588,41 +530,10 @@ class Main():
         self.labelY1Trans = Label(self.formaFrame,text="Y", bg="grey", font=("Segoe UI Black", 17))
         self.entryY1Trans = Entry(self.formaFrame,textvariable=valorYTrans, font=("Segoe UI Black", 17))
         
-        #Página da Escala
-        valorXEscala = IntVar()
-        valorYEscala = IntVar()
-        
-        self.labelXEscala = Label(self.formaFrame,text="X", bg="grey", font=("Segoe UI Black", 17))
-        self.EntryXescala = Entry(self.formaFrame,textvariable=valorXEscala, font=("Segoe UI Black", 17))
-        
-        self.labelYEscala = Label(self.formaFrame,text="Y", bg="grey", font=("Segoe UI Black", 17))
-        self.entryYEscala = Entry(self.formaFrame,textvariable=valorYEscala, font=("Segoe UI Black", 17))
-        
-        #Página da Rotação
-        valorXRotacao= IntVar()
-        valorYRotacao = IntVar()
-        valorRotacao = IntVar()
-        
-        self.labelXRotacao = Label(self.formaFrame,text="X", bg="grey", font=("Segoe UI Black", 17))
-        self.EntryXRotacao = Entry(self.formaFrame,textvariable=valorXRotacao, font=("Segoe UI Black", 17))
-        
-        self.labelYRotacao = Label(self.formaFrame,text="Y", bg="grey", font=("Segoe UI Black", 17))
-        self.entryYRotacao = Entry(self.formaFrame,textvariable=valorYRotacao, font=("Segoe UI Black", 17))
-        
-        self.labelRotacao = Label(self.formaFrame,text="º", bg="grey", font=("Segoe UI Black", 17))
+        self.labelRotacao = Label(self.formaFrame,text="Angulo", bg="grey", font=("Segoe UI Black", 17))
         self.entryRotacao = Entry(self.formaFrame,textvariable=valorRotacao, font=("Segoe UI Black", 17))
         
-        #Página da Cisalhamento
-        valorXCisalhamento = DoubleVar()
-        valorYCisalhamento = DoubleVar()
-        
-        self.labelXCisalhamento = Label(self.formaFrame,text="X", bg="grey", font=("Segoe UI Black", 17))
-        self.EntryXCisalhamento = Entry(self.formaFrame,textvariable=valorXCisalhamento, font=("Segoe UI Black", 17))
-        
-        self.labelYCisalhamento = Label(self.formaFrame,text="Y", bg="grey", font=("Segoe UI Black", 17))
-        self.entryYCisalhamento = Entry(self.formaFrame,textvariable=valorYCisalhamento, font=("Segoe UI Black", 17))
-        
-        #Página da Tranlação 3D
+        #Página das Transformações 3D
         valorXTrans3D = IntVar()
         valorYTrans3D = IntVar()
         valorZTrans3D = IntVar()
@@ -635,48 +546,6 @@ class Main():
         
         self.labelZ1Trans3D = Label(self.formaFrame,text="Z", bg="grey", font=("Segoe UI Black", 17))
         self.entryZ1Trans3D = Entry(self.formaFrame,textvariable=valorZTrans3D, font=("Segoe UI Black", 17))
-        
-        #Página da Escala 3D
-        valorXScale3D = IntVar()
-        valorYScale3D = IntVar()
-        valorZScale3D = IntVar()
-        
-        self.labelX1Scale3D = Label(self.formaFrame,text="X", bg="grey", font=("Segoe UI Black", 17))
-        self.entryX1Scale3D = Entry(self.formaFrame,textvariable=valorXScale3D, font=("Segoe UI Black", 17))
-        
-        self.labelY1Scale3D = Label(self.formaFrame,text="Y", bg="grey", font=("Segoe UI Black", 17))
-        self.entryY1Scale3D = Entry(self.formaFrame,textvariable=valorYScale3D, font=("Segoe UI Black", 17))
-        
-        self.labelZ1Scale3D = Label(self.formaFrame,text="Z", bg="grey", font=("Segoe UI Black", 17))
-        self.entryZ1Scale3D = Entry(self.formaFrame,textvariable=valorZScale3D, font=("Segoe UI Black", 17))
-        
-        #Página da Rotação 3D
-        valorXRotation3D = IntVar()
-        valorYRotation3D = IntVar()
-        valorZRotation3D = IntVar()
-        
-        self.labelX1Rotation3D = Label(self.formaFrame,text="X", bg="grey", font=("Segoe UI Black", 17))
-        self.entryX1Rotation3D = Entry(self.formaFrame,textvariable=valorXRotation3D, font=("Segoe UI Black", 17))
-        
-        self.labelY1Rotation3D = Label(self.formaFrame,text="Y", bg="grey", font=("Segoe UI Black", 17))
-        self.entryY1Rotation3D = Entry(self.formaFrame,textvariable=valorYRotation3D, font=("Segoe UI Black", 17))
-        
-        self.labelZ1Rotation3D = Label(self.formaFrame,text="Z", bg="grey", font=("Segoe UI Black", 17))
-        self.entryZ1Rotation3D = Entry(self.formaFrame,textvariable=valorZRotation3D, font=("Segoe UI Black", 17))
-        
-        #Página do Cisalhamento 3D
-        valorXSchear3D = IntVar()
-        valorYSchear3D = IntVar()
-        valorZSchear3D = IntVar()
-        
-        self.labelX1Schear3D = Label(self.formaFrame,text="X", bg="grey", font=("Segoe UI Black", 17))
-        self.entryX1Schear3D = Entry(self.formaFrame,textvariable=valorXSchear3D, font=("Segoe UI Black", 17))
-        
-        self.labelY1Schear3D = Label(self.formaFrame,text="Y", bg="grey", font=("Segoe UI Black", 17))
-        self.entryY1Schear3D = Entry(self.formaFrame,textvariable=valorYSchear3D, font=("Segoe UI Black", 17))
-        
-        self.labelZ1Schear3D = Label(self.formaFrame,text="Z", bg="grey", font=("Segoe UI Black", 17))
-        self.entryZ1Schear3D = Entry(self.formaFrame,textvariable=valorZSchear3D, font=("Segoe UI Black", 17))
         
         #Botão de Desenhar o quadrado
         self.buttonDesenharQuadrado = Button(self.formaFrame, text="Desenhar", font=("Segoe UI Black", 17),
@@ -694,7 +563,7 @@ class Main():
         
         self.buttonScale = Button(self.formaFrame, text="Escalar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
-            self.quadrado.setPoints(Transform2D.scale(self.quadrado.getPoints(), [int(self.EntryXescala.get()),int(self.entryYEscala.get())])),
+            self.quadrado.setPoints(Transform2D.scale(self.quadrado.getPoints(), [int(self.entryX1Trans.get()),int(self.entryY1Trans.get())])),
             self.glFrame.clearScreen(),
             self.glFrame.dadosFornecidos(figura=self.quadrado)
         ])
@@ -703,8 +572,8 @@ class Main():
                                          bg='#000000',fg="white", command=lambda:[
             self.quadrado.setPoints(Transform2D.rotation(self.quadrado.getPoints(), 
                                                          int(self.entryRotacao.get()),
-                                                         int(self.EntryXRotacao.get()),
-                                                         int(self.entryYRotacao.get()))),
+                                                         int(self.entryY1Trans.get()),
+                                                         int(self.entryY1Trans.get()))),
             self.glFrame.clearScreen(),
             self.glFrame.dadosFornecidos(figura=self.quadrado)
         ])
@@ -725,7 +594,7 @@ class Main():
         
         self.buttonSchear = Button(self.formaFrame, text="Cisalhamento", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
-            self.quadrado.setPoints(Transform2D.schear(self.quadrado.getPoints(),x=float(self.EntryXCisalhamento.get()),y=float(self.entryYCisalhamento.get()))),
+            self.quadrado.setPoints(Transform2D.schear(self.quadrado.getPoints(),x=float(self.entryX1Trans.get()),y=float(self.entryY1Trans.get()))),
             self.glFrame.clearScreen(),
             self.glFrame.dadosFornecidos(figura=self.quadrado)
         ])
@@ -744,9 +613,9 @@ class Main():
         self.buttonScale3D = Button(self.formaFrame, text="Escalar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.glFrame3D.setVertices(Transform3D.scale(self.glFrame3D.vertices, 
-                                                              [int(self.entryX1Scale3D.get()),
-                                                               int(self.entryY1Scale3D.get()),
-                                                               int(self.entryZ1Scale3D.get())])),
+                                                              [int(self.entryX1Trans3D.get()),
+                                                               int(self.entryY1Trans3D.get()),
+                                                               int(self.entryZ1Trans3D.get())])),
             self.glFrame.clearScreen(),
             self.glFrame3D.redraw()
         ])
@@ -754,26 +623,26 @@ class Main():
         self.buttonRotation3D = Button(self.formaFrame, text="Rotacionar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.glFrame3D.setVertices(Transform3D.rotation(self.glFrame3D.vertices, 
-            int(self.entryX1Rotation3D.get()),int(self.entryY1Rotation3D.get()),int(self.entryZ1Rotation3D.get()))),
+            int(self.entryX1Trans3D.get()),int(self.entryY1Trans3D.get()),int(self.entryZ1Trans3D.get()))),
             self.glFrame.clearScreen(),
             self.glFrame3D.redraw()
         ])
         
-        self.buttonReflexXY = Button(self.formaFrame, text="Refletir em XY", font=("Segoe UI Black", 17),
+        self.buttonReflexXY = Button(self.formaFrame, text="XY", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.glFrame3D.setVertices(Transform3D.reflectionXY(self.glFrame3D.vertices)),
             self.glFrame.clearScreen(),
             self.glFrame3D.redraw()
         ])
         
-        self.buttonReflexXZ = Button(self.formaFrame, text="Refletir em XZ", font=("Segoe UI Black", 17),
+        self.buttonReflexXZ = Button(self.formaFrame, text="XZ", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.glFrame3D.setVertices(Transform3D.reflectionXZ(self.glFrame3D.vertices)),
             self.glFrame.clearScreen(),
             self.glFrame3D.redraw()
         ])
         
-        self.buttonReflexYZ = Button(self.formaFrame, text="Refletir em YZ", font=("Segoe UI Black", 17),
+        self.buttonReflexYZ = Button(self.formaFrame, text="YZ", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.glFrame3D.setVertices(Transform3D.reflectionYZ(self.glFrame3D.vertices)),
             self.glFrame.clearScreen(),
@@ -783,7 +652,7 @@ class Main():
         self.buttonSchear3D = Button(self.formaFrame, text="Cisalhar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.glFrame3D.setVertices(Transform3D.schear(self.glFrame3D.vertices, 
-            float(self.entryX1Schear3D.get()),float(self.entryY1Schear3D.get()),float(self.entryZ1Schear3D.get()))),
+            float(self.entryX1Trans3D.get()),float(self.entryY1Trans3D.get()),float(self.entryZ1Trans3D.get()))),
             self.glFrame.clearScreen(),
             self.glFrame3D.redraw()
         ])
@@ -824,10 +693,8 @@ class Main():
         self.root.bind("b", lambda _: self.glFrame3D.resetCamera())
         
     def frameReta(self):
-        self.labelAlgoritmoUsado.place(relx=0.01,rely=0.01)
-        
         self.labelForma.config(text="RETA")
-        self.labelForma.place(relx=0.40,rely=0.05)
+        self.labelForma.place(relx=0.05,rely=0.02)
         
         self.labelX1Reta.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
         self.entryX1Reta.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
@@ -846,10 +713,8 @@ class Main():
         self.setTreeViewLoc()
         
     def frameCircunferencia(self):
-        self.labelAlgoritmoUsado.place(relx=0.01,rely=0.01)
-        
         self.labelForma.config(text="CIRCUNFERENCIA")
-        self.labelForma.place(relx=0.150,rely=0.05)
+        self.labelForma.place(relx=0.05,rely=0.02)
         
         self.labelX1Circ.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
         self.entryX1Circ.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
@@ -864,113 +729,60 @@ class Main():
         
         self.setTreeViewLoc()
         
-    def frameTranslation2D(self):
-        self.buttonDesenharQuadrado.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
+    def Transformation2DFrame(self, typeT, txt):
+        self.labelForma.config(text=txt)
+        self.labelForma.place(relx=0.05,rely=0.02)
         
-        self.buttonTranslation.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
+        self.buttonDesenharQuadrado.place(relx=0.260,rely=0.25,relheight=0.08,relwidth=0.5)
         
-        self.labelX1Trans.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
-        self.entryX1Trans.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
+        self.labelX1Trans.place(relx=0.1,rely=0.075,relheight=0.1,relwidth=0.1)
+        self.entryX1Trans.place(relx=0.25,rely=0.1,relheight=0.05,relwidth=0.2)
         
-        self.labelY1Trans.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
-        self.entryY1Trans.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
+        self.labelY1Trans.place(relx=0.5,rely=0.075,relheight=0.1,relwidth=0.1)
+        self.entryY1Trans.place(relx=0.65,rely=0.1,relheight=0.05,relwidth=0.2)
         
-    def frameScale2D(self):
-        self.buttonDesenharQuadrado.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
+        self.labelRotacao.place(relx=0.2,rely=0.150,relheight=0.1,relwidth=0.3)
+        self.entryRotacao.place(relx=0.525,rely=0.175,relheight=0.05,relwidth=0.2)
+        self.entryRotacao.config(state="disabled")
         
-        self.buttonScale.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
+        if typeT == 0:
+            self.buttonTranslation.place(relx=0.260,rely=0.35,relheight=0.08,relwidth=0.5)
+        elif typeT == 1:
+            self.buttonScale.place(relx=0.260,rely=0.35,relheight=0.08,relwidth=0.5)
+        elif typeT == 2:
+            self.buttonRotation.place(relx=0.260,rely=0.35,relheight=0.08,relwidth=0.5)
+            self.entryRotacao.config(state='normal')
+        elif typeT == 3:
+            self.buttonReflexX.place(relx=0.15,rely=0.35,relheight=0.08,relwidth=0.7)
+            self.buttonReflexY.place(relx=0.15,rely=0.45,relheight=0.08,relwidth=0.7)
+        elif typeT == 4:
+            self.buttonSchear.place(relx=0.260,rely=0.35,relheight=0.08,relwidth=0.5)
         
-        self.labelXEscala.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
-        self.EntryXescala.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
+    def Transformation3DFrame(self, typeT, txt):
+        self.labelForma.config(text=txt)
+        self.labelForma.place(relx=0.05,rely=0.02)
         
-        self.labelYEscala.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
-        self.entryYEscala.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
-
-    def frameRotation2D(self):
-        self.buttonDesenharQuadrado.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
+        self.labelX1Trans3D.place(relx=0.05,rely=0.075,relheight=0.1,relwidth=0.1)
+        self.entryX1Trans3D.place(relx=0.15,rely=0.1,relheight=0.05,relwidth=0.2)
         
-        self.buttonRotation.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
+        self.labelY1Trans3D.place(relx=0.35,rely=0.075,relheight=0.1,relwidth=0.1)
+        self.entryY1Trans3D.place(relx=0.45,rely=0.1,relheight=0.05,relwidth=0.2)
         
-        self.labelXRotacao.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
-        self.EntryXRotacao.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
+        self.labelZ1Trans3D.place(relx=0.65,rely=0.075,relheight=0.1,relwidth=0.1)
+        self.entryZ1Trans3D.place(relx=0.75,rely=0.1,relheight=0.05,relwidth=0.2)
         
-        self.labelYRotacao.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
-        self.entryYRotacao.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
-        
-        self.labelRotacao.place(relx=0.5,rely=0.200,relheight=0.1,relwidth=0.1)
-        self.entryRotacao.place(relx=0.65,rely=0.200,relheight=0.05,relwidth=0.2)
-
-    def frameReflex2D(self):
-        self.buttonDesenharQuadrado.place(relx=0.260,rely=0.125,relheight=0.08,relwidth=0.5)
-        
-        self.buttonReflexX.place(relx=0.260,rely=0.3,relheight=0.08,relwidth=0.7)
-        self.buttonReflexY.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.7)
-        
-    def frameSchear2D(self):
-        self.buttonDesenharQuadrado.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
-        
-        self.buttonSchear.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
-        
-        self.labelXCisalhamento.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
-        self.EntryXCisalhamento.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
-        
-        self.labelYCisalhamento.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
-        self.entryYCisalhamento.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
-
-    def frameTransposition3D(self):
-        self.buttonTranslation3D.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
-        
-        self.labelX1Trans3D.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
-        self.entryX1Trans3D.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
-        
-        self.labelY1Trans3D.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
-        self.entryY1Trans3D.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
-        
-        self.labelZ1Trans3D.place(relx=0.5,rely=0.2,relheight=0.1,relwidth=0.1)
-        self.entryZ1Trans3D.place(relx=0.65,rely=0.225,relheight=0.05,relwidth=0.2)
-    
-    def frameScale3D(self):
-        self.buttonScale3D.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
-        
-        self.labelX1Scale3D.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
-        self.entryX1Scale3D.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
-        
-        self.labelY1Scale3D.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
-        self.entryY1Scale3D.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
-        
-        self.labelZ1Scale3D.place(relx=0.5,rely=0.2,relheight=0.1,relwidth=0.1)
-        self.entryZ1Scale3D.place(relx=0.65,rely=0.225,relheight=0.05,relwidth=0.2)
-    
-    def frameRotation3D(self):
-        self.buttonRotation3D.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
-        
-        self.labelX1Rotation3D.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
-        self.entryX1Rotation3D.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
-        
-        self.labelY1Rotation3D.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
-        self.entryY1Rotation3D.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
-        
-        self.labelZ1Rotation3D.place(relx=0.5,rely=0.2,relheight=0.1,relwidth=0.1)
-        self.entryZ1Rotation3D.place(relx=0.65,rely=0.225,relheight=0.05,relwidth=0.2)
-    
-    def frameReflex3D(self):
-        self.buttonReflexXY.place(relx=0.260,rely=0.3,relheight=0.08,relwidth=0.5)
-        
-        self.buttonReflexXZ.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
-        
-        self.buttonReflexYZ.place(relx=0.260,rely=0.7,relheight=0.08,relwidth=0.5)
-    
-    def frameSchear3D(self):
-        self.buttonSchear3D.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
-        
-        self.labelX1Schear3D.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
-        self.entryX1Schear3D.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
-        
-        self.labelY1Schear3D.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
-        self.entryY1Schear3D.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
-        
-        self.labelZ1Schear3D.place(relx=0.5,rely=0.2,relheight=0.1,relwidth=0.1)
-        self.entryZ1Schear3D.place(relx=0.65,rely=0.225,relheight=0.05,relwidth=0.2)
+        if typeT == 0:
+            self.buttonTranslation3D.place(relx=0.260,rely=0.2,relheight=0.08,relwidth=0.5)
+        elif typeT == 1:
+            self.buttonScale3D.place(relx=0.260,rely=0.2,relheight=0.08,relwidth=0.5)
+        elif typeT == 2:
+            self.buttonRotation3D.place(relx=0.260,rely=0.2,relheight=0.08,relwidth=0.5)
+        elif typeT == 3:
+            self.buttonReflexXY.place(relx=0.1,rely=0.2,relheight=0.08,relwidth=0.2)
+            self.buttonReflexXZ.place(relx=0.4,rely=0.2,relheight=0.08,relwidth=0.2)
+            self.buttonReflexYZ.place(relx=0.7,rely=0.2,relheight=0.08,relwidth=0.2)
+        elif typeT == 4:
+            self.buttonSchear3D.place(relx=0.260,rely=0.2,relheight=0.08,relwidth=0.5)
     
     def setTreeViewLoc(self):
         self.coordinateFrame.place(relx=0.0,rely=0.5,relheight=0.5,relwidth=1)
