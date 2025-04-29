@@ -1,39 +1,58 @@
 import numpy as np
 
 class Transform2D():
-    def homogenCoordinates(points):
+    def homogenCoordinates(points, text):
         homogenCoords = []
+        
+        text += "Primeiro Homogenizamos as coordenadas, adicionando 1 como uma coordenada adicional: \n\n"
         
         for x,y in points:
             homogenCoords.append([x,y,1])
             
-        return homogenCoords
+        text += f"Novos pontos homogenizados: {homogenCoords}\n"
             
-    def multiplyMatrix(matrix1,matrix2):
+        return [homogenCoords,text]
+            
+    def multiplyMatrix(matrix1,matrix2, text):
         newPosition = []
         
         for point in matrix2:
             newPoint = []
+            text += "["
             for i in range(len(matrix1)):
+                text += "("
                 value = 0
                 for j in range(len(point)):
                     value += matrix1[i][j] * point[j]
+                    text += f" {matrix1[i][j]} * {point[j]}"
+                    if(j != (len(point)-1)):
+                        text+= " + "
+                
+                text += ")"
+                
+                if(j != (len(matrix1)-1)):
+                        text+= ","
                 
                 newPoint.append(value)
             
-            print(newPoint)
+            text += "]\n"
             
+            text += f"= {newPoint}\n\n"
             newPosition.append((round(newPoint[0]), round(newPoint[1])))
             
-        return newPosition
+        return [newPosition,text]
                 
                 
-    def transposition(points, movedPoints):
+    def transposition(points, movedPoints, text):
         newPosition = points
         
+        text += "Transposição: \n\n"
+        
         #transformando em coordenadas homogêneas
-        homogenCoords = Transform2D.homogenCoordinates(newPosition)
-            
+        homogenCoords,text = Transform2D.homogenCoordinates(newPosition,text)
+        
+        text += "Utilizamos da matriz: \n[1, 0, x]\n[0, 1, y]\n[0, 0, 1]\n\n"
+        
         #matriz para transposição
         transpositionMatrix = [
             [1, 0, movedPoints[0]],
@@ -41,20 +60,30 @@ class Transform2D():
             [0, 0, 1]
         ]
         
-        newPosition = Transform2D.multiplyMatrix(transpositionMatrix, homogenCoords)
+        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
         
-        return newPosition
+        newPosition,text = Transform2D.multiplyMatrix(transpositionMatrix, homogenCoords,text)
+        
+        text += f"Por fim temos os novos pontos transladados: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
+        
+        return newPosition, text
 
-    def scale(points, movedPoints):
+    def scale(points, movedPoints,text):
         newPosition = points
+        
+        text += "Escala: \n\n"
         
         transpositionPoints = newPosition[0]
         
-        newPosition = Transform2D.transposition(newPosition, [transpositionPoints[0]*-1,transpositionPoints[1]*-1])
+        text += "Primeiro Precisamos transladar o ponto para a origem, para evitar erros na hora da operação: \n"
+        
+        newPosition,text = Transform2D.transposition(newPosition, [transpositionPoints[0]*-1,transpositionPoints[1]*-1],text)
         
         #transformando em coordenadas homogêneas
-        homogenCoords = Transform2D.homogenCoordinates(newPosition)
-            
+        homogenCoords,text = Transform2D.homogenCoordinates(newPosition,text)
+        
+        text += "Utilizamos da matriz: \n[x, 0, 0]\n[0, y, 0]\n[0, 0, 1]\n\n"
+        
         #matriz para escala
         scaleMatrix = [
             [movedPoints[0], 0, 0],
@@ -62,27 +91,36 @@ class Transform2D():
             [0, 0, 1]
         ]
         
-        newPosition = Transform2D.multiplyMatrix(scaleMatrix, homogenCoords)
+        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
         
-        newPosition = Transform2D.transposition(newPosition, transpositionPoints)
+        newPosition,text = Transform2D.multiplyMatrix(scaleMatrix, homogenCoords,text)
         
-        return newPosition
+        text += "Depois trazemos objeto de volta ao ponto anterior com outra Transladação\n"
+        
+        newPosition,text = Transform2D.transposition(newPosition, transpositionPoints,text)
+        
+        return newPosition,text
     
-    def rotation(points,angle,x,y):
+    def rotation(points,angle,x,y,text):
         newPosition = points
+        
+        text += "Rotação: \n\n"
         
         reposition = False
         
         if (x != 0) or (y != 0):
+            text += "Primeiro Precisamos transladar o ponto para a origem, para evitar erros na hora da operação: \n\n"
             reposition = True
             transpositionPoints = newPosition[0]
         
-            newPosition = Transform2D.transposition(newPosition, [transpositionPoints[0]*-1,transpositionPoints[1]*-1])
+            newPosition,text = Transform2D.transposition(newPosition, [transpositionPoints[0]*-1,transpositionPoints[1]*-1],text)
         
         #transformando em coordenadas homogêneas
-        homogenCoords = Transform2D.homogenCoordinates(newPosition)
+        homogenCoords,text = Transform2D.homogenCoordinates(newPosition,text)
             
         theta = np.radians(angle)
+        
+        text += f"Utilizamos da matriz: \n[cos({theta}), -sen({theta}), 0]\n[sen({theta}), cos({theta}), 0]\n[0, 0, 1]\n\n"
         
         #matriz para Rotação
         rotationMatrix = [
@@ -91,18 +129,27 @@ class Transform2D():
             [0, 0, 1]
         ]
         
-        newPosition = Transform2D.multiplyMatrix(rotationMatrix, homogenCoords)
+        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
+        
+        newPosition,text = Transform2D.multiplyMatrix(rotationMatrix, homogenCoords,text)
         
         if reposition:
-            newPosition = Transform2D.transposition(newPosition, transpositionPoints)
+            text += "Depois trazemos objeto de volta ao ponto anterior, com outra Transladação\n"
+            newPosition,text = Transform2D.transposition(newPosition, transpositionPoints,text)
+
+        text += f"Por fim temos os novos pontos Rotacionados: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
         
-        return newPosition
+        return newPosition,text
     
-    def reflectionX(points):
+    def reflectionX(points,text):
         newPosition = points
         
+        text += "Reflexão em X: \n\n"
+        
         #transformando em coordenadas homogêneas
-        homogenCoords = Transform2D.homogenCoordinates(points)
+        homogenCoords,text = Transform2D.homogenCoordinates(points,text)
+        
+        text += "Utilizamos da matriz: \n[1, 0, 0]\n[0, -1, 0]\n[0, 0, 1]\n\n"
         
         #matriz para Reflexão em X
         reflectioMatrix = [
@@ -111,15 +158,23 @@ class Transform2D():
             [0, 0, 1]
         ]
         
-        newPosition = Transform2D.multiplyMatrix(reflectioMatrix, homogenCoords)
+        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
         
-        return newPosition
+        newPosition,text = Transform2D.multiplyMatrix(reflectioMatrix, homogenCoords,text)
+        
+        text += f"Por fim temos os novos pontos Refletidos: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
+        
+        return newPosition,text
     
-    def reflectionY(points):
+    def reflectionY(points,text):
         newPosition = points
         
+        text += "Reflexão em Y: \n\n"
+        
         #transformando em coordenadas homogêneas
-        homogenCoords = Transform2D.homogenCoordinates(points)
+        homogenCoords,text = Transform2D.homogenCoordinates(points,text)
+        
+        text += "Utilizamos da matriz: \n[-1, 0, 0]\n[0, 1, 0]\n[0, 0, 1]\n\n"
         
         #matriz para Reflexão em Y
         reflectioMatrix = [
@@ -128,31 +183,47 @@ class Transform2D():
             [0, 0, 1]
         ]
         
-        newPosition = Transform2D.multiplyMatrix(reflectioMatrix, homogenCoords)
+        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
         
-        return newPosition
+        newPosition,text = Transform2D.multiplyMatrix(reflectioMatrix, homogenCoords,text)
+        
+        text += f"Por fim temos os novos pontos Refletidos: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
+        
+        return newPosition,text
     
-    def schear(points, x, y):
+    def schear(points, x, y,text):
         newPosition = points
+        
+        text += "Cisalhamento: \n\n"
         
         transpositionPoints = newPosition[0]
         
-        newPosition = Transform2D.transposition(newPosition, [transpositionPoints[0]*-1,transpositionPoints[1]*-1])
+        text += "Primeiro Precisamos transladar o ponto para a origem, para evitar erros na hora da operação: \n\n"
+        
+        newPosition, text = Transform2D.transposition(newPosition, [transpositionPoints[0]*-1,transpositionPoints[1]*-1],text)
         
         if x != 0:
-            newPosition = Transform2D.schearX(newPosition,x)
+            newPosition, text = Transform2D.schearX(newPosition,x,text)
         if y != 0:
-            newPosition = Transform2D.schearY(newPosition,y)
+            newPosition, text = Transform2D.schearY(newPosition,y,text)
             
-        newPosition = Transform2D.transposition(newPosition, transpositionPoints)
+        text += "Depois trazemos objeto de volta ao ponto anterior, com outra Transladação\n"
             
-        return newPosition
+        newPosition, text = Transform2D.transposition(newPosition, transpositionPoints,text)
+        
+        text += f"Por fim temos os novos pontos Cisalhados: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
+            
+        return newPosition, text
     
-    def schearX(points, value):
+    def schearX(points, value,text):
         newPosition = points
         
+        text += "Cisalhamento em X: \n\n"
+        
         #transformando em coordenadas homogêneas
-        homogenCoords = Transform2D.homogenCoordinates(points)
+        homogenCoords, text = Transform2D.homogenCoordinates(points,text)
+        
+        text += "Utilizamos da matriz: \n[1, x, 0]\n[0, 1, 0]\n[0, 0, 1]\n\n"
         
         #matriz para Cisalhamento em X
         schearMatrix = [
@@ -161,15 +232,21 @@ class Transform2D():
             [0, 0, 1]
         ]
         
-        newPosition = Transform2D.multiplyMatrix(schearMatrix, homogenCoords)
+        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
         
-        return newPosition
+        newPosition,text = Transform2D.multiplyMatrix(schearMatrix, homogenCoords,text)
+        
+        return newPosition,text
     
-    def schearY(points, value):
+    def schearY(points, value,text):
         newPosition = points
         
+        text += "Cisalhamento em Y: \n\n"
+        
         #transformando em coordenadas homogêneas
-        homogenCoords = Transform2D.homogenCoordinates(points)
+        homogenCoords,text = Transform2D.homogenCoordinates(points,text)
+        
+        text += "Utilizamos da matriz: \n[1, 0, 0]\n[y, 1, 0]\n[0, 0, 1]\n\n"
         
         #matriz para Cisalhamento em Y
         schearMatrix = [
@@ -178,6 +255,8 @@ class Transform2D():
             [0, 0, 1]
         ]
         
-        newPosition = Transform2D.multiplyMatrix(schearMatrix, homogenCoords)
+        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
         
-        return newPosition
+        newPosition,text = Transform2D.multiplyMatrix(schearMatrix, homogenCoords,text)
+        
+        return newPosition,text
