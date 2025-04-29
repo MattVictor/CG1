@@ -1,11 +1,13 @@
 from tkinter import *
 from tkinter import ttk
 from OpenGL.GL import *
+from OpenGL.GLU import *
 from pyopengltk import OpenGLFrame
 from Reta import Reta
 from Circunferencia import Circunferencia
 from PoligonoRegular import Quadrado
 from Transform2D import Transform2D
+from Transform3D import Transform3D
 
 def LIMPA_CT(array):
     for objeto in array:
@@ -21,7 +23,7 @@ def insertDataTreeview(tree=ttk.Treeview, data=[]):
     for x, y in data:
         tree.insert(parent='', index='end', text='', values=(x,y))
 
-class GLUTFrame(OpenGLFrame):
+class GLUTFrame2D(OpenGLFrame):
     def __init__(self, master, forma, **kwargs):
         super().__init__(master,**kwargs)
         
@@ -44,7 +46,7 @@ class GLUTFrame(OpenGLFrame):
         #glViewport(0, 0, 800, 800)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-1, 1, -1, 1, -1, 1)  # Mantém coordenadas normalizadas
+        glOrtho(-400, 400, -400, 400, -1, 1)  # Mantém coordenadas normalizadas
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         
@@ -60,14 +62,14 @@ class GLUTFrame(OpenGLFrame):
         glLineWidth(1)
         glColor3f(1.0, 0.0, 0.0)  # vermelho
         glBegin(GL_LINES)
-        glVertex2f(-1, 0)
-        glVertex2f(1, 0)
+        glVertex2f(-400, 0)
+        glVertex2f(400, 0)
         glEnd()
 
         glColor3f(0.0, 1.0, 0.0)  # verde
         glBegin(GL_LINES)
-        glVertex2f(0, -1)
-        glVertex2f(0, 1)
+        glVertex2f(0, -400)
+        glVertex2f(0, 400)
         glEnd()
 
         # Desenha os pontos clicados
@@ -206,6 +208,229 @@ class GLUTFrame(OpenGLFrame):
         self.clicked_points = []
         self.redraw()
 
+class GLUTFrame3D(OpenGLFrame):
+    def __init__(self, master, forma, **kwargs):
+        super().__init__(master,**kwargs)
+        
+        self.position = [500,500,500]
+        
+        self.bind("<MouseWheel>", self.zoom)
+        
+        master.bind("<Left>", self.rotateLeft)
+        master.bind("<Up>", self.rotateUp)
+        master.bind("<Down>", self.rotateDown)
+        master.bind("<Right>", self.rotateRight)
+        
+        self.vertices = [
+            [0, 0, 0],
+            [ 100, 0, 0],
+            [ 100,  100, 0],
+            [0,  100, 0],
+            [0, 0,  100],
+            [ 100, 0,  100],
+            [ 100,  100,  100],
+            [0,  100,  100],
+        ]
+        
+        self.coordenadas_Mundo = []
+        self.coordenadas_OpenGL = []
+        self.coordenadas_Tela = []
+        
+        self.clicked_points_line = []
+        self.clicked_points = []
+        self.point_color = (1.0,1.0,1.0)
+        self.modoEscuro = True
+        self.forma = forma
+    
+    def initgl(self):
+        glClearColor(0.0, 0.0, 0.0, 1.0)  # Fundo preto
+        glPointSize(1)
+        glEnable(GL_DEPTH_TEST)
+        # Tamanho dos pontos
+        
+        #glViewport(0, 0, 800, 800)
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        gluPerspective(45,1.0,0.1,1000.0)
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+        
+        self.redraw()
+        
+    def redraw(self):
+        """ Função para desenhar os pontos na tela """
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        glLoadIdentity()
+
+        gluLookAt(self.position[0], self.position[1], self.position[1], 0, 0, 0, 0, 1, 0)
+
+        # Rotacionar para melhor visualização
+        # glRotatef(self.angle, 1, 1, 0)
+
+        # Desenhar eixos primeiro
+        self.draw_axes()
+
+        # Depois desenhar o cubo
+        self.draw_cube()
+
+        self.tkSwapBuffers()
+        
+    def draw_axes(self):
+        glLineWidth(1.0)
+        glBegin(GL_LINES)
+
+        # Eixo X - vermelho
+        glColor3f(1.0, 0.0, 0.0)
+        glVertex3f(0, 0, 0)
+        glVertex3f(400, 0, 0)
+
+        # Eixo Y - verde
+        glColor3f(0.0, 1.0, 0.0)
+        glVertex3f(0, 0, 0)
+        glVertex3f(0, 400, 0)
+
+        # Eixo Z - azul
+        glColor3f(0.0, 0.0, 1.0)
+        glVertex3f(0, 0, 0)
+        glVertex3f(0, 0, 400)
+
+        glEnd()
+
+    def draw_cube(self):
+        edges = [
+            (0, 1), (1, 2), (2, 3), (3, 0),
+            (4, 5), (5, 6), (6, 7), (7, 4),
+            (0, 4), (1, 5), (2, 6), (3, 7)
+        ]
+
+        glColor3f(1.0, 1.0, 0.0)  # Cubo amarelo
+        glBegin(GL_LINES)
+        for edge in edges:
+            for vertex in edge:
+                glVertex3fv(self.vertices[vertex])
+        glEnd()
+            
+    def normalizeAndAddPoints(self,x,y):
+        normalized_x = x
+        normalized_y = y
+        
+        # Armazena o ponto clicado
+        self.coordenadas_OpenGL.append((f"{(normalized_x/400):.3f}",f"{(normalized_y/400):.3f}"))
+        self.clicked_points.append((normalized_x, normalized_y))
+        
+    def converter_coordenadas_mouse(self,windowSize, coords):
+
+        mouse_x = int(coords[0])
+        mouse_y = int(coords[1])
+        
+        mouseMin_x = 0
+        mouseMax_x = windowSize[0]
+        
+        mouseMin_y = windowSize[1]
+        mouseMax_y = 0
+
+        glMin = -1
+        glMax = 1
+
+        point_x = ((mouse_x - mouseMin_x) * (glMax - glMin) / (mouseMax_x - mouseMin_x)) + glMin
+        point_y = ((mouse_y - mouseMin_y) * (glMax - glMin) / (mouseMax_y - mouseMin_y)) + glMin
+
+        return [point_x, point_y]
+
+    def converter_coordenadas_tela(self,screenSize, coords):
+
+        screen_x = coords[0]
+        screen_y = coords[1]
+        
+        screenMin_x = 0
+        screenMax_x = screenSize[0]
+        
+        screenMin_y = screenSize[1]
+        screenMax_y = 0
+
+        glMin = -1
+        glMax = 1
+        
+        point_x = (screen_x + 1) / 2 * screenMax_x
+        point_y = (-screen_y + 1) / 2 * screenMin_y
+
+        return [f"{point_x:.3f}", f"{point_y:.3f}"]
+
+    def mostrar_coordenadas(self,window,state,coords):
+        normalized_x, normalized_y = self.converter_coordenadas_mouse([window[0],window[1]],coords)
+        coord_tela = self.converter_coordenadas_tela([1920,1080],[normalized_x,normalized_y])
+
+        self.coordenadas_Mundo.append((coords[0],coords[1]))
+        self.coordenadas_Tela.append((round(coords[0]+400),round((coords[1]-400)*-1)))
+    
+    def setForma(self,novaForma):
+        self.forma = novaForma
+    
+    def zoom(self,event):
+        # respond to Linux or Windows wheel event
+        if event.num == 5 or event.delta == -120:
+            for i in range(len(self.position)):
+                self.position[i] += 10
+        if event.num == 4 or event.delta == 120:
+            for i in range(len(self.position)):
+                self.position[i] -= 10
+        
+        self.redraw()
+        
+    def rotateUp(self,event):
+        self.position[1] += 10
+        
+        self.redraw()
+        
+    def rotateDown(self,event):
+        self.position[1] -= 10
+        
+        self.redraw()
+        
+    def rotateLeft(self,event):
+        self.position[0] += 10
+        
+        self.redraw()
+        
+    def rotateRight(self,event):
+        self.position[0] -= 10
+        
+        self.redraw()
+
+    def setVertices(self, vertex):
+        self.vertices = vertex
+
+    def invertColors(self):
+        if self.modoEscuro:
+            self.modoEscuro = False
+            self.point_color = (0,0,0)
+            glClearColor(1.0, 1.0, 1.0, 1.0)
+        else:
+            self.modoEscuro = True
+            self.point_color = (1,1,1)
+            glClearColor(0.0, 0.0, 0.0, 1.0)  
+        
+        self.redraw()
+     
+    def resetCamera(self):
+        self.position = [500,500,500]
+        
+        self.redraw()
+        
+    def clearScreen(self):
+        self.vertices = [
+            [0, 0, 0],
+            [ 100, 0, 0],
+            [ 100,  100, 0],
+            [0,  100, 0],
+            [0, 0,  100],
+            [ 100, 0,  100],
+            [ 100,  100,  100],
+            [0,  100,  100],
+        ]
+        
+        self.redraw()
+
 class Main():
     def __init__(self):
         self.reta = Reta()
@@ -235,7 +460,8 @@ class Main():
         self.root.mainloop()
         
     def generateWidgets(self):
-        self.glFrame = GLUTFrame(self.root,width=self.window_width,height=self.window_height,forma=self.reta)
+        self.glFrame = GLUTFrame2D(self.root,width=self.window_width,height=self.window_height,forma=self.reta)
+        self.glFrame3D = GLUTFrame3D(self.root,width=self.window_width,height=self.window_height,forma=self.reta)
         self.glFrame.place(x=350,y=10)
 
         self.labelAlgoritmoUsado = Label(self.formaFrame, text="DDA", bg="grey", font=("Segoe UI Black", 13))
@@ -248,6 +474,9 @@ class Main():
         
         filemenu = Menu(self.menu)
         self.menu.add_cascade(label='Menu', menu=filemenu)
+        filemenu.add_command(label='2D', command= lambda: [self.glFrame3D.place_forget(), self.glFrame.place(x=350,y=10)])
+        filemenu.add_command(label='3D', command= lambda: [self.glFrame.place_forget(), self.glFrame3D.place(x=350,y=10)])
+        filemenu.add_separator()
         filemenu.add_command(label='Limpar GL', command= lambda: [self.glFrame.clearScreen()])
         filemenu.add_command(label='Inverter Cores', command=lambda: [self.glFrame.invertColors()])
         filemenu.add_separator()
@@ -287,12 +516,17 @@ class Main():
         
         transformacoes3D = Menu(self.menu)
         self.menu.add_cascade(label='Transformações 3D', menu=transformacoes3D)
-        transformacoes3D.add_command(label='Translação', command=lambda:[self.reta.setAlgoritmo(self.reta.DDA)])
-        transformacoes3D.add_command(label='Escala', command=lambda:[self.reta.setAlgoritmo(self.reta.DDA)])
-        transformacoes3D.add_command(label='Rotação', command=lambda:[self.reta.setAlgoritmo(self.reta.DDA)])
+        transformacoes3D.add_command(label='Translação', command=lambda:[limpa_frame(self.formaFrame),
+                                                                         self.frameTransposition3D()])
+        transformacoes3D.add_command(label='Escala', command=lambda:[limpa_frame(self.formaFrame),
+                                                                         self.frameScale3D()])
+        transformacoes3D.add_command(label='Rotação', command=lambda:[limpa_frame(self.formaFrame),
+                                                                         self.frameRotation3D()])
         transformacoes3D.add_separator()
-        transformacoes3D.add_command(label='Reflexão', command=lambda:[self.reta.setAlgoritmo(self.reta.DDA)])
-        transformacoes3D.add_command(label='Cisalhamento', command=lambda:[self.reta.setAlgoritmo(self.reta.DDA)])
+        transformacoes3D.add_command(label='Reflexão', command=lambda:[limpa_frame(self.formaFrame),
+                                                                         self.frameReflex3D()])
+        transformacoes3D.add_command(label='Cisalhamento', command=lambda:[limpa_frame(self.formaFrame),
+                                                                         self.frameSchear3D()])
         
         #Widgets da Reta
         valorX1Reta = IntVar()
@@ -388,12 +622,69 @@ class Main():
         self.labelYCisalhamento = Label(self.formaFrame,text="Y", bg="grey", font=("Segoe UI Black", 17))
         self.entryYCisalhamento = Entry(self.formaFrame,textvariable=valorYCisalhamento, font=("Segoe UI Black", 17))
         
+        #Página da Tranlação 3D
+        valorXTrans3D = IntVar()
+        valorYTrans3D = IntVar()
+        valorZTrans3D = IntVar()
+        
+        self.labelX1Trans3D = Label(self.formaFrame,text="X", bg="grey", font=("Segoe UI Black", 17))
+        self.entryX1Trans3D = Entry(self.formaFrame,textvariable=valorXTrans3D, font=("Segoe UI Black", 17))
+        
+        self.labelY1Trans3D = Label(self.formaFrame,text="Y", bg="grey", font=("Segoe UI Black", 17))
+        self.entryY1Trans3D = Entry(self.formaFrame,textvariable=valorYTrans3D, font=("Segoe UI Black", 17))
+        
+        self.labelZ1Trans3D = Label(self.formaFrame,text="Z", bg="grey", font=("Segoe UI Black", 17))
+        self.entryZ1Trans3D = Entry(self.formaFrame,textvariable=valorZTrans3D, font=("Segoe UI Black", 17))
+        
+        #Página da Escala 3D
+        valorXScale3D = IntVar()
+        valorYScale3D = IntVar()
+        valorZScale3D = IntVar()
+        
+        self.labelX1Scale3D = Label(self.formaFrame,text="X", bg="grey", font=("Segoe UI Black", 17))
+        self.entryX1Scale3D = Entry(self.formaFrame,textvariable=valorXScale3D, font=("Segoe UI Black", 17))
+        
+        self.labelY1Scale3D = Label(self.formaFrame,text="Y", bg="grey", font=("Segoe UI Black", 17))
+        self.entryY1Scale3D = Entry(self.formaFrame,textvariable=valorYScale3D, font=("Segoe UI Black", 17))
+        
+        self.labelZ1Scale3D = Label(self.formaFrame,text="Z", bg="grey", font=("Segoe UI Black", 17))
+        self.entryZ1Scale3D = Entry(self.formaFrame,textvariable=valorZScale3D, font=("Segoe UI Black", 17))
+        
+        #Página da Rotação 3D
+        valorXRotation3D = IntVar()
+        valorYRotation3D = IntVar()
+        valorZRotation3D = IntVar()
+        
+        self.labelX1Rotation3D = Label(self.formaFrame,text="X", bg="grey", font=("Segoe UI Black", 17))
+        self.entryX1Rotation3D = Entry(self.formaFrame,textvariable=valorXRotation3D, font=("Segoe UI Black", 17))
+        
+        self.labelY1Rotation3D = Label(self.formaFrame,text="Y", bg="grey", font=("Segoe UI Black", 17))
+        self.entryY1Rotation3D = Entry(self.formaFrame,textvariable=valorYRotation3D, font=("Segoe UI Black", 17))
+        
+        self.labelZ1Rotation3D = Label(self.formaFrame,text="Z", bg="grey", font=("Segoe UI Black", 17))
+        self.entryZ1Rotation3D = Entry(self.formaFrame,textvariable=valorZRotation3D, font=("Segoe UI Black", 17))
+        
+        #Página do Cisalhamento 3D
+        valorXSchear3D = IntVar()
+        valorYSchear3D = IntVar()
+        valorZSchear3D = IntVar()
+        
+        self.labelX1Schear3D = Label(self.formaFrame,text="X", bg="grey", font=("Segoe UI Black", 17))
+        self.entryX1Schear3D = Entry(self.formaFrame,textvariable=valorXSchear3D, font=("Segoe UI Black", 17))
+        
+        self.labelY1Schear3D = Label(self.formaFrame,text="Y", bg="grey", font=("Segoe UI Black", 17))
+        self.entryY1Schear3D = Entry(self.formaFrame,textvariable=valorYSchear3D, font=("Segoe UI Black", 17))
+        
+        self.labelZ1Schear3D = Label(self.formaFrame,text="Z", bg="grey", font=("Segoe UI Black", 17))
+        self.entryZ1Schear3D = Entry(self.formaFrame,textvariable=valorZSchear3D, font=("Segoe UI Black", 17))
+        
         #Botão de Desenhar o quadrado
         self.buttonDesenharQuadrado = Button(self.formaFrame, text="Desenhar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.glFrame.dadosFornecidos(figura=self.quadrado)
         ])
         
+        #Botões das transformações 2D
         self.buttonTranslation = Button(self.formaFrame, text="Transladar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.quadrado.setPoints(Transform2D.transposition(self.quadrado.getPoints(), [int(self.entryX1Trans.get()),int(self.entryY1Trans.get())])),
@@ -439,6 +730,64 @@ class Main():
             self.glFrame.dadosFornecidos(figura=self.quadrado)
         ])
         
+        #Botões das transformações 3d
+        self.buttonTranslation3D = Button(self.formaFrame, text="Transladar", font=("Segoe UI Black", 17),
+                                         bg='#000000',fg="white", command=lambda:[
+            self.glFrame3D.setVertices(Transform3D.transposition(self.glFrame3D.vertices, 
+                                                              [int(self.entryX1Trans3D.get()),
+                                                               int(self.entryY1Trans3D.get()),
+                                                               int(self.entryZ1Trans3D.get())])),
+            self.glFrame.clearScreen(),
+            self.glFrame3D.redraw()
+        ])
+        
+        self.buttonScale3D = Button(self.formaFrame, text="Escalar", font=("Segoe UI Black", 17),
+                                         bg='#000000',fg="white", command=lambda:[
+            self.glFrame3D.setVertices(Transform3D.scale(self.glFrame3D.vertices, 
+                                                              [int(self.entryX1Scale3D.get()),
+                                                               int(self.entryY1Scale3D.get()),
+                                                               int(self.entryZ1Scale3D.get())])),
+            self.glFrame.clearScreen(),
+            self.glFrame3D.redraw()
+        ])
+                
+        self.buttonRotation3D = Button(self.formaFrame, text="Rotacionar", font=("Segoe UI Black", 17),
+                                         bg='#000000',fg="white", command=lambda:[
+            self.glFrame3D.setVertices(Transform3D.rotation(self.glFrame3D.vertices, 
+            int(self.entryX1Rotation3D.get()),int(self.entryY1Rotation3D.get()),int(self.entryZ1Rotation3D.get()))),
+            self.glFrame.clearScreen(),
+            self.glFrame3D.redraw()
+        ])
+        
+        self.buttonReflexXY = Button(self.formaFrame, text="Refletir em XY", font=("Segoe UI Black", 17),
+                                         bg='#000000',fg="white", command=lambda:[
+            self.glFrame3D.setVertices(Transform3D.reflectionXY(self.glFrame3D.vertices)),
+            self.glFrame.clearScreen(),
+            self.glFrame3D.redraw()
+        ])
+        
+        self.buttonReflexXZ = Button(self.formaFrame, text="Refletir em XZ", font=("Segoe UI Black", 17),
+                                         bg='#000000',fg="white", command=lambda:[
+            self.glFrame3D.setVertices(Transform3D.reflectionXZ(self.glFrame3D.vertices)),
+            self.glFrame.clearScreen(),
+            self.glFrame3D.redraw()
+        ])
+        
+        self.buttonReflexYZ = Button(self.formaFrame, text="Refletir em YZ", font=("Segoe UI Black", 17),
+                                         bg='#000000',fg="white", command=lambda:[
+            self.glFrame3D.setVertices(Transform3D.reflectionYZ(self.glFrame3D.vertices)),
+            self.glFrame.clearScreen(),
+            self.glFrame3D.redraw()
+        ])
+        
+        self.buttonSchear3D = Button(self.formaFrame, text="Cisalhar", font=("Segoe UI Black", 17),
+                                         bg='#000000',fg="white", command=lambda:[
+            self.glFrame3D.setVertices(Transform3D.schear(self.glFrame3D.vertices, 
+            float(self.entryX1Schear3D.get()),float(self.entryY1Schear3D.get()),float(self.entryZ1Schear3D.get()))),
+            self.glFrame.clearScreen(),
+            self.glFrame3D.redraw()
+        ])
+        
         #Treeview das coordenadas (Utilizado por todos os widgets acima)
         self.coordinateFrame = Frame(self.formaFrame, bg="red")
         
@@ -470,7 +819,9 @@ class Main():
                                                  self.focusTable(self.coordTela, [self.coordMundo, self.coordOpenGL])])
         
         #Bidings Adicionais
-        self.root.bind("r", lambda _: self.glFrame.clearScreen())
+        self.root.bind("c", lambda _: self.glFrame.clearScreen())
+        self.root.bind("r", lambda _: self.glFrame3D.clearScreen())
+        self.root.bind("b", lambda _: self.glFrame3D.resetCamera())
         
     def frameReta(self):
         self.labelAlgoritmoUsado.place(relx=0.01,rely=0.01)
@@ -566,8 +917,60 @@ class Main():
         self.labelYCisalhamento.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
         self.entryYCisalhamento.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
 
-    def frameTransform3D(self):
-        pass
+    def frameTransposition3D(self):
+        self.buttonTranslation3D.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
+        
+        self.labelX1Trans3D.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.entryX1Trans3D.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
+        
+        self.labelY1Trans3D.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.entryY1Trans3D.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
+        
+        self.labelZ1Trans3D.place(relx=0.5,rely=0.2,relheight=0.1,relwidth=0.1)
+        self.entryZ1Trans3D.place(relx=0.65,rely=0.225,relheight=0.05,relwidth=0.2)
+    
+    def frameScale3D(self):
+        self.buttonScale3D.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
+        
+        self.labelX1Scale3D.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.entryX1Scale3D.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
+        
+        self.labelY1Scale3D.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.entryY1Scale3D.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
+        
+        self.labelZ1Scale3D.place(relx=0.5,rely=0.2,relheight=0.1,relwidth=0.1)
+        self.entryZ1Scale3D.place(relx=0.65,rely=0.225,relheight=0.05,relwidth=0.2)
+    
+    def frameRotation3D(self):
+        self.buttonRotation3D.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
+        
+        self.labelX1Rotation3D.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.entryX1Rotation3D.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
+        
+        self.labelY1Rotation3D.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.entryY1Rotation3D.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
+        
+        self.labelZ1Rotation3D.place(relx=0.5,rely=0.2,relheight=0.1,relwidth=0.1)
+        self.entryZ1Rotation3D.place(relx=0.65,rely=0.225,relheight=0.05,relwidth=0.2)
+    
+    def frameReflex3D(self):
+        self.buttonReflexXY.place(relx=0.260,rely=0.3,relheight=0.08,relwidth=0.5)
+        
+        self.buttonReflexXZ.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
+        
+        self.buttonReflexYZ.place(relx=0.260,rely=0.7,relheight=0.08,relwidth=0.5)
+    
+    def frameSchear3D(self):
+        self.buttonSchear3D.place(relx=0.260,rely=0.5,relheight=0.08,relwidth=0.5)
+        
+        self.labelX1Schear3D.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.entryX1Schear3D.place(relx=0.25,rely=0.125,relheight=0.05,relwidth=0.2)
+        
+        self.labelY1Schear3D.place(relx=0.5,rely=0.1,relheight=0.1,relwidth=0.1)
+        self.entryY1Schear3D.place(relx=0.65,rely=0.125,relheight=0.05,relwidth=0.2)
+        
+        self.labelZ1Schear3D.place(relx=0.5,rely=0.2,relheight=0.1,relwidth=0.1)
+        self.entryZ1Schear3D.place(relx=0.65,rely=0.225,relheight=0.05,relwidth=0.2)
     
     def setTreeViewLoc(self):
         self.coordinateFrame.place(relx=0.0,rely=0.5,relheight=0.5,relwidth=1)
