@@ -1,57 +1,62 @@
 import numpy as np
 
 class Transform2D():
-    def homogenCoordinates(points, text):
+    def __init__(self):
+        self.explanationTest = ""
+    
+    def homogenCoordinates(self,points):
         homogenCoords = []
         
-        text += "Primeiro Homogenizamos as coordenadas, adicionando 1 como uma coordenada adicional: \n\n"
+        self.explanationTest += "Primeiro Homogenizamos as coordenadas, adicionando 1 como uma coordenada adicional: \n\n"
         
         for x,y in points:
             homogenCoords.append([x,y,1])
             
-        text += f"Novos pontos homogenizados: {homogenCoords}\n"
+        self.explanationTest += f"Novos pontos homogenizados: {homogenCoords}\n"
             
-        return [homogenCoords,text]
+        return homogenCoords
             
-    def multiplyMatrix(matrix1,matrix2, text):
+    def multiplyMatrix(self,matrix1,matrix2):
         newPosition = []
+        
+        print(matrix2)
         
         for point in matrix2:
             newPoint = []
-            text += "["
+            self.explanationTest += "["
             for i in range(len(matrix1)):
-                text += "("
+                self.explanationTest += "("
                 value = 0
                 for j in range(len(point)):
                     value += matrix1[i][j] * point[j]
-                    text += f" {matrix1[i][j]} * {point[j]}"
+                    self.explanationTest += f" {matrix1[i][j]} * {point[j]}"
                     if(j != (len(point)-1)):
-                        text+= " + "
+                        self.explanationTest += " + "
                 
-                text += ")"
+                self.explanationTest += ")"
                 
                 if(j != (len(matrix1)-1)):
-                        text+= ","
+                        self.explanationTest += ","
                 
                 newPoint.append(value)
             
-            text += "]\n"
+            self.explanationTest += "]\n"
             
-            text += f"= {newPoint}\n\n"
+            self.explanationTest += f"= {newPoint}\n\n"
             newPosition.append((round(newPoint[0]), round(newPoint[1])))
             
-        return [newPosition,text]
+        return newPosition
                 
                 
-    def transposition(points, movedPoints, text):
+    def transposition(self, points, movedPoints):
         newPosition = points
         
-        text += "Transposição: \n\n"
+        self.explanationTest += "Transposição: \n\n"
         
         #transformando em coordenadas homogêneas
-        homogenCoords,text = Transform2D.homogenCoordinates(newPosition,text)
+        homogenCoords = self.homogenCoordinates(newPosition)
         
-        text += "Utilizamos da matriz: \n[1, 0, x]\n[0, 1, y]\n[0, 0, 1]\n\n"
+        self.explanationTest += "Utilizamos da matriz: \n[1, 0, x]\n[0, 1, y]\n[0, 0, 1]\n\n"
         
         #matriz para transposição
         transpositionMatrix = [
@@ -60,29 +65,29 @@ class Transform2D():
             [0, 0, 1]
         ]
         
-        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
+        self.explanationTest += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
         
-        newPosition,text = Transform2D.multiplyMatrix(transpositionMatrix, homogenCoords,text)
+        newPosition = self.multiplyMatrix(transpositionMatrix, homogenCoords)
         
-        text += f"Por fim temos os novos pontos transladados: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
+        self.explanationTest += f"Por fim temos os novos pontos transladados: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
         
-        return newPosition, text
+        return newPosition
 
-    def scale(points, movedPoints,text):
+    def scale(self, points, movedPoints):
         newPosition = points
         
-        text += "Escala: \n\n"
+        self.explanationTest += "Escala: \n\n"
         
         transpositionPoints = newPosition[0]
         
-        text += "Primeiro Precisamos transladar o ponto para a origem, para evitar erros na hora da operação: \n"
+        self.explanationTest += "Primeiro Precisamos transladar o ponto para a origem, para evitar erros na hora da operação: \n"
         
-        newPosition,text = Transform2D.transposition(newPosition, [transpositionPoints[0]*-1,transpositionPoints[1]*-1],text)
+        newPosition = self.transposition(newPosition, [transpositionPoints[0]*-1,transpositionPoints[1]*-1])
         
         #transformando em coordenadas homogêneas
-        homogenCoords,text = Transform2D.homogenCoordinates(newPosition,text)
+        homogenCoords = self.homogenCoordinates(newPosition)
         
-        text += "Utilizamos da matriz: \n[x, 0, 0]\n[0, y, 0]\n[0, 0, 1]\n\n"
+        self.explanationTest += "Utilizamos da matriz: \n[x, 0, 0]\n[0, y, 0]\n[0, 0, 1]\n\n"
         
         #matriz para escala
         scaleMatrix = [
@@ -91,36 +96,36 @@ class Transform2D():
             [0, 0, 1]
         ]
         
-        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
+        self.explanationTest += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
         
-        newPosition,text = Transform2D.multiplyMatrix(scaleMatrix, homogenCoords,text)
+        newPosition = self.multiplyMatrix(scaleMatrix, homogenCoords)
         
-        text += "Depois trazemos objeto de volta ao ponto anterior com outra Transladação\n"
+        self.explanationTest += "Depois trazemos objeto de volta ao ponto anterior com outra Transladação\n"
         
-        newPosition,text = Transform2D.transposition(newPosition, transpositionPoints,text)
+        newPosition = self.transposition(newPosition, transpositionPoints)
         
-        return newPosition,text
+        return newPosition
     
-    def rotation(points,angle,x,y,text):
+    def rotation(self, points,angle,x,y):
         newPosition = points
         
-        text += "Rotação: \n\n"
+        self.explanationTest += "Rotação: \n\n"
         
         reposition = False
         
         if (x != 0) or (y != 0):
-            text += "Primeiro Precisamos transladar o ponto para a origem, para evitar erros na hora da operação: \n\n"
+            self.explanationTest += "Primeiro Precisamos transladar o ponto para a origem, para evitar erros na hora da operação: \n\n"
             reposition = True
             transpositionPoints = newPosition[0]
         
-            newPosition,text = Transform2D.transposition(newPosition, [transpositionPoints[0]*-1,transpositionPoints[1]*-1],text)
+            newPosition = self.transposition(newPosition, [transpositionPoints[0]*-1,transpositionPoints[1]*-1])
         
         #transformando em coordenadas homogêneas
-        homogenCoords,text = Transform2D.homogenCoordinates(newPosition,text)
+        homogenCoords = self.homogenCoordinates(newPosition)
             
         theta = np.radians(angle)
         
-        text += f"Utilizamos da matriz: \n[cos({theta}), -sen({theta}), 0]\n[sen({theta}), cos({theta}), 0]\n[0, 0, 1]\n\n"
+        self.explanationTest += f"Utilizamos da matriz: \n[cos({theta}), -sen({theta}), 0]\n[sen({theta}), cos({theta}), 0]\n[0, 0, 1]\n\n"
         
         #matriz para Rotação
         rotationMatrix = [
@@ -129,27 +134,27 @@ class Transform2D():
             [0, 0, 1]
         ]
         
-        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
+        self.explanationTest += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
         
-        newPosition,text = Transform2D.multiplyMatrix(rotationMatrix, homogenCoords,text)
+        newPosition = self.multiplyMatrix(rotationMatrix, homogenCoords)
         
         if reposition:
-            text += "Depois trazemos objeto de volta ao ponto anterior, com outra Transladação\n"
-            newPosition,text = Transform2D.transposition(newPosition, transpositionPoints,text)
+            self.explanationTest += "Depois trazemos objeto de volta ao ponto anterior, com outra Transladação\n"
+            newPosition = self.transposition(newPosition, transpositionPoints)
 
-        text += f"Por fim temos os novos pontos Rotacionados: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
+        self.explanationTest += f"Por fim temos os novos pontos Rotacionados: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
         
-        return newPosition,text
+        return newPosition
     
-    def reflectionX(points,text):
+    def reflectionX(self, points):
         newPosition = points
         
-        text += "Reflexão em X: \n\n"
+        self.explanationTest += "Reflexão em X: \n\n"
         
         #transformando em coordenadas homogêneas
-        homogenCoords,text = Transform2D.homogenCoordinates(points,text)
+        homogenCoords = self.homogenCoordinates(points)
         
-        text += "Utilizamos da matriz: \n[1, 0, 0]\n[0, -1, 0]\n[0, 0, 1]\n\n"
+        self.explanationTest += "Utilizamos da matriz: \n[1, 0, 0]\n[0, -1, 0]\n[0, 0, 1]\n\n"
         
         #matriz para Reflexão em X
         reflectioMatrix = [
@@ -158,23 +163,23 @@ class Transform2D():
             [0, 0, 1]
         ]
         
-        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
+        self.explanationTest += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
         
-        newPosition,text = Transform2D.multiplyMatrix(reflectioMatrix, homogenCoords,text)
+        newPosition = self.multiplyMatrix(reflectioMatrix, homogenCoords)
         
-        text += f"Por fim temos os novos pontos Refletidos: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
+        self.explanationTest += f"Por fim temos os novos pontos Refletidos: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
         
-        return newPosition,text
+        return newPosition
     
-    def reflectionY(points,text):
+    def reflectionY(self, points):
         newPosition = points
         
-        text += "Reflexão em Y: \n\n"
+        self.explanationTest += "Reflexão em Y: \n\n"
         
         #transformando em coordenadas homogêneas
-        homogenCoords,text = Transform2D.homogenCoordinates(points,text)
+        homogenCoords = self.homogenCoordinates(points)
         
-        text += "Utilizamos da matriz: \n[-1, 0, 0]\n[0, 1, 0]\n[0, 0, 1]\n\n"
+        self.explanationTest += "Utilizamos da matriz: \n[-1, 0, 0]\n[0, 1, 0]\n[0, 0, 1]\n\n"
         
         #matriz para Reflexão em Y
         reflectioMatrix = [
@@ -183,47 +188,47 @@ class Transform2D():
             [0, 0, 1]
         ]
         
-        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
+        self.explanationTest += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
         
-        newPosition,text = Transform2D.multiplyMatrix(reflectioMatrix, homogenCoords,text)
+        newPosition = self.multiplyMatrix(reflectioMatrix, homogenCoords)
         
-        text += f"Por fim temos os novos pontos Refletidos: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
+        self.explanationTest += f"Por fim temos os novos pontos Refletidos: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
         
-        return newPosition,text
+        return newPosition
     
-    def schear(points, x, y,text):
+    def schear(self, points, x, y):
         newPosition = points
         
-        text += "Cisalhamento: \n\n"
+        self.explanationTest += "Cisalhamento: \n\n"
         
         transpositionPoints = newPosition[0]
         
-        text += "Primeiro Precisamos transladar o ponto para a origem, para evitar erros na hora da operação: \n\n"
+        self.explanationTest += "Primeiro Precisamos transladar o ponto para a origem, para evitar erros na hora da operação: \n\n"
         
-        newPosition, text = Transform2D.transposition(newPosition, [transpositionPoints[0]*-1,transpositionPoints[1]*-1],text)
+        newPosition = self.transposition(newPosition, [transpositionPoints[0]*-1,transpositionPoints[1]*-1])
         
         if x != 0:
-            newPosition, text = Transform2D.schearX(newPosition,x,text)
+            newPosition = self.schearX(newPosition,x)
         if y != 0:
-            newPosition, text = Transform2D.schearY(newPosition,y,text)
+            newPosition = self.schearY(newPosition,y)
             
-        text += "Depois trazemos objeto de volta ao ponto anterior, com outra Transladação\n"
+        self.explanationTest += "Depois trazemos objeto de volta ao ponto anterior, com outra Transladação\n"
             
-        newPosition, text = Transform2D.transposition(newPosition, transpositionPoints,text)
+        newPosition = self.transposition(newPosition, transpositionPoints)
         
-        text += f"Por fim temos os novos pontos Cisalhados: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
+        self.explanationTest += f"Por fim temos os novos pontos Cisalhados: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
             
-        return newPosition, text
+        return newPosition
     
-    def schearX(points, value,text):
+    def schearX(self, points, value):
         newPosition = points
         
-        text += "Cisalhamento em X: \n\n"
+        self.explanationTest += "Cisalhamento em X: \n\n"
         
         #transformando em coordenadas homogêneas
-        homogenCoords, text = Transform2D.homogenCoordinates(points,text)
+        homogenCoords = self.homogenCoordinates(points)
         
-        text += "Utilizamos da matriz: \n[1, x, 0]\n[0, 1, 0]\n[0, 0, 1]\n\n"
+        self.explanationTest += "Utilizamos da matriz: \n[1, x, 0]\n[0, 1, 0]\n[0, 0, 1]\n\n"
         
         #matriz para Cisalhamento em X
         schearMatrix = [
@@ -232,21 +237,21 @@ class Transform2D():
             [0, 0, 1]
         ]
         
-        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
+        self.explanationTest += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
         
-        newPosition,text = Transform2D.multiplyMatrix(schearMatrix, homogenCoords,text)
+        newPosition = self.multiplyMatrix(schearMatrix, homogenCoords)
         
-        return newPosition,text
+        return newPosition
     
-    def schearY(points, value,text):
+    def schearY(self, points, value):
         newPosition = points
         
-        text += "Cisalhamento em Y: \n\n"
+        self.explanationTest += "Cisalhamento em Y: \n\n"
         
         #transformando em coordenadas homogêneas
-        homogenCoords,text = Transform2D.homogenCoordinates(points,text)
+        homogenCoords = self.homogenCoordinates(points)
         
-        text += "Utilizamos da matriz: \n[1, 0, 0]\n[y, 1, 0]\n[0, 0, 1]\n\n"
+        self.explanationTest += "Utilizamos da matriz: \n[1, 0, 0]\n[y, 1, 0]\n[0, 0, 1]\n\n"
         
         #matriz para Cisalhamento em Y
         schearMatrix = [
@@ -255,8 +260,14 @@ class Transform2D():
             [0, 0, 1]
         ]
         
-        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
+        self.explanationTest += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
         
-        newPosition,text = Transform2D.multiplyMatrix(schearMatrix, homogenCoords,text)
+        newPosition = self.multiplyMatrix(schearMatrix, homogenCoords)
         
-        return newPosition,text
+        return newPosition
+    
+    def getExplanationText(self):
+        return self.explanationTest
+    
+    def resetExplanationText(self):
+        self.explanationTest = ""

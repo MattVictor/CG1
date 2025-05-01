@@ -1,56 +1,61 @@
 import numpy as np
 
 class Transform3D():
-    def homogenCoordinates(points, text):
+    def __init__(self):
+        self.explanationTest = ""
+    
+    def homogenCoordinates(self,points):
         homogenCoords = []
         
-        text += "Primeiro Homogenizamos as coordenadas, adicionando 1 como uma coordenada adicional: \n\n"
+        self.explanationTest += "Primeiro Homogenizamos as coordenadas, adicionando 1 como uma coordenada adicional: \n\n"
         
         for x,y,z in points:
             homogenCoords.append([x,y,z,1])
             
-        text += f"Novos pontos homogenizados: {homogenCoords}\n"
+        self.explanationTest += f"Novos pontos homogenizados: {homogenCoords}\n"
             
-        return homogenCoords,text
+        return homogenCoords
             
-    def multiplyMatrix(matrix1,matrix2, text):
+    def multiplyMatrix(self,matrix1,matrix2):
         newPosition = []
         
         for point in matrix2:
             newPoint = []
-            text += "["
+            self.explanationTest += "["
             for i in range(len(matrix1)):
-                text += "("
+                self.explanationTest += "("
                 value = 0
                 for j in range(len(point)):
                     value += matrix1[i][j] * point[j]
-                    text += f" {matrix1[i][j]} * {point[j]}"
+                    self.explanationTest += f" {matrix1[i][j]} * {point[j]}"
                     if(j != (len(point)-1)):
-                        text+= " + "
+                        self.explanationTest += " + "
                 
-                text += ")"
+                self.explanationTest += ")"
                 
                 if(j != (len(matrix1)-1)):
-                        text+= ","
+                        self.explanationTest += ","
                 
                 newPoint.append(value)
             
-            text += "]\n"
+            self.explanationTest += "]\n"
             
-            text += f"= {newPoint}\n\n"
-            newPosition.append((round(newPoint[0]), round(newPoint[1], round(newPoint[2]))))
+            self.explanationTest += f"= {newPoint}\n\n"
+            newPosition.append((round(newPoint[0]), round(newPoint[1]), round(newPoint[2])))
             
-        return newPosition,text
+        print(self.explanationTest)
+            
+        return newPosition
     
-    def transposition(points, movedPoints,text):
+    def transposition(self,points, movedPoints):
         newPosition = points
         
-        text += "Transposição: \n\n"
+        self.explanationTest += "Transposição: \n\n"
 
         #transformando em coordenadas homogêneas
-        homogenCoords,text = Transform3D.homogenCoordinates(newPosition,text)
+        homogenCoords = self.homogenCoordinates(newPosition)
         
-        text += "Utilizamos da matriz: \n[1, 0, 0, x]\n[0, 1, 0, y]\n[0, 0, 1, z]\n[0, 0, 0, 1]\n\n"
+        self.explanationTest += "Utilizamos da matriz: \n[1, 0, 0, x]\n[0, 1, 0, y]\n[0, 0, 1, z]\n[0, 0, 0, 1]\n\n"
 
         #matriz para transposição
         transpositionMatrix = [
@@ -60,29 +65,29 @@ class Transform3D():
             [0, 0, 0, 1]
         ]
         
-        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
+        self.explanationTest += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
 
-        newPosition,text = Transform3D.multiplyMatrix(transpositionMatrix, homogenCoords,text)
+        newPosition = self.multiplyMatrix(transpositionMatrix, homogenCoords)
         
-        text += f"Por fim temos os novos pontos transladados: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
+        self.explanationTest += f"Por fim temos os novos pontos transladados: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
 
-        return [newPosition,text]
+        return newPosition
     
-    def scale(points, movedPoints,text):
+    def scale(self, points, movedPoints):
         newPosition = points
         
-        text += "Escala: \n\n"
+        self.explanationTest += "Escala: \n\n"
 
         transpositionPoints = newPosition[0]
         
-        text += "Primeiro Precisamos transladar o ponto para a origem, para evitar erros na hora da operação: \n"
+        self.explanationTest += "Primeiro Precisamos transladar o ponto para a origem, para evitar erros na hora da operação: \n"
 
-        newPosition,text = Transform3D.transposition(newPosition, [transpositionPoints[0]*-1,transpositionPoints[1]*-1, transpositionPoints[2]*-1],text)
+        newPosition = self.transposition(newPosition, [transpositionPoints[0]*-1,transpositionPoints[1]*-1, transpositionPoints[2]*-1])
         
         #transformando em coordenadas homogêneas
-        homogenCoords,text = Transform3D.homogenCoordinates(newPosition,text)
+        homogenCoords = self.homogenCoordinates(newPosition)
 
-        text += "Utilizamos da matriz: \n[x, 0, 0, 0]\n[0, y, 0, 0]\n[0, 0, z, 0]\n[0, 0, 0, 1]\n\n"
+        self.explanationTest += "Utilizamos da matriz: \n[x, 0, 0, 0]\n[0, y, 0, 0]\n[0, 0, z, 0]\n[0, 0, 0, 1]\n\n"
 
         #matriz para escala
         scaleMatrix = [
@@ -92,41 +97,41 @@ class Transform3D():
             [0, 0, 0, 1]
         ]
 
-        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
+        self.explanationTest += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
         
-        newPosition,text = Transform3D.multiplyMatrix(scaleMatrix, homogenCoords,text)
+        newPosition = self.multiplyMatrix(scaleMatrix, homogenCoords)
         
-        text += "Depois trazemos objeto de volta ao ponto anterior com outra Transladação\n"
+        self.explanationTest += "Depois trazemos objeto de volta ao ponto anterior com outra Transladação\n"
 
-        newPosition,text = Transform3D.transposition(newPosition, transpositionPoints,text)
+        newPosition = self.transposition(newPosition, transpositionPoints)
         
-        return newPosition,text
+        return newPosition
     
-    def rotation(points, x, y, z,text):
+    def rotation(self, points, x, y, z):
         newPosition = points
         
-        text += "Rotação: \n\n"
+        self.explanationTest += "Rotação: \n\n"
 
         if x != 0:
-            newPosition,text = Transform3D.rotationX(newPosition, x,text)
+            newPosition = self.rotationX(newPosition, x)
         if y != 0:
-            newPosition,text = Transform3D.rotationY(newPosition, y,text)
+            newPosition = self.rotationY(newPosition, y)
         if z != 0:
-            newPosition,text = Transform3D.rotationZ(newPosition, z,text)
+            newPosition = self.rotationZ(newPosition, z)
             
-        return newPosition,text
+        return newPosition
     
-    def rotationX(points,angle,text):
+    def rotationX(self, points,angle):
         newPosition = points
         
-        text += "Rotação em X: \n\n"
+        self.explanationTest += "Rotação em X: \n\n"
         
         #transformando em coordenadas homogêneas
-        homogenCoords,text = Transform3D.homogenCoordinates(newPosition,text)
+        homogenCoords = self.homogenCoordinates(newPosition)
             
         theta = np.radians(angle)
         
-        text += f"Utilizamos da matriz: \n[1, 0, 0, 0]\n[0, cos({theta}), -sen({theta}), 0]\n[0, sen({theta}), cos({theta}), 0]\n[0, 0, 0, 1]\n\n"
+        self.explanationTest += f"Utilizamos da matriz: \n[1, 0, 0, 0]\n[0, cos({theta}), -sen({theta}), 0]\n[0, sen({theta}), cos({theta}), 0]\n[0, 0, 0, 1]\n\n"
 
         #matriz para Rotação
         rotationMatrix = [
@@ -136,25 +141,25 @@ class Transform3D():
             [0, 0, 0, 1]
         ]
         
-        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
+        self.explanationTest += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
 
-        newPosition,text = Transform3D.multiplyMatrix(rotationMatrix, homogenCoords,text)
+        newPosition = self.multiplyMatrix(rotationMatrix, homogenCoords)
         
-        text += f"Por fim temos os novos pontos Rotacionados em X: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
+        self.explanationTest += f"Por fim temos os novos pontos Rotacionados em X: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
 
-        return newPosition,text
+        return newPosition
     
-    def rotationY(points,angle,text):
+    def rotationY(self, points,angle):
         newPosition = points
         
-        text += "Rotação em Y: \n\n"
+        self.explanationTest += "Rotação em Y: \n\n"
 
         #transformando em coordenadas homogêneas
-        homogenCoords,text = Transform3D.homogenCoordinates(newPosition,text)
+        homogenCoords = self.homogenCoordinates(newPosition)
             
         theta = np.radians(angle)
         
-        text += f"Utilizamos da matriz: \n[cos({theta}), 0, sen({theta}), 0]\n[0, 1, 0, 0]\n[-sen({theta}), 0, cos({theta}), 0]\n[0, 0, 0, 1]\n\n"
+        self.explanationTest += f"Utilizamos da matriz: \n[cos({theta}), 0, sen({theta}), 0]\n[0, 1, 0, 0]\n[-sen({theta}), 0, cos({theta}), 0]\n[0, 0, 0, 1]\n\n"
 
         #matriz para Rotação
         rotationMatrix = [
@@ -164,25 +169,25 @@ class Transform3D():
             [0, 0, 0, 1]
         ]
         
-        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
+        self.explanationTest += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
 
-        newPosition,text = Transform3D.multiplyMatrix(rotationMatrix, homogenCoords,text)
+        newPosition = self.multiplyMatrix(rotationMatrix, homogenCoords)
         
-        text += f"Por fim temos os novos pontos Rotacionados em Y: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
+        self.explanationTest += f"Por fim temos os novos pontos Rotacionados em Y: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
 
-        return newPosition,text
+        return newPosition
     
-    def rotationZ(points,angle,text):
+    def rotationZ(self, points,angle):
         newPosition = points
         
-        text += "Rotação em Z: \n\n"
+        self.explanationTest += "Rotação em Z: \n\n"
 
         #transformando em coordenadas homogêneas
-        homogenCoords,text = Transform3D.homogenCoordinates(newPosition,text)
+        homogenCoords = self.homogenCoordinates(newPosition)
             
         theta = np.radians(angle)
         
-        text += f"Utilizamos da matriz: \n[cos({theta}), -sen({theta}), 0, 0]\n[sen({theta}), cos({theta}), 0, 0]\n[0, 0, 1, 0]\n[0, 0, 0, 1]\n\n"
+        self.explanationTest += f"Utilizamos da matriz: \n[cos({theta}), -sen({theta}), 0, 0]\n[sen({theta}), cos({theta}), 0, 0]\n[0, 0, 1, 0]\n[0, 0, 0, 1]\n\n"
 
         #matriz para Rotação
         rotationMatrix = [
@@ -192,23 +197,23 @@ class Transform3D():
             [0, 0, 0, 1]
         ]
         
-        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
+        self.explanationTest += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
 
-        newPosition,text = Transform3D.multiplyMatrix(rotationMatrix, homogenCoords,text)
+        newPosition = self.multiplyMatrix(rotationMatrix, homogenCoords)
         
-        text += f"Por fim temos os novos pontos Rotacionados em Z: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
+        self.explanationTest += f"Por fim temos os novos pontos Rotacionados em Z: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
 
-        return newPosition,text
+        return newPosition
     
-    def reflectionXY(points,text):
+    def reflectionXY(self, points):
         newPosition = points
         
-        text += "Reflexão em XY: \n\n"
+        self.explanationTest += "Reflexão em XY: \n\n"
 
         #transformando em coordenadas homogêneas
-        homogenCoords,text = Transform3D.homogenCoordinates(points,text)
+        homogenCoords = self.homogenCoordinates(points)
         
-        text += "Utilizamos da matriz: \n[1, 0, 0, 0]\n[0, 1, 0, 0]\n[0, 0, -1, 0]\n[0, 0, 0, 1]\n\n"
+        self.explanationTest += "Utilizamos da matriz: \n[1, 0, 0, 0]\n[0, 1, 0, 0]\n[0, 0, -1, 0]\n[0, 0, 0, 1]\n\n"
 
         #matriz para Reflexão em X
         reflectioMatrix = [
@@ -218,23 +223,23 @@ class Transform3D():
             [0, 0, 0, 1]
         ]
         
-        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
+        self.explanationTest += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
 
-        newPosition,text = Transform3D.multiplyMatrix(reflectioMatrix, homogenCoords,text)
+        newPosition = self.multiplyMatrix(reflectioMatrix, homogenCoords)
         
-        text += f"Por fim temos os novos pontos Refletidos: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
+        self.explanationTest += f"Por fim temos os novos pontos Refletidos: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
 
-        return newPosition,text
+        return newPosition
     
-    def reflectionYZ(points,text):
+    def reflectionYZ(self, points):
         newPosition = points
         
-        text += "Reflexão em YZ: \n\n"
+        self.explanationTest += "Reflexão em YZ: \n\n"
 
         #transformando em coordenadas homogêneas
-        homogenCoords,text = Transform3D.homogenCoordinates(points,text)
+        homogenCoords = self.homogenCoordinates(points)
         
-        text += "Utilizamos da matriz: \n[-1, 0, 0, 0]\n[0, 1, 0, 0]\n[0, 0, 1, 0]\n[0, 0, 0, 1]\n\n"
+        self.explanationTest += "Utilizamos da matriz: \n[-1, 0, 0, 0]\n[0, 1, 0, 0]\n[0, 0, 1, 0]\n[0, 0, 0, 1]\n\n"
 
         #matriz para Reflexão em Y
         reflectioMatrix = [
@@ -244,23 +249,23 @@ class Transform3D():
             [0, 0, 0, 1]
         ]
         
-        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
+        self.explanationTest += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
 
-        newPosition,text = Transform3D.multiplyMatrix(reflectioMatrix, homogenCoords,text)
+        newPosition = self.multiplyMatrix(reflectioMatrix, homogenCoords)
         
-        text += f"Por fim temos os novos pontos Refletidos: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
+        self.explanationTest += f"Por fim temos os novos pontos Refletidos: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
 
-        return newPosition,text
+        return newPosition
     
-    def reflectionXZ(points,text):
+    def reflectionXZ(self, points):
         newPosition = points
         
-        text += "Reflexão em XZ: \n\n"
+        self.explanationTest += "Reflexão em XZ: \n\n"
 
         #transformando em coordenadas homogêneas
-        homogenCoords,text = Transform3D.homogenCoordinates(points,text)
+        homogenCoords = self.homogenCoordinates(points)
         
-        text += "Utilizamos da matriz: \n[1, 0, 0, 0]\n[0, -1, 0, 0]\n[0, 0, 1, 0]\n[0, 0, 0, 1]\n\n"
+        self.explanationTest += "Utilizamos da matriz: \n[1, 0, 0, 0]\n[0, -1, 0, 0]\n[0, 0, 1, 0]\n[0, 0, 0, 1]\n\n"
 
         #matriz para Reflexão em Y
         reflectioMatrix = [
@@ -270,49 +275,49 @@ class Transform3D():
             [0, 0, 0, 1]
         ]
         
-        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
+        self.explanationTest += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
 
-        newPosition,text = Transform3D.multiplyMatrix(reflectioMatrix, homogenCoords,text)
+        newPosition = self.multiplyMatrix(reflectioMatrix, homogenCoords)
         
-        text += f"Por fim temos os novos pontos Refletidos: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
+        self.explanationTest += f"Por fim temos os novos pontos Refletidos: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
 
-        return newPosition,text
+        return newPosition
     
-    def schear(points, x, y, z,text):
+    def schear(self, points, x, y, z):
         newPosition = points
         
-        text += "Cisalhamento: \n\n"
+        self.explanationTest += "Cisalhamento: \n\n"
 
         transpositionPoints = newPosition[0]
         
-        text += "Primeiro Precisamos transladar o ponto para a origem, para evitar erros na hora da operação: \n\n"
+        self.explanationTest += "Primeiro Precisamos transladar o ponto para a origem, para evitar erros na hora da operação: \n\n"
 
-        newPosition,text = Transform3D.transposition(newPosition, [transpositionPoints[0]*-1,transpositionPoints[1]*-1, transpositionPoints[2]*-1],text)
+        newPosition = self.transposition(newPosition, [transpositionPoints[0]*-1,transpositionPoints[1]*-1, transpositionPoints[2]*-1])
         
         if x == 0:
-            newPosition = Transform3D.schearX(newPosition, y, z)
+            newPosition = self.schearX(newPosition, y, z)
         if y == 0:
-            newPosition = Transform3D.schearY(newPosition, x, z)
+            newPosition = self.schearY(newPosition, x, z)
         if z == 0:
-            newPosition = Transform3D.schearZ(newPosition, x, y)
+            newPosition = self.schearZ(newPosition, x, y)
             
-        text += "Depois trazemos objeto de volta ao ponto anterior, com outra Transladação\n"
+        self.explanationTest += "Depois trazemos objeto de volta ao ponto anterior, com outra Transladação\n"
 
-        newPosition,text = Transform3D.transposition(newPosition, transpositionPoints,text)
+        newPosition = self.transposition(newPosition, transpositionPoints)
             
-        text += f"Por fim temos os novos pontos Cisalhados: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
+        self.explanationTest += f"Por fim temos os novos pontos Cisalhados: {newPosition}\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n"
 
-        return newPosition,text
+        return newPosition
     
-    def schearX(points, y, z,text):
+    def schearX(self, points, y, z):
         newPosition = points
         
-        text += "Cisalhamento em X: \n\n"
+        self.explanationTest += "Cisalhamento em X: \n\n"
 
         #transformando em coordenadas homogêneas
-        homogenCoords,text = Transform3D.homogenCoordinates(points,text)
+        homogenCoords = self.homogenCoordinates(points)
         
-        text += "Utilizamos da matriz: \n[1, 0, 0, 0]\n[y, 1, 0, 0]\n[z, 0, 1, 0]\n[0, 0, 0, 1]\n\n"
+        self.explanationTest += "Utilizamos da matriz: \n[1, 0, 0, 0]\n[y, 1, 0, 0]\n[z, 0, 1, 0]\n[0, 0, 0, 1]\n\n"
 
         #matriz para Cisalhamento em X
         schearMatrix = [
@@ -322,21 +327,21 @@ class Transform3D():
             [0, 0, 0, 1]
         ]
         
-        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
+        self.explanationTest += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
 
-        newPosition,text = Transform3D.multiplyMatrix(schearMatrix, homogenCoords,text)
+        newPosition = self.multiplyMatrix(schearMatrix, homogenCoords)
         
-        return newPosition,text
+        return newPosition
     
-    def schearY(points, x, z,text):
+    def schearY(self, points, x, z):
         newPosition = points
         
-        text += "Cisalhamento em Y: \n\n"
+        self.explanationTest += "Cisalhamento em Y: \n\n"
 
         #transformando em coordenadas homogêneas
-        homogenCoords,text = Transform3D.homogenCoordinates(points,text)
+        homogenCoords = self.homogenCoordinates(points)
         
-        text += "Utilizamos da matriz: \n[1, x, 0, 0]\n[0, 1, 0, 0]\n[0, z, 1, 0]\n[0, 0, 0, 1]\n\n"
+        self.explanationTest += "Utilizamos da matriz: \n[1, x, 0, 0]\n[0, 1, 0, 0]\n[0, z, 1, 0]\n[0, 0, 0, 1]\n\n"
 
         #matriz para Cisalhamento em Y
         schearMatrix = [
@@ -346,21 +351,21 @@ class Transform3D():
             [0, 0, 0, 1]
         ]
         
-        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
+        self.explanationTest += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
 
-        newPosition,text = Transform3D.multiplyMatrix(schearMatrix, homogenCoords,text)
+        newPosition = self.multiplyMatrix(schearMatrix, homogenCoords)
         
-        return newPosition,text
+        return newPosition
     
-    def schearZ(points, x, y,text):
+    def schearZ(self, points, x, y):
         newPosition = points
         
-        text += "Cisalhamento em Z: \n\n"
+        self.explanationTest += "Cisalhamento em Z: \n\n"
 
         #transformando em coordenadas homogêneas
-        homogenCoords,text = Transform3D.homogenCoordinates(points,text)
+        homogenCoords = self.homogenCoordinates(points)
         
-        text += "Utilizamos da matriz: \n[1, 0, x, 0]\n[0, 1, y, 0]\n[0, 0, 1, 0]\n[0, 0, 0, 1]\n\n"
+        self.explanationTest += "Utilizamos da matriz: \n[1, 0, x, 0]\n[0, 1, y, 0]\n[0, 0, 1, 0]\n[0, 0, 0, 1]\n\n"
 
         #matriz para Cisalhamento em Y
         schearMatrix = [
@@ -370,8 +375,14 @@ class Transform3D():
             [0, 0, 0, 1]
         ]
         
-        text += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
+        self.explanationTest += "Para definir as novas coordenadas, realizando a multiplicação desta matriz por cada ponto do quadrado temos:\n\n"
 
-        newPosition,text = Transform3D.multiplyMatrix(schearMatrix, homogenCoords,text)
+        newPosition = self.multiplyMatrix(schearMatrix, homogenCoords)
         
-        return newPosition,text
+        return newPosition
+    
+    def getExplanationText(self):
+        return self.explanationTest
+    
+    def resetExplanationText(self):
+        self.explanationTest = ""

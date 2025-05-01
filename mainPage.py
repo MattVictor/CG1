@@ -14,6 +14,17 @@ quadradoBase = [(100,100),
                 (200,200),
                 (100,200)]
 
+cuboBase = [
+            [0, 0, 0],
+            [ 100, 0, 0],
+            [ 100,  100, 0],
+            [0,  100, 0],
+            [0, 0,  100],
+            [ 100, 0,  100],
+            [ 100,  100,  100],
+            [0,  100,  100],
+        ]
+
 def LIMPA_CT(array):
     for objeto in array:
         if isinstance(objeto,Text):
@@ -395,6 +406,8 @@ class Main():
         self.reta = Reta()
         self.circunferencia = Circunferencia()
         self.quadrado = Quadrado()
+        self.transform2D = Transform2D()
+        self.transform3D = Transform3D()
 
         # Tamanho inicial do GL
         self.window_width = 800
@@ -578,131 +591,131 @@ class Main():
         #Botões das transformações 2D
         self.buttonTranslation = Button(self.formaFrame, text="Transladar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
-            self.treatReturnTransform(*Transform2D.transposition(self.quadrado.getPoints(), [int(self.entryX1Trans.get()),int(self.entryY1Trans.get())], self.processoString)),
+            self.quadrado.setPoints(self.transform2D.transposition(self.quadrado.getPoints(), [int(self.entryX1Trans.get()),int(self.entryY1Trans.get())])),
             self.glFrame.clearScreen(),
             self.glFrame.dadosFornecidos(figura=self.quadrado),
             LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.processoString)
+            insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
         ])
         
         self.buttonScale = Button(self.formaFrame, text="Escalar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
-            self.treatReturnTransform(*Transform2D.scale(self.quadrado.getPoints(), [int(self.entryX1Trans.get()),int(self.entryY1Trans.get())], self.processoString)),
+            self.quadrado.setPoints(self.transform2D.scale(self.quadrado.getPoints(), [int(self.entryX1Trans.get()),int(self.entryY1Trans.get())])),
             self.glFrame.clearScreen(),
             self.glFrame.dadosFornecidos(figura=self.quadrado),
             LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.processoString)
+            insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
         ])
         
         self.buttonRotation = Button(self.formaFrame, text="Rotacionar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
-            self.treatReturnTransform(*Transform2D.rotation(self.quadrado.getPoints(), 
+            self.quadrado.setPoints(self.transform2D.rotation(self.quadrado.getPoints(), 
                                                          int(self.entryRotacao.get()),
                                                          int(self.entryY1Trans.get()),
-                                                         int(self.entryY1Trans.get()), self.processoString)),
+                                                         int(self.entryY1Trans.get()))),
             self.glFrame.clearScreen(),
             self.glFrame.dadosFornecidos(figura=self.quadrado),
             LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.processoString)
+            insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
         ])
         
         self.buttonReflexX = Button(self.formaFrame, text="em X", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
-            self.treatReturnTransform(*Transform2D.reflectionX(self.quadrado.getPoints(), self.processoString)),
+            self.quadrado.setPoints(self.transform2D.reflectionX(self.quadrado.getPoints())),
             self.glFrame.clearScreen(),
             self.glFrame.dadosFornecidos(figura=self.quadrado),
             LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.processoString)
+            insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
         ])
                 
         self.buttonReflexY = Button(self.formaFrame, text="em Y", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
-            self.treatReturnTransform(*Transform2D.reflectionY(self.quadrado.getPoints(), self.processoString)),
+            self.quadrado.setPoints(self.transform2D.reflectionY(self.quadrado.getPoints())),
             self.glFrame.clearScreen(),
             self.glFrame.dadosFornecidos(figura=self.quadrado),
             LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.processoString)
+            insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
         ])
         
         self.buttonSchear = Button(self.formaFrame, text="Cisalhamento", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
-            self.treatReturnTransform(*Transform2D.schear(self.quadrado.getPoints(),x=float(self.entryX1Trans.get()),y=float(self.entryY1Trans.get()), text=self.processoString)),
+            self.quadrado.setPoints(self.transform2D.schear(self.quadrado.getPoints(),x=float(self.entryX1Trans.get()),y=float(self.entryY1Trans.get()))),
             self.glFrame.clearScreen(),
             self.glFrame.dadosFornecidos(figura=self.quadrado),
             LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.processoString)
+            insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
         ])
         
         #Botões das transformações 3d
         self.buttonTranslation3D = Button(self.formaFrame, text="Transladar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
-            self.treatReturnTransform(*Transform3D.transposition(self.glFrame3D.vertices, 
+            self.glFrame3D.setVertices(self.transform3D.transposition(self.glFrame3D.vertices, 
                                                               [int(self.entryX1Trans3D.get()),
                                                                int(self.entryY1Trans3D.get()),
-                                                               int(self.entryZ1Trans3D.get())],self.processoString)),
+                                                               int(self.entryZ1Trans3D.get())])),
             self.glFrame.clearScreen(),
             self.glFrame3D.redraw(),
             LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.processoString)
+            insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
         ])
         
         self.buttonScale3D = Button(self.formaFrame, text="Escalar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
-            self.treatReturnTransform(*Transform3D.scale(self.glFrame3D.vertices, 
+            self.glFrame3D.setVertices(self.transform3D.scale(self.glFrame3D.vertices, 
                                                               [int(self.entryX1Trans3D.get()),
                                                                int(self.entryY1Trans3D.get()),
-                                                               int(self.entryZ1Trans3D.get())],self.processoString)),
+                                                               int(self.entryZ1Trans3D.get())])),
             self.glFrame.clearScreen(),
             self.glFrame3D.redraw(),
             LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.processoString)
+            insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
         ])
                 
         self.buttonRotation3D = Button(self.formaFrame, text="Rotacionar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
-            self.treatReturnTransform(*Transform3D.rotation(self.glFrame3D.vertices, 
-            int(self.entryX1Trans3D.get()),int(self.entryY1Trans3D.get()),int(self.entryZ1Trans3D.get()),self.processoString)),
+            self.glFrame3D.setVertices(self.transform3D.rotation(self.glFrame3D.vertices, 
+            int(self.entryX1Trans3D.get()),int(self.entryY1Trans3D.get()),int(self.entryZ1Trans3D.get()))),
             self.glFrame.clearScreen(),
             self.glFrame3D.redraw(),
             LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.processoString)
+            insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
         ])
         
         self.buttonReflexXY = Button(self.formaFrame, text="XY", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
-            self.treatReturnTransform(*Transform3D.reflectionXY(self.glFrame3D.vertices,self.processoString)),
+            self.glFrame3D.setVertices(self.transform3D.reflectionXY(self.glFrame3D.vertices)),
             self.glFrame.clearScreen(),
             self.glFrame3D.redraw(),
             LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.processoString)
+            insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
         ])
         
         self.buttonReflexXZ = Button(self.formaFrame, text="XZ", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda: [
-            self.treatReturnTransform(*Transform3D.reflectionXZ(self.glFrame3D.vertices,self.processoString)),
+            self.glFrame3D.setVertices(self.transform3D.reflectionXZ(self.glFrame3D.vertices)),
             self.glFrame.clearScreen(),
             self.glFrame3D.redraw(),
             LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.processoString)
+            insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
         ])
         
         self.buttonReflexYZ = Button(self.formaFrame, text="YZ", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
-            self.treatReturnTransform(*Transform3D.reflectionYZ(self.glFrame3D.vertices,self.processoString)),
+            self.glFrame3D.setVertices(self.transform3D.reflectionYZ(self.glFrame3D.vertices)),
             self.glFrame.clearScreen(),
             self.glFrame3D.redraw(),
             LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.processoString)
+            insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
         ])
         
         self.buttonSchear3D = Button(self.formaFrame, text="Cisalhar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
-            self.treatReturnTransform(*Transform3D.schear(self.glFrame3D.vertices, 
-            float(self.entryX1Trans3D.get()),float(self.entryY1Trans3D.get()),float(self.entryZ1Trans3D.get()),self.processoString)),
+            self.glFrame3D.setVertices(self.transform3D.schear(self.glFrame3D.vertices, 
+            float(self.entryX1Trans3D.get()),float(self.entryY1Trans3D.get()),float(self.entryZ1Trans3D.get()))),
             self.glFrame.clearScreen(),
             self.glFrame3D.redraw(),
             LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.processoString)
+            insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
         ])
         
         #Treeview das coordenadas (Utilizado por todos os widgets acima)
@@ -873,6 +886,10 @@ class Main():
         self.processoString = text
         
     def shortcut(self):
-        self.treatReturnTransform(quadradoBase,"")
+        self.quadrado.setPoints(quadradoBase)
+        self.glFrame3D.setVertices(cuboBase)
+        self.transform2D.resetExplanationText()
+        self.transform3D.resetExplanationText()
+        
         LIMPA_CT([self.processoDeTrasform])
 Main()
