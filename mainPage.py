@@ -75,7 +75,7 @@ class GLUTFrame2D(OpenGLFrame):
         
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-400, 400, -400, 400, -1, 1)  # Mantém coordenadas normalizadas
+        glOrtho(-1, 1, -1, 1, -1, 1)  # Mantém coordenadas normalizadas
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         
@@ -91,14 +91,14 @@ class GLUTFrame2D(OpenGLFrame):
         glLineWidth(1)
         glColor3f(1.0, 0.0, 0.0)  # vermelho
         glBegin(GL_LINES)
-        glVertex2f(-400, 0)
-        glVertex2f(400, 0)
+        glVertex2f(-1, 0)
+        glVertex2f(1, 0)
         glEnd()
 
         glColor3f(0.0, 1.0, 0.0)  # verde
         glBegin(GL_LINES)
-        glVertex2f(0, -400)
-        glVertex2f(0, 400)
+        glVertex2f(0, -1)
+        glVertex2f(0, 1)
         glEnd()
 
         # Desenha os pontos clicados
@@ -125,7 +125,7 @@ class GLUTFrame2D(OpenGLFrame):
         self.coordenadas_Tela = []
 
         for x1, y1 in clicked_points:
-            self.mostrar_coordenadas([self.width,self.height],state=0,coords=[x1,y1])
+            self.mostrar_coordenadas(coords=[x1,y1])
             self.normalizeAndAddPoints(x1,y1)
         
         self.redraw()
@@ -140,7 +140,7 @@ class GLUTFrame2D(OpenGLFrame):
         if event.num == 1:
             # Converte as coordenadas da tela para coordenadas normalizadas OpenGL
             self.normalizeAndAddPoints(event.x,event.y)
-            self.mostrar_coordenadas(window=[int(window_width),int(window_height)],state=0,coords=[x,y])
+            self.mostrar_coordenadas(coords=[x,y])
         elif event.num == 3:
             # Desenha uma linha nos pontos escolhidos
             
@@ -162,59 +162,18 @@ class GLUTFrame2D(OpenGLFrame):
         self.coordenadas_Tela = []
 
         for x1, y1 in clicked_points:
-            self.mostrar_coordenadas([self.width,self.height],state=0,coords=[x1,y1])
+            self.mostrar_coordenadas(coords=[x1,y1])
             self.normalizeAndAddPoints(x1,y1)
             
     def normalizeAndAddPoints(self,x,y):
-        normalized_x = x
-        normalized_y = y
+        normalized_x = x/400
+        normalized_y = y/400
         
         # Armazena o ponto clicado
-        self.coordenadas_OpenGL.append((f"{(normalized_x/400):.3f}",f"{(normalized_y/400):.3f}"))
+        self.coordenadas_OpenGL.append((f"{(normalized_x):.3f}",f"{(normalized_y):.3f}"))
         self.clicked_points.append((normalized_x, normalized_y))
-        
-    def converter_coordenadas_mouse(self,windowSize, coords):
 
-        mouse_x = int(coords[0])
-        mouse_y = int(coords[1])
-        
-        mouseMin_x = 0
-        mouseMax_x = windowSize[0]
-        
-        mouseMin_y = windowSize[1]
-        mouseMax_y = 0
-
-        glMin = -1
-        glMax = 1
-
-        point_x = ((mouse_x - mouseMin_x) * (glMax - glMin) / (mouseMax_x - mouseMin_x)) + glMin
-        point_y = ((mouse_y - mouseMin_y) * (glMax - glMin) / (mouseMax_y - mouseMin_y)) + glMin
-
-        return [point_x, point_y]
-
-    def converter_coordenadas_tela(self,screenSize, coords):
-
-        screen_x = coords[0]
-        screen_y = coords[1]
-        
-        screenMin_x = 0
-        screenMax_x = screenSize[0]
-        
-        screenMin_y = screenSize[1]
-        screenMax_y = 0
-
-        glMin = -1
-        glMax = 1
-        
-        point_x = (screen_x + 1) / 2 * screenMax_x
-        point_y = (-screen_y + 1) / 2 * screenMin_y
-
-        return [f"{point_x:.3f}", f"{point_y:.3f}"]
-
-    def mostrar_coordenadas(self,window,state,coords):
-        normalized_x, normalized_y = self.converter_coordenadas_mouse([window[0],window[1]],coords)
-        coord_tela = self.converter_coordenadas_tela([1920,1080],[normalized_x,normalized_y])
-
+    def mostrar_coordenadas(self,coords):
         self.coordenadas_Mundo.append((coords[0],coords[1]))
         self.coordenadas_Tela.append((round(coords[0]+400),round((coords[1]-400)*-1)))
     
