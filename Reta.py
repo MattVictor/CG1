@@ -56,6 +56,7 @@ class Reta():
         if dx > dy:
             d = 2*a + b
             while x1 != x2:
+                print(d)
                 lighted_pixels.append((x1, y1))
                 if d >= 0:
                     y1 += sy
@@ -65,6 +66,7 @@ class Reta():
         else:
             d = a + 2*b
             while y1 != y2:
+                print(d)
                 lighted_pixels.append((x1, y1))
                 if d >= 0:
                     x1 += sx
@@ -93,7 +95,9 @@ class Reta():
         
         if dx > dy:
             d = 2*a + b
+            
             while x1 != x2:
+                print(d)
                 lighted_pixels.append((x1, y1))
                 if d >= 0:
                     y1 += sy
@@ -102,7 +106,9 @@ class Reta():
                 d += 2 * dy
         else:
             d = a + 2*b
+            
             while y1 != y2:
+                print(d)
                 lighted_pixels.append((x1, y1))
                 if d >= 0:
                     x1 += sx

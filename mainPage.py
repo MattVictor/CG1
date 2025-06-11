@@ -9,10 +9,10 @@ from PoligonoRegular import Quadrado
 from Transform2D import Transform2D
 from Transform3D import Transform3D
 
-quadradoBase = [(100,100),
-                (200,100),
-                (200,200),
-                (100,200)]
+quadradoBase = [(50,50),
+                (250,150),
+                (200,250),
+                (0,150)]
 
 cuboBase = [
             [0, 0, 0],
