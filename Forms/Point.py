@@ -1,3 +1,5 @@
+__package__
+
 class Point():
     def __init__(self, x, y):
         self.X = x

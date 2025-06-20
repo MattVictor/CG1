@@ -1,3 +1,5 @@
+__package__
+
 import math
 
 class Circunferencia():

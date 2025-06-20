@@ -1,3 +1,5 @@
+__package__
+
 import numpy as np
 
 class Transform2D():

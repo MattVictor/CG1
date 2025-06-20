@@ -1,3 +1,5 @@
+__package__
+
 class Reta():    
     def __init__(self):
         self.currentFunction = self.DDA
