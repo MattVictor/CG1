@@ -37,7 +37,7 @@ class GLUTFrame2D(OpenGLFrame):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         GL_PIXEL = GL_POINTS
         glLoadIdentity()
-
+        
         # --- Eixos ---
         glLineWidth(1)
         glColor3f(1.0, 0.0, 0.0)  # vermelho

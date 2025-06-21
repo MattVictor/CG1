@@ -1,7 +1,9 @@
 from tkinter import *
 from tkinter import ttk
+from customtkinter import CTk
 from Frames.Frame2D import GLUTFrame2D
 from Frames.Frame3D import GLUTFrame3D
+from Frames.ecg import ECGFrame
 from Forms.Reta import Reta
 from Forms.Circunferencia import Circunferencia
 from Forms.PoligonoRegular import Quadrado
@@ -36,6 +38,7 @@ def insertText(widget=Text, text=str):
 
 def limpa_frame(frame:Widget):
     for widget in frame.winfo_children():
+        print(widget)
         widget.place_forget()
 
 def insertDataTreeview(tree=ttk.Treeview, data=[]):
@@ -68,7 +71,7 @@ class Main():
         self.tkwindow_width = 1200
         self.tkwindow_height = 700
 
-        self.root = Tk()
+        self.root = CTk()
         self.root.geometry(f"{self.tkwindow_width}x{self.tkwindow_height}")
         self.root.resizable = False
         self.root.title("Computação Gráfica")
@@ -101,8 +104,9 @@ class Main():
         
         filemenu = Menu(self.menu)
         self.menu.add_cascade(label='Menu', menu=filemenu)
-        filemenu.add_command(label='2D', command= lambda: [self.glFrame3D.place_forget(), self.glFrame.place(x=350,y=10)])
-        filemenu.add_command(label='3D', command= lambda: [self.glFrame.place_forget(), self.glFrame3D.place(x=350,y=10)])
+        filemenu.add_command(label='2D', command= lambda: [self.changeFrameType(0)])
+        filemenu.add_command(label='3D', command= lambda: [self.changeFrameType(1)])
+        filemenu.add_command(label='ECG', command= lambda: [self.changeFrameType(2)])
         filemenu.add_separator()
         filemenu.add_command(label='Limpar GL', command= lambda: [self.glFrame.clearScreen()])
         filemenu.add_command(label='Inverter Cores', command=lambda: [self.glFrame.invertColors(), self.glFrame3D.invertColors()])
@@ -535,6 +539,16 @@ class Main():
         else:
             self.glFrame3D.setVertices(points)
         self.processoString = text
+        
+    def changeFrameType(self, opt):
+        if(opt == 0):
+            self.glFrame = GLUTFrame2D(self.root,width=self.window_width,height=self.window_height,forma=self.reta)
+        elif(opt == 1):
+            self.glFrame = GLUTFrame3D(self.root,width=self.window_width,height=self.window_height,forma=self.reta)
+        elif(opt == 2):
+            self.glFrame = ECGFrame(self.root, width=800, height=680)
+            
+        self.glFrame.place(x=350,y=10)
         
     def shortcut(self):
         self.quadrado.setPoints(quadradoBase)
