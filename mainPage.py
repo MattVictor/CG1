@@ -85,6 +85,7 @@ class Main():
         self.root.mainloop()
         
     def generateWidgets(self):
+        # Widgets Padrão
         self.mainFrame = CTkFrame(self.root,border_color="white",border_width=5)
         self.mainFrame.place(relx=0.330,rely=0.025,relheight=0.95,relwidth=0.65)
         
@@ -96,6 +97,27 @@ class Main():
         
         self.glFrame = GLUTFrame2D(self.mainFrame,width=(self.mainFrame.winfo_width()*0.98),height=(self.mainFrame.winfo_height()*0.98),forma=self.reta)
         self.glFrame.place(relx=0.01,rely=0.01,relheight=0.98,relwidth=0.98)
+
+        #Menu Principal
+        self.drawButton = CTkButton(self.auxFrame,text="Desenhar")
+        
+        self.ECGButton = CTkButton(self.auxFrame,text="ECG")
+        
+        self.transformButton = CTkButton(self.auxFrame,text="Transformar")
+        
+        self.imageButton = CTkButton(self.auxFrame,text="Imagem")
+        
+        #Menu Desenho
+        self.drawLine = CTkButton(self.auxFrame,text="Reta")
+        
+        self.drawCircle = CTkButton(self.auxFrame,text="Circunferência")
+        
+        #Menu Transformações
+        self.dimension2 = CTkButton(self.auxFrame,text="2D")
+        
+        self.dimension3 = CTkButton(self.auxFrame,text="3D")
+        
+        #Menu Imagem --TODO
 
         self.labelForma = Label(self.formaFrame, text="RETA", bg="grey", font=("Segoe UI Black", 17))
         self.processoString = ""
@@ -171,16 +193,16 @@ class Main():
         valorY2Reta = IntVar()
         
         self.labelX1Reta = Label(self.formaFrame,text="X1", bg="grey", font=("Segoe UI Black", 17))
-        self.entryX1Reta = Entry(self.formaFrame,textvariable=valorX1Reta, validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryX1Reta = Entry(self.formaFrame,textvariable=valorX1Reta,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
         self.labelY1Reta = Label(self.formaFrame,text="Y1", bg="grey", font=("Segoe UI Black", 17))
-        self.entryY1Reta = Entry(self.formaFrame,textvariable=valorY1Reta, validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryY1Reta = Entry(self.formaFrame,textvariable=valorY1Reta,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
         self.labelX2Reta = Label(self.formaFrame,text="X2", bg="grey", font=("Segoe UI Black", 17))
-        self.entryX2Reta = Entry(self.formaFrame,textvariable=valorX2Reta, validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryX2Reta = Entry(self.formaFrame,textvariable=valorX2Reta,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
         self.labelY2Reta = Label(self.formaFrame,text="Y2", bg="grey", font=("Segoe UI Black", 17))
-        self.entryY2Reta = Entry(self.formaFrame,textvariable=valorY2Reta, validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryY2Reta = Entry(self.formaFrame,textvariable=valorY2Reta,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
         self.buttonDesenharReta = Button(self.formaFrame, text="Desenhar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
@@ -198,13 +220,13 @@ class Main():
         valorRaio = IntVar()
         
         self.labelX1Circ = Label(self.formaFrame,text="X1", bg="grey", font=("Segoe UI Black", 17))
-        self.entryX1Circ = Entry(self.formaFrame,textvariable=valorX1Circ, validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryX1Circ = Entry(self.formaFrame,textvariable=valorX1Circ,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
         self.labelY1Circ = Label(self.formaFrame,text="Y1", bg="grey", font=("Segoe UI Black", 17))
-        self.entryY1Circ = Entry(self.formaFrame,textvariable=valorY1Circ, validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryY1Circ = Entry(self.formaFrame,textvariable=valorY1Circ,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
         self.labelRaioCirc = Label(self.formaFrame,text="Raio", bg="grey", font=("Segoe UI Black", 17))
-        self.entryRaioCirc = Entry(self.formaFrame,textvariable=valorRaio, validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryRaioCirc = Entry(self.formaFrame,textvariable=valorRaio,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
         self.buttonDesenharCirc = Button(self.formaFrame, text="Desenhar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
@@ -272,7 +294,6 @@ class Main():
                                                          int(self.entryRotacao.get()),
                                                          int(self.entryY1Trans.get()),
                                                          int(self.entryY1Trans.get()))),
-            self.glFrame.clearScreen(),
             self.glFrame.dadosFornecidos(figura=self.quadrado),
             LIMPA_CT([self.processoDeTrasform]),
             insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
@@ -281,7 +302,6 @@ class Main():
         self.buttonReflexX = Button(self.formaFrame, text="em X", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.quadrado.setPoints(self.transform2D.reflectionX(self.quadrado.getPoints())),
-            self.glFrame.clearScreen(),
             self.glFrame.dadosFornecidos(figura=self.quadrado),
             LIMPA_CT([self.processoDeTrasform]),
             insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
@@ -372,10 +392,16 @@ class Main():
         self.coordinateFrame = Frame(self.formaFrame, bg="red")
         
         self.treeCoordinates = ttk.Treeview(self.coordinateFrame)
+        
+        style = ttk.Style()
+        style.theme_use("default")
+        style.configure("Treeview", highlightthickness=0, bd=0, font=('Helvetica-Bold', 17), rowheight=25, )
+        style.configure("Treeview.Heading", font=('Helvetica-Bold', 17,'bold'))
+        
         self.treeCoordinates['columns'] = ("X","Y")
-        self.treeCoordinates.column("#0",width=0, minwidth=25)
-        self.treeCoordinates.column("X",width=130, minwidth=25)
-        self.treeCoordinates.column("Y",width=130, minwidth=25)
+        self.treeCoordinates.column("#0",width=0, stretch = "no")
+        self.treeCoordinates.column("X",width=130, minwidth=25, anchor=CENTER)
+        self.treeCoordinates.column("Y",width=130, minwidth=25, anchor=CENTER)
         
         self.treeCoordinates.heading("#0",text="")
         self.treeCoordinates.heading("X",text="X")
@@ -536,6 +562,7 @@ class Main():
         
     def changeFrameType(self, opt):
         self.glFrame.place_forget()
+        self.glFrame.destroy()
         
         if(opt == 0):
             self.glFrame = GLUTFrame2D(self.mainFrame,width=(self.mainFrame.winfo_width()*0.98),height=(self.mainFrame.winfo_height()*0.98),forma=self.reta)

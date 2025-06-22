@@ -18,6 +18,8 @@ class GLUTFrame2D(OpenGLFrame):
         self.clicked_points = []
         self.point_color = (1.0,1.0,1.0)
         self.modoEscuro = True
+        self.showAxis = True
+        self.recorte = False
         self.forma = forma
     
     def initgl(self):
@@ -40,19 +42,20 @@ class GLUTFrame2D(OpenGLFrame):
         GL_PIXEL = GL_POINTS
         glLoadIdentity()
         
-        # --- Eixos ---
-        glLineWidth(1)
-        glColor3f(1.0, 0.0, 0.0)  # vermelho
-        glBegin(GL_LINES)
-        glVertex2f(-1, 0)
-        glVertex2f(1, 0)
-        glEnd()
+        if(self.showAxis):
+            # --- Eixos ---
+            glLineWidth(1)
+            glColor3f(1.0, 0.0, 0.0)  # vermelho
+            glBegin(GL_LINES)
+            glVertex2f(-1, 0)
+            glVertex2f(1, 0)
+            glEnd()
 
-        glColor3f(0.0, 1.0, 0.0)  # verde
-        glBegin(GL_LINES)
-        glVertex2f(0, -1)
-        glVertex2f(0, 1)
-        glEnd()
+            glColor3f(0.0, 1.0, 0.0)  # verde
+            glBegin(GL_LINES)
+            glVertex2f(0, -1)
+            glVertex2f(0, 1)
+            glEnd()
 
         # Desenha os pontos clicados
         glColor3f(*self.point_color)
@@ -130,7 +133,7 @@ class GLUTFrame2D(OpenGLFrame):
         self.clicked_points.append((normalized_x, normalized_y))
 
     def mostrar_coordenadas(self,coords):
-        self.coordenadas_Mundo.append((coords[0],coords[1]))
+        self.coordenadas_Mundo.append((f"{(coords[0]):.3f}",f"{(coords[1]):.3f}"))
         self.coordenadas_Tela.append((round(coords[0]+400),round((coords[1]-400)*-1)))
     
     def setForma(self,novaForma):
