@@ -31,7 +31,7 @@ class Transform2D():
                 value = 0
                 for j in range(len(point)):
                     value += matrix1[i][j] * point[j]
-                    self.explanationTest += f" {matrix1[i][j]} * {point[j]}"
+                    self.explanationTest += f" {matrix1[i][j]:.3f} * {point[j]:.3f}"
                     if(j != (len(point)-1)):
                         self.explanationTest += " + "
                 
