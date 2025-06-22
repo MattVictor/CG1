@@ -134,7 +134,7 @@ class GLUTFrame2D(OpenGLFrame):
 
     def mostrar_coordenadas(self,coords):
         self.coordenadas_Mundo.append((f"{(coords[0]):.3f}",f"{(coords[1]):.3f}"))
-        self.coordenadas_Tela.append((round(coords[0]+400),round((coords[1]-400)*-1)))
+        self.coordenadas_Tela.append((round(coords[0]+(self.width/2)),round((coords[1]-(self.height/2))*-1)))
     
     def setForma(self,novaForma):
         self.forma = novaForma
