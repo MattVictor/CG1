@@ -21,6 +21,8 @@ class GLUTFrame2D(OpenGLFrame):
         self.forma = forma
     
     def initgl(self):
+        glViewport(0,0,self.width,self.height)
+        glLoadIdentity()
         glClearColor(0.0, 0.0, 0.0, 1.0)  # Fundo preto
         glPointSize(1)  # Tamanho dos pontos
         
@@ -83,9 +85,12 @@ class GLUTFrame2D(OpenGLFrame):
     
     def mouseClick(self, event):
         """ Captura cliques do mouse e converte para coordenadas normalizadas"""
-        window_width = self.width
-        window_height = self.height
+        window_width = self.width/2
+        window_height = self.height/2
 
+        print(window_width)
+        print(window_height)
+        
         x,y = event.x, event.y
         
         if event.num == 1:
@@ -95,8 +100,8 @@ class GLUTFrame2D(OpenGLFrame):
         elif event.num == 3:
             # Desenha uma linha nos pontos escolhidos
             
-            self.clicked_points_line.append((x / self.width) * 800 - 400)
-            self.clicked_points_line.append((1 - (y / self.height)) * 800 - 400)
+            self.clicked_points_line.append((x / self.width) * self.width - window_width)
+            self.clicked_points_line.append((1 - (y / self.height)) * self.height - window_height)
             
             if(len(self.clicked_points_line) == 4):
                 self.algoritmoDoisPontos()
@@ -117,8 +122,8 @@ class GLUTFrame2D(OpenGLFrame):
             self.normalizeAndAddPoints(x1,y1)
             
     def normalizeAndAddPoints(self,x,y):
-        normalized_x = x/400
-        normalized_y = y/400
+        normalized_x = x/(self.width/2)
+        normalized_y = y/(self.height/2)
         
         # Armazena o ponto clicado
         self.coordenadas_OpenGL.append((f"{(normalized_x):.3f}",f"{(normalized_y):.3f}"))

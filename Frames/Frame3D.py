@@ -50,9 +50,12 @@ class GLUTFrame3D(OpenGLFrame):
         # glMatrixMode(GL_MODELVIEW)
         # glLoadIdentity()
         
+        x = self.width/2
+        y = self.height/2
+        
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-300, 300, -300, 300, -800, 800)  # projeção ortográfica
+        glOrtho(-x, x, -y, y, -1000, 1000)  # projeção ortográfica
         
         glRotatef(35.264, 1, 0, 0)
         glRotatef(315, 0, 1, 0)
@@ -80,20 +83,24 @@ class GLUTFrame3D(OpenGLFrame):
         glLineWidth(1.0)
         glBegin(GL_LINES)
 
+        x = self.width/2
+        y = self.height/2
+        z = self.width/2
+
         # Eixo X - vermelho
         glColor3f(1.0, 0.0, 0.0)
-        glVertex3f(-400, 0, 0)
-        glVertex3f(400, 0, 0)
+        glVertex3f(-x, 0, 0)
+        glVertex3f(x, 0, 0)
 
         # Eixo Y - verde
         glColor3f(0.0, 1.0, 0.0)
-        glVertex3f(0, -400, 0)
-        glVertex3f(0, 400, 0)
+        glVertex3f(0, -y, 0)
+        glVertex3f(0, y, 0)
 
         # Eixo Z - azul
         glColor3f(0.0, 0.0, 1.0)
-        glVertex3f(0, 0, -400)
-        glVertex3f(0, 0, 400)
+        glVertex3f(0, 0, -z)
+        glVertex3f(0, 0, z)
 
         glEnd()
 

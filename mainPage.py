@@ -94,7 +94,7 @@ class Main():
         self.formaFrame = Frame(self.auxFrame,bg="gray")
         self.formaFrame.place(relx=0.01,rely=0.01,relheight=0.98,relwidth=0.98)
         
-        self.glFrame = GLUTFrame2D(self.mainFrame,width=self.window_width,height=self.window_height,forma=self.reta)
+        self.glFrame = GLUTFrame2D(self.mainFrame,width=(self.mainFrame.winfo_width()*0.98),height=(self.mainFrame.winfo_height()*0.98),forma=self.reta)
         self.glFrame.place(relx=0.01,rely=0.01,relheight=0.98,relwidth=0.98)
 
         self.labelForma = Label(self.formaFrame, text="RETA", bg="grey", font=("Segoe UI Black", 17))
@@ -252,7 +252,6 @@ class Main():
         self.buttonTranslation = Button(self.formaFrame, text="Transladar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.quadrado.setPoints(self.transform2D.transposition(self.quadrado.getPoints(), [int(self.entryX1Trans.get()),int(self.entryY1Trans.get())])),
-            self.glFrame.clearScreen(),
             self.glFrame.dadosFornecidos(figura=self.quadrado),
             LIMPA_CT([self.processoDeTrasform]),
             insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
@@ -291,7 +290,6 @@ class Main():
         self.buttonReflexY = Button(self.formaFrame, text="em Y", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.quadrado.setPoints(self.transform2D.reflectionY(self.quadrado.getPoints())),
-            self.glFrame.clearScreen(),
             self.glFrame.dadosFornecidos(figura=self.quadrado),
             LIMPA_CT([self.processoDeTrasform]),
             insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
@@ -300,7 +298,6 @@ class Main():
         self.buttonSchear = Button(self.formaFrame, text="Cisalhamento", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.quadrado.setPoints(self.transform2D.schear(self.quadrado.getPoints(),x=float(self.entryX1Trans.get()),y=float(self.entryY1Trans.get()))),
-            self.glFrame.clearScreen(),
             self.glFrame.dadosFornecidos(figura=self.quadrado),
             LIMPA_CT([self.processoDeTrasform]),
             insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
@@ -313,7 +310,6 @@ class Main():
                                                               [int(self.entryX1Trans3D.get()),
                                                                int(self.entryY1Trans3D.get()),
                                                                int(self.entryZ1Trans3D.get())])),
-            self.glFrame.clearScreen(),
             self.glFrame.redraw(),
             LIMPA_CT([self.processoDeTrasform]),
             insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
@@ -342,7 +338,6 @@ class Main():
         self.buttonReflexXY = Button(self.formaFrame, text="XY", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.glFrame.setVertices(self.transform3D.reflectionXY(self.glFrame.vertices)),
-            self.glFrame.clearScreen(),
             self.glFrame.redraw(),
             LIMPA_CT([self.processoDeTrasform]),
             insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
@@ -351,7 +346,6 @@ class Main():
         self.buttonReflexXZ = Button(self.formaFrame, text="XZ", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda: [
             self.glFrame.setVertices(self.transform3D.reflectionXZ(self.glFrame.vertices)),
-            self.glFrame.clearScreen(),
             self.glFrame.redraw(),
             LIMPA_CT([self.processoDeTrasform]),
             insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
@@ -360,7 +354,6 @@ class Main():
         self.buttonReflexYZ = Button(self.formaFrame, text="YZ", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.glFrame.setVertices(self.transform3D.reflectionYZ(self.glFrame.vertices)),
-            self.glFrame.clearScreen(),
             self.glFrame.redraw(),
             LIMPA_CT([self.processoDeTrasform]),
             insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
@@ -370,7 +363,6 @@ class Main():
                                          bg='#000000',fg="white", command=lambda:[
             self.glFrame.setVertices(self.transform3D.schear(self.glFrame.vertices, 
             float(self.entryX1Trans3D.get()),float(self.entryY1Trans3D.get()),float(self.entryZ1Trans3D.get()))),
-            self.glFrame.clearScreen(),
             self.glFrame.redraw(),
             LIMPA_CT([self.processoDeTrasform]),
             insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
@@ -546,13 +538,13 @@ class Main():
         self.glFrame.place_forget()
         
         if(opt == 0):
-            self.glFrame = GLUTFrame2D(self.mainFrame,width=self.window_width,height=self.window_height,forma=self.reta)
+            self.glFrame = GLUTFrame2D(self.mainFrame,width=(self.mainFrame.winfo_width()*0.98),height=(self.mainFrame.winfo_height()*0.98),forma=self.reta)
         elif(opt == 1):
-            self.glFrame = GLUTFrame3D(self.mainFrame,width=self.window_width,height=self.window_height,forma=self.reta)
+            self.glFrame = GLUTFrame3D(self.mainFrame,width=(self.mainFrame.winfo_width()*0.98),height=(self.mainFrame.winfo_height()*0.98),forma=self.reta)
         elif(opt == 2):
-            self.glFrame = ECGFrame(self.root, width=800, height=680)
+            self.glFrame = ECGFrame(self.mainFrame, width=800, height=680)
             
-        self.glFrame.place(relx=0.330,rely=0.025,relheight=0.95,relwidth=0.65)
+        self.glFrame.place(relx=0.01,rely=0.01,relheight=0.98,relwidth=0.98)
         
     def shortcut(self):
         self.quadrado.setPoints(quadradoBase)
