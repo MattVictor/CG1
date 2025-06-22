@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import ttk
-from customtkinter import CTk
+from customtkinter import CTk, CTkFrame,CTkButton
 from Frames.Frame2D import GLUTFrame2D
 from Frames.Frame3D import GLUTFrame3D
 from Frames.ecg import ECGFrame
@@ -66,17 +66,15 @@ class Main():
         self.window_width = 800
         self.window_height = 680
 
-        # Tamanho da janela TK
-        self.tkwindow_width = 1200
-        self.tkwindow_height = 700
-
         self.root = CTk()
+        
+        # Tamanho da janela TK
+        self.tkwindow_width = self.root.winfo_screenwidth()
+        self.tkwindow_height = self.root.winfo_screenheight()
+        
         self.root.geometry(f"{self.tkwindow_width}x{self.tkwindow_height}")
-        self.root.resizable = False
         self.root.title("Computação Gráfica")
-
-        self.formaFrame = Frame(self.root,bg="gray", width=300,height=680)
-        self.formaFrame.place(x=25,y=10)
+        self.root.after(0, lambda: self.root.wm_state('zoomed'))
                 
         self.VALIDAÇÃO_FLOAT()
                 
@@ -87,8 +85,17 @@ class Main():
         self.root.mainloop()
         
     def generateWidgets(self):
-        self.glFrame = GLUTFrame2D(self.root,width=self.window_width,height=self.window_height,forma=self.reta)
-        self.glFrame.place(x=350,y=10)
+        self.mainFrame = CTkFrame(self.root,border_color="white",border_width=5)
+        self.mainFrame.place(relx=0.330,rely=0.025,relheight=0.95,relwidth=0.65)
+        
+        self.auxFrame = CTkFrame(self.root,bg_color="gray",border_color="white",border_width=5,corner_radius=10)
+        self.auxFrame.place(relx=0.015,rely=0.025,relheight=0.95,relwidth=0.3)
+        
+        self.formaFrame = Frame(self.auxFrame,bg="gray")
+        self.formaFrame.place(relx=0.01,rely=0.01,relheight=0.98,relwidth=0.98)
+        
+        self.glFrame = GLUTFrame2D(self.mainFrame,width=self.window_width,height=self.window_height,forma=self.reta)
+        self.glFrame.place(relx=0.01,rely=0.01,relheight=0.98,relwidth=0.98)
 
         self.labelForma = Label(self.formaFrame, text="RETA", bg="grey", font=("Segoe UI Black", 17))
         self.processoString = ""
@@ -405,6 +412,9 @@ class Main():
         self.root.bind("r", lambda _: self.glFrame.clearScreen())
         self.root.bind("b", lambda _: self.glFrame.resetCamera())
         
+    def startPage(self):
+        pass
+        
     def frameReta(self):
         self.labelForma.config(text="RETA")
         self.labelForma.place(relx=0.05,rely=0.02)
@@ -533,14 +543,16 @@ class Main():
         self.processoString = text
         
     def changeFrameType(self, opt):
+        self.glFrame.place_forget()
+        
         if(opt == 0):
-            self.glFrame = GLUTFrame2D(self.root,width=self.window_width,height=self.window_height,forma=self.reta)
+            self.glFrame = GLUTFrame2D(self.mainFrame,width=self.window_width,height=self.window_height,forma=self.reta)
         elif(opt == 1):
-            self.glFrame = GLUTFrame3D(self.root,width=self.window_width,height=self.window_height,forma=self.reta)
+            self.glFrame = GLUTFrame3D(self.mainFrame,width=self.window_width,height=self.window_height,forma=self.reta)
         elif(opt == 2):
             self.glFrame = ECGFrame(self.root, width=800, height=680)
             
-        self.glFrame.place(x=350,y=10)
+        self.glFrame.place(relx=0.330,rely=0.025,relheight=0.95,relwidth=0.65)
         
     def shortcut(self):
         self.quadrado.setPoints(quadradoBase)

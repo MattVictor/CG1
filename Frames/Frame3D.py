@@ -7,7 +7,6 @@ from pyopengltk import OpenGLFrame
 class GLUTFrame3D(OpenGLFrame):
     def __init__(self, master, forma, **kwargs):
         super().__init__(master,**kwargs)
-        
         self.position = [500,500,500]
         
         self.bind("<MouseWheel>", self.zoom)
