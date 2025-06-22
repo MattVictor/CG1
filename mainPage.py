@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import ttk
-from customtkinter import CTk, CTkFrame,CTkButton
+from customtkinter import CTk, CTkFrame, CTkLabel, CTkButton
 from Frames.Frame2D import GLUTFrame2D
 from Frames.Frame3D import GLUTFrame3D
 from Frames.ecg import ECGFrame
@@ -38,6 +38,7 @@ def insertText(widget=Text, text=str):
 
 def limpa_frame(frame:Widget):
     for widget in frame.winfo_children():
+        widget.pack_forget()
         widget.place_forget()
 
 def insertDataTreeview(tree=ttk.Treeview, data=[]):
@@ -75,12 +76,16 @@ class Main():
         self.root.geometry(f"{self.tkwindow_width}x{self.tkwindow_height}")
         self.root.title("Computação Gráfica")
         self.root.after(0, lambda: self.root.wm_state('zoomed'))
-                
+        
+        self.auxColor = "#FFFFFF"
+        self.mainColor = "#000000"
+        self.selectedColor = "#333333"
+        
         self.VALIDAÇÃO_FLOAT()
-                
+        
         self.generateWidgets()
         
-        self.frameReta()
+        self.startPage()
         
         self.root.mainloop()
         
@@ -89,37 +94,42 @@ class Main():
         self.mainFrame = CTkFrame(self.root,border_color="white",border_width=5)
         self.mainFrame.place(relx=0.330,rely=0.025,relheight=0.95,relwidth=0.65)
         
-        self.auxFrame = CTkFrame(self.root,bg_color="gray",border_color="white",border_width=5,corner_radius=10)
+        self.auxFrame = CTkFrame(self.root,bg_color="gray",border_color="white",border_width=5,corner_radius=10,fg_color=self.mainColor)
         self.auxFrame.place(relx=0.015,rely=0.025,relheight=0.95,relwidth=0.3)
         
         self.formaFrame = Frame(self.auxFrame,bg="gray")
-        self.formaFrame.place(relx=0.01,rely=0.01,relheight=0.98,relwidth=0.98)
+        #self.formaFrame.place(relx=0.01,rely=0.01,relheight=0.98,relwidth=0.98)
         
         self.glFrame = GLUTFrame2D(self.mainFrame,width=(self.mainFrame.winfo_width()*0.98),height=(self.mainFrame.winfo_height()*0.98),forma=self.reta)
         self.glFrame.place(relx=0.01,rely=0.01,relheight=0.98,relwidth=0.98)
 
         #Menu Principal
-        self.drawButton = CTkButton(self.auxFrame,text="Desenhar")
+        self.drawButton = CTkButton(self.auxFrame,text="DESENHAR",font=("Segoe UI Black", 35),text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor,
+                                    command=self.drawPage)
         
-        self.ECGButton = CTkButton(self.auxFrame,text="ECG")
+        self.ECGButton = CTkButton(self.auxFrame,text="ECG",font=("Segoe UI Black", 35),text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor,
+                                    command=self.ECGPage)
         
-        self.transformButton = CTkButton(self.auxFrame,text="Transformar")
+        self.transformButton = CTkButton(self.auxFrame,text="TRANSFORMAR",font=("Segoe UI Black", 35),text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor,
+                                    command=self.TransformPage)
         
-        self.imageButton = CTkButton(self.auxFrame,text="Imagem")
+        self.imageButton = CTkButton(self.auxFrame,text="IMAGEM",font=("Segoe UI Black", 35),text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor,
+                                    command=self.TransformPage)
         
         #Menu Desenho
-        self.drawLine = CTkButton(self.auxFrame,text="Reta")
+        self.drawLine = CTkButton(self.auxFrame,text="RETA",font=("Segoe UI Black", 35),text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor,
+                                  command=self.frameReta)
         
-        self.drawCircle = CTkButton(self.auxFrame,text="Circunferência")
+        self.drawCircle = CTkButton(self.auxFrame,text="CIRCUNFERÊNCIA",font=("Segoe UI Black", 35),text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor)
         
         #Menu Transformações
-        self.dimension2 = CTkButton(self.auxFrame,text="2D")
+        self.dimension2 = CTkButton(self.auxFrame,text="2D",text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor)
         
-        self.dimension3 = CTkButton(self.auxFrame,text="3D")
+        self.dimension3 = CTkButton(self.auxFrame,text="3D",text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor)
         
         #Menu Imagem --TODO
 
-        self.labelForma = Label(self.formaFrame, text="RETA", bg="grey", font=("Segoe UI Black", 17))
+        self.labelForma = CTkLabel(self.auxFrame, text="MENU", text_color=self.auxColor, bg_color=self.mainColor, font=("Segoe UI Black", 40))
         self.processoString = ""
 
         #Explicações
@@ -192,19 +202,19 @@ class Main():
         valorX2Reta = IntVar()
         valorY2Reta = IntVar()
         
-        self.labelX1Reta = Label(self.formaFrame,text="X1", bg="grey", font=("Segoe UI Black", 17))
-        self.entryX1Reta = Entry(self.formaFrame,textvariable=valorX1Reta,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.labelX1Reta = Label(self.auxFrame,text="X1", bg="grey", font=("Segoe UI Black", 17))
+        self.entryX1Reta = Entry(self.auxFrame,textvariable=valorX1Reta,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
-        self.labelY1Reta = Label(self.formaFrame,text="Y1", bg="grey", font=("Segoe UI Black", 17))
-        self.entryY1Reta = Entry(self.formaFrame,textvariable=valorY1Reta,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.labelY1Reta = Label(self.auxFrame,text="Y1", bg="grey", font=("Segoe UI Black", 17))
+        self.entryY1Reta = Entry(self.auxFrame,textvariable=valorY1Reta,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
-        self.labelX2Reta = Label(self.formaFrame,text="X2", bg="grey", font=("Segoe UI Black", 17))
-        self.entryX2Reta = Entry(self.formaFrame,textvariable=valorX2Reta,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.labelX2Reta = Label(self.auxFrame,text="X2", bg="grey", font=("Segoe UI Black", 17))
+        self.entryX2Reta = Entry(self.auxFrame,textvariable=valorX2Reta,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
-        self.labelY2Reta = Label(self.formaFrame,text="Y2", bg="grey", font=("Segoe UI Black", 17))
-        self.entryY2Reta = Entry(self.formaFrame,textvariable=valorY2Reta,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.labelY2Reta = Label(self.auxFrame,text="Y2", bg="grey", font=("Segoe UI Black", 17))
+        self.entryY2Reta = Entry(self.auxFrame,textvariable=valorY2Reta,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
-        self.buttonDesenharReta = Button(self.formaFrame, text="Desenhar", font=("Segoe UI Black", 17),
+        self.buttonDesenharReta = Button(self.auxFrame, text="Desenhar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.glFrame.dadosFornecidos(x1=int(self.entryX1Reta.get()),
                                          y1=int(self.entryY1Reta.get()),
@@ -219,16 +229,16 @@ class Main():
         
         valorRaio = IntVar()
         
-        self.labelX1Circ = Label(self.formaFrame,text="X1", bg="grey", font=("Segoe UI Black", 17))
-        self.entryX1Circ = Entry(self.formaFrame,textvariable=valorX1Circ,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.labelX1Circ = Label(self.auxFrame,text="X1", bg="grey", font=("Segoe UI Black", 17))
+        self.entryX1Circ = Entry(self.auxFrame,textvariable=valorX1Circ,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
-        self.labelY1Circ = Label(self.formaFrame,text="Y1", bg="grey", font=("Segoe UI Black", 17))
-        self.entryY1Circ = Entry(self.formaFrame,textvariable=valorY1Circ,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.labelY1Circ = Label(self.auxFrame,text="Y1", bg="grey", font=("Segoe UI Black", 17))
+        self.entryY1Circ = Entry(self.auxFrame,textvariable=valorY1Circ,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
-        self.labelRaioCirc = Label(self.formaFrame,text="Raio", bg="grey", font=("Segoe UI Black", 17))
-        self.entryRaioCirc = Entry(self.formaFrame,textvariable=valorRaio,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.labelRaioCirc = Label(self.auxFrame,text="Raio", bg="grey", font=("Segoe UI Black", 17))
+        self.entryRaioCirc = Entry(self.auxFrame,textvariable=valorRaio,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
-        self.buttonDesenharCirc = Button(self.formaFrame, text="Desenhar", font=("Segoe UI Black", 17),
+        self.buttonDesenharCirc = Button(self.auxFrame, text="Desenhar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.glFrame.dadosFornecidos(x1=int(self.entryX1Circ.get()),
                                          y1=int(self.entryY1Circ.get()),
@@ -241,37 +251,37 @@ class Main():
         valorYTrans = IntVar()
         valorRotacao = IntVar()
         
-        self.labelX1Trans = Label(self.formaFrame,text="X", bg="grey", font=("Segoe UI Black", 17))
-        self.entryX1Trans = Entry(self.formaFrame,textvariable=valorXTrans, validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.labelX1Trans = Label(self.auxFrame,text="X", bg="grey", font=("Segoe UI Black", 17))
+        self.entryX1Trans = Entry(self.auxFrame,textvariable=valorXTrans, validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
-        self.labelY1Trans = Label(self.formaFrame,text="Y", bg="grey", font=("Segoe UI Black", 17))
-        self.entryY1Trans = Entry(self.formaFrame,textvariable=valorYTrans, validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.labelY1Trans = Label(self.auxFrame,text="Y", bg="grey", font=("Segoe UI Black", 17))
+        self.entryY1Trans = Entry(self.auxFrame,textvariable=valorYTrans, validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
-        self.labelRotacao = Label(self.formaFrame,text="Angulo", bg="grey", font=("Segoe UI Black", 17))
-        self.entryRotacao = Entry(self.formaFrame,textvariable=valorRotacao, validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.labelRotacao = Label(self.auxFrame,text="Angulo", bg="grey", font=("Segoe UI Black", 17))
+        self.entryRotacao = Entry(self.auxFrame,textvariable=valorRotacao, validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
         #Página das Transformações 3D
         valorXTrans3D = IntVar()
         valorYTrans3D = IntVar()
         valorZTrans3D = IntVar()
         
-        self.labelX1Trans3D = Label(self.formaFrame,text="X", bg="grey", font=("Segoe UI Black", 17))
-        self.entryX1Trans3D = Entry(self.formaFrame,textvariable=valorXTrans3D, validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.labelX1Trans3D = Label(self.auxFrame,text="X", bg="grey", font=("Segoe UI Black", 17))
+        self.entryX1Trans3D = Entry(self.auxFrame,textvariable=valorXTrans3D, validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
-        self.labelY1Trans3D = Label(self.formaFrame,text="Y", bg="grey", font=("Segoe UI Black", 17))
-        self.entryY1Trans3D = Entry(self.formaFrame,textvariable=valorYTrans3D, validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.labelY1Trans3D = Label(self.auxFrame,text="Y", bg="grey", font=("Segoe UI Black", 17))
+        self.entryY1Trans3D = Entry(self.auxFrame,textvariable=valorYTrans3D, validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
-        self.labelZ1Trans3D = Label(self.formaFrame,text="Z", bg="grey", font=("Segoe UI Black", 17))
-        self.entryZ1Trans3D = Entry(self.formaFrame,textvariable=valorZTrans3D, validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.labelZ1Trans3D = Label(self.auxFrame,text="Z", bg="grey", font=("Segoe UI Black", 17))
+        self.entryZ1Trans3D = Entry(self.auxFrame,textvariable=valorZTrans3D, validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
         #Botão de Desenhar o quadrado
-        self.buttonDesenharQuadrado = Button(self.formaFrame, text="Desenhar", font=("Segoe UI Black", 17),
+        self.buttonDesenharQuadrado = Button(self.auxFrame, text="Desenhar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.glFrame.dadosFornecidos(figura=self.quadrado)
         ])
         
         #Botões das transformações 2D
-        self.buttonTranslation = Button(self.formaFrame, text="Transladar", font=("Segoe UI Black", 17),
+        self.buttonTranslation = Button(self.auxFrame, text="Transladar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.quadrado.setPoints(self.transform2D.transposition(self.quadrado.getPoints(), [int(self.entryX1Trans.get()),int(self.entryY1Trans.get())])),
             self.glFrame.dadosFornecidos(figura=self.quadrado),
@@ -279,7 +289,7 @@ class Main():
             insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
         ])
         
-        self.buttonScale = Button(self.formaFrame, text="Escalar", font=("Segoe UI Black", 17),
+        self.buttonScale = Button(self.auxFrame, text="Escalar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.quadrado.setPoints(self.transform2D.scale(self.quadrado.getPoints(), [int(self.entryX1Trans.get()),int(self.entryY1Trans.get())])),
             self.glFrame.clearScreen(),
@@ -288,7 +298,7 @@ class Main():
             insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
         ])
         
-        self.buttonRotation = Button(self.formaFrame, text="Rotacionar", font=("Segoe UI Black", 17),
+        self.buttonRotation = Button(self.auxFrame, text="Rotacionar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.quadrado.setPoints(self.transform2D.rotation(self.quadrado.getPoints(), 
                                                          int(self.entryRotacao.get()),
@@ -299,7 +309,7 @@ class Main():
             insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
         ])
         
-        self.buttonReflexX = Button(self.formaFrame, text="em X", font=("Segoe UI Black", 17),
+        self.buttonReflexX = Button(self.auxFrame, text="em X", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.quadrado.setPoints(self.transform2D.reflectionX(self.quadrado.getPoints())),
             self.glFrame.dadosFornecidos(figura=self.quadrado),
@@ -307,7 +317,7 @@ class Main():
             insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
         ])
                 
-        self.buttonReflexY = Button(self.formaFrame, text="em Y", font=("Segoe UI Black", 17),
+        self.buttonReflexY = Button(self.auxFrame, text="em Y", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.quadrado.setPoints(self.transform2D.reflectionY(self.quadrado.getPoints())),
             self.glFrame.dadosFornecidos(figura=self.quadrado),
@@ -315,7 +325,7 @@ class Main():
             insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
         ])
         
-        self.buttonSchear = Button(self.formaFrame, text="Cisalhamento", font=("Segoe UI Black", 17),
+        self.buttonSchear = Button(self.auxFrame, text="Cisalhamento", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.quadrado.setPoints(self.transform2D.schear(self.quadrado.getPoints(),x=float(self.entryX1Trans.get()),y=float(self.entryY1Trans.get()))),
             self.glFrame.dadosFornecidos(figura=self.quadrado),
@@ -324,7 +334,7 @@ class Main():
         ])
         
         #Botões das transformações 3d
-        self.buttonTranslation3D = Button(self.formaFrame, text="Transladar", font=("Segoe UI Black", 17),
+        self.buttonTranslation3D = Button(self.auxFrame, text="Transladar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.glFrame.setVertices(self.transform3D.transposition(self.glFrame.vertices, 
                                                               [int(self.entryX1Trans3D.get()),
@@ -335,7 +345,7 @@ class Main():
             insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
         ])
         
-        self.buttonScale3D = Button(self.formaFrame, text="Escalar", font=("Segoe UI Black", 17),
+        self.buttonScale3D = Button(self.auxFrame, text="Escalar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.glFrame.setVertices(self.transform3D.scale(self.glFrame.vertices, 
                                                               [int(self.entryX1Trans3D.get()),
@@ -346,7 +356,7 @@ class Main():
             insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
         ])
                 
-        self.buttonRotation3D = Button(self.formaFrame, text="Rotacionar", font=("Segoe UI Black", 17),
+        self.buttonRotation3D = Button(self.auxFrame, text="Rotacionar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.glFrame.setVertices(self.transform3D.rotation(self.glFrame.vertices, 
             int(self.entryX1Trans3D.get()),int(self.entryY1Trans3D.get()),int(self.entryZ1Trans3D.get()))),
@@ -355,7 +365,7 @@ class Main():
             insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
         ])
         
-        self.buttonReflexXY = Button(self.formaFrame, text="XY", font=("Segoe UI Black", 17),
+        self.buttonReflexXY = Button(self.auxFrame, text="XY", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.glFrame.setVertices(self.transform3D.reflectionXY(self.glFrame.vertices)),
             self.glFrame.redraw(),
@@ -363,7 +373,7 @@ class Main():
             insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
         ])
         
-        self.buttonReflexXZ = Button(self.formaFrame, text="XZ", font=("Segoe UI Black", 17),
+        self.buttonReflexXZ = Button(self.auxFrame, text="XZ", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda: [
             self.glFrame.setVertices(self.transform3D.reflectionXZ(self.glFrame.vertices)),
             self.glFrame.redraw(),
@@ -371,7 +381,7 @@ class Main():
             insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
         ])
         
-        self.buttonReflexYZ = Button(self.formaFrame, text="YZ", font=("Segoe UI Black", 17),
+        self.buttonReflexYZ = Button(self.auxFrame, text="YZ", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.glFrame.setVertices(self.transform3D.reflectionYZ(self.glFrame.vertices)),
             self.glFrame.redraw(),
@@ -379,7 +389,7 @@ class Main():
             insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
         ])
         
-        self.buttonSchear3D = Button(self.formaFrame, text="Cisalhar", font=("Segoe UI Black", 17),
+        self.buttonSchear3D = Button(self.auxFrame, text="Cisalhar", font=("Segoe UI Black", 17),
                                          bg='#000000',fg="white", command=lambda:[
             self.glFrame.setVertices(self.transform3D.schear(self.glFrame.vertices, 
             float(self.entryX1Trans3D.get()),float(self.entryY1Trans3D.get()),float(self.entryZ1Trans3D.get()))),
@@ -389,7 +399,7 @@ class Main():
         ])
         
         #Treeview das coordenadas (Utilizado por todos os widgets acima)
-        self.coordinateFrame = Frame(self.formaFrame, bg="red")
+        self.coordinateFrame = Frame(self.auxFrame, bg="red")
         
         self.treeCoordinates = ttk.Treeview(self.coordinateFrame)
         
@@ -412,15 +422,15 @@ class Main():
         
         self.treeScroll.config(command=self.treeCoordinates.yview)
         
-        self.coordMundo = Button(self.formaFrame, text="Mundo", font=("Segoe UI Black", 17),bg="#999999", 
+        self.coordMundo = CTkButton(self.auxFrame, text="Mundo", font=("Segoe UI Black", 17),text_color=self.auxColor,border_color=self.auxColor,corner_radius=0,border_width=2,fg_color=self.mainColor,hover_color=self.selectedColor,
                                  command=lambda: [insertDataTreeview(self.treeCoordinates,self.glFrame.coordenadas_Mundo),
                                                   self.focusTable(self.coordMundo, [self.coordTela, self.coordOpenGL])])
         
-        self.coordOpenGL = Button(self.formaFrame, text="OpenGL", font=("Segoe UI Black", 17),bg="#999999", 
+        self.coordOpenGL = CTkButton(self.auxFrame, text="OpenGL", font=("Segoe UI Black", 17),text_color=self.auxColor,border_color=self.auxColor,corner_radius=0,border_width=2,fg_color=self.mainColor,hover_color=self.selectedColor,
                                   command=lambda: [insertDataTreeview(self.treeCoordinates,self.glFrame.coordenadas_OpenGL),
                                                    self.focusTable(self.coordOpenGL, [self.coordMundo, self.coordTela])])
         
-        self.coordTela = Button(self.formaFrame, text="Tela", font=("Segoe UI Black", 17),bg="#999999", 
+        self.coordTela = CTkButton(self.auxFrame, text="Tela", font=("Segoe UI Black", 17),text_color=self.auxColor,border_color=self.auxColor,corner_radius=0,border_width=2,fg_color=self.mainColor,hover_color=self.selectedColor,
                                 command=lambda: [insertDataTreeview(self.treeCoordinates,self.glFrame.coordenadas_Tela), 
                                                  self.focusTable(self.coordTela, [self.coordMundo, self.coordOpenGL])])
         
@@ -431,10 +441,34 @@ class Main():
         self.root.bind("b", lambda _: self.glFrame.resetCamera())
         
     def startPage(self):
+        limpa_frame(self.auxFrame)
+        self.labelForma.pack(anchor=CENTER,pady=20)
+        self.drawButton.pack(anchor=CENTER,pady=40,ipady=10,ipadx=10)
+        self.ECGButton.pack(anchor=CENTER,pady=40,ipady=10,ipadx=10)
+        self.transformButton.pack(anchor=CENTER,pady=40,ipady=10,ipadx=10)
+        self.imageButton.pack(anchor=CENTER,pady=40,ipady=10,ipadx=10)
+        
+    def drawPage(self):
+        limpa_frame(self.auxFrame)
+        self.labelForma.pack(anchor=CENTER,pady=20)
+        self.labelForma.configure(text="DESENHO")
+        self.drawLine.pack(anchor=CENTER,pady=100,ipady=10,ipadx=10)
+        self.drawCircle.pack(anchor=CENTER,pady=100,ipady=10,ipadx=10)
+    
+    def ECGPage(self):
+        limpa_frame(self.auxFrame)
+        self.labelForma.pack(anchor=CENTER,pady=20)
+        self.drawButton.pack(anchor=CENTER,pady=40,ipady=10,ipadx=10)
+        self.ECGButton.pack(anchor=CENTER,pady=40,ipady=10,ipadx=10)
+        self.transformButton.pack(anchor=CENTER,pady=40,ipady=10,ipadx=10)
+        self.imageButton.pack(anchor=CENTER,pady=40,ipady=10,ipadx=10)
+    
+    def TransformPage(self):
         pass
         
     def frameReta(self):
-        self.labelForma.config(text="RETA")
+        limpa_frame(self.auxFrame)
+        self.labelForma.configure(text="RETA")
         self.labelForma.place(relx=0.05,rely=0.02)
         
         self.labelX1Reta.place(relx=0.1,rely=0.1,relheight=0.1,relwidth=0.1)
@@ -544,11 +578,11 @@ class Main():
         for event in widget.bind():
             widget.unbind(event)
                 
-    def focusTable(self, focused=Button, unfocus=Button):
-        focused.config(bg="#000000", fg="white")
+    def focusTable(self, focused=CTkButton, unfocus=CTkButton):
+        focused.configure(fg_color="#999999", text_color="black")
         
         for button in unfocus:
-            button.config(bg="#999999", fg="black")
+            button.configure(fg_color="#000000", text_color="white")
             
     def VALIDAÇÃO_FLOAT(self):
         self.vald2 = (self.root.register(VALIDAR_FLOAT), '%P')
