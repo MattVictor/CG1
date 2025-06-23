@@ -46,8 +46,11 @@ class Reta():
         x1,x2 = clicked_points_line[0], clicked_points_line[2]
         y1,y2 = clicked_points_line[1], clicked_points_line[3]
         
-        dx = abs(x2 - x1)
-        dy = abs(y2 - y1)
+        print(f"{x1} {y1}")
+        print(f"{x2} {y2}")
+        
+        dx = abs(abs(x2) - abs(x1))
+        dy = abs(abs(y2) - abs(y1))
         
         sx = 1 if x1 < x2 else -1
         sy = 1 if y1 < y2 else -1
@@ -58,7 +61,6 @@ class Reta():
         if dx > dy:
             d = 2*a + b
             while x1 != x2:
-                print(d)
                 lighted_pixels.append((x1, y1))
                 if d >= 0:
                     y1 += sy
@@ -68,7 +70,6 @@ class Reta():
         else:
             d = a + 2*b
             while y1 != y2:
-                print(d)
                 lighted_pixels.append((x1, y1))
                 if d >= 0:
                     x1 += sx
@@ -86,6 +87,9 @@ class Reta():
         x1,x2 = clicked_points_line[0], clicked_points_line[2]
         y1,y2 = clicked_points_line[1], clicked_points_line[3]
         
+        print(f"{x1} {y1}")
+        print(f"{x2} {y2}")
+        
         dx = abs(x2 - x1)
         dy = abs(y2 - y1)
         
@@ -99,7 +103,7 @@ class Reta():
             d = 2*a + b
             
             while x1 != x2:
-                print(d)
+                # print(d)
                 lighted_pixels.append((x1, y1))
                 if d >= 0:
                     y1 += sy
@@ -110,7 +114,7 @@ class Reta():
             d = a + 2*b
             
             while y1 != y2:
-                print(d)
+                # print(d)
                 lighted_pixels.append((x1, y1))
                 if d >= 0:
                     x1 += sx
