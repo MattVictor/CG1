@@ -121,7 +121,7 @@ class Main():
         self.transformButton = CTkButton(self.auxFrame,text="TRANSFORMAR",font=("Segoe UI Black", 35),text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor,
                                     command=self.TransformPage)
         
-        self.imageButton = CTkButton(self.auxFrame,text="IMAGEM",font=("Segoe UI Black", 35),text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor,
+        self.imageButton = CTkButton(self.auxFrame,text="RECORTE",font=("Segoe UI Black", 35),text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor,
                                     command=self.TransformPage)
         
         #Menu Desenho
@@ -476,8 +476,8 @@ class Main():
         
         self.drawButton.pack(anchor=CENTER,pady=40,ipady=10,ipadx=10)
         self.ECGButton.pack(anchor=CENTER,pady=40,ipady=10,ipadx=10)
-        self.transformButton.pack(anchor=CENTER,pady=40,ipady=10,ipadx=10)
         self.imageButton.pack(anchor=CENTER,pady=40,ipady=10,ipadx=10)
+        self.transformButton.pack(anchor=CENTER,pady=40,ipady=10,ipadx=10)
         
     def drawPage(self):
         limpa_frame(self.auxFrame)
