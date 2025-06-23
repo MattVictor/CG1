@@ -11,11 +11,6 @@ class GLUTFrame3D(OpenGLFrame):
         
         self.bind("<MouseWheel>", self.zoom)
         
-        master.bind("<Left>", self.rotateLeft)
-        master.bind("<Up>", self.rotateUp)
-        master.bind("<Down>", self.rotateDown)
-        master.bind("<Right>", self.rotateRight)
-        
         self.vertices = [
             [0, 0, 0],
             [ 100, 0, 0],
@@ -35,6 +30,7 @@ class GLUTFrame3D(OpenGLFrame):
         self.clicked_points = []
         self.point_color = (1.0,1.0,1.0)
         self.modoEscuro = True
+        self.showAxis = True
         self.forma = forma
     
     def initgl(self):
@@ -43,19 +39,14 @@ class GLUTFrame3D(OpenGLFrame):
         glEnable(GL_DEPTH_TEST)
         # Tamanho dos pontos
         
-        #glViewport(0, 0, 800, 800)
-        # glMatrixMode(GL_PROJECTION)
-        # glLoadIdentity()
-        # gluPerspective(45,1.0,0.1,1000.0)
-        # glMatrixMode(GL_MODELVIEW)
-        # glLoadIdentity()
+        glViewport(0, 0, self.width, self.height)
         
         x = self.width/2
         y = self.height/2
         
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-x, x, -y, y, -1000, 1000)  # projeção ortográfica
+        glOrtho(-x, x, -y, y, -500, 1000)  # projeção ortográfica
         
         glRotatef(35.264, 1, 0, 0)
         glRotatef(315, 0, 1, 0)
@@ -72,7 +63,8 @@ class GLUTFrame3D(OpenGLFrame):
         # gluLookAt(self.position[0], self.position[1], self.position[1], 0, 0, 0, 0, 1, 0)
 
         # Desenhar eixos
-        self.draw_axes()
+        if(self.showAxis):
+            self.draw_axes()
 
         # Desenhar o cubo
         self.draw_cube()
@@ -129,26 +121,6 @@ class GLUTFrame3D(OpenGLFrame):
                 self.position[i] -= 10
         
         self.redraw()
-        
-    def rotateUp(self,event):
-        self.position[1] += 10
-        
-        self.redraw()
-        
-    def rotateDown(self,event):
-        self.position[1] -= 10
-        
-        self.redraw()
-        
-    def rotateLeft(self,event):
-        self.position[0] += 10
-        
-        self.redraw()
-        
-    def rotateRight(self,event):
-        self.position[0] -= 10
-        
-        self.redraw()
 
     def setVertices(self, vertex):
         self.vertices = vertex
@@ -167,6 +139,14 @@ class GLUTFrame3D(OpenGLFrame):
      
     def resetCamera(self):
         self.position = [500,500,500]
+        
+        self.redraw()
+        
+    def turnShowAxis(self):
+        if(self.showAxis):
+            self.showAxis = False
+        else:
+            self.showAxis = True
         
         self.redraw()
         

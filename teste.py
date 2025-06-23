@@ -1,29 +1,40 @@
-import time
-import tkinter
-from OpenGL import GL
-from pyopengltk import OpenGLFrame
+from customtkinter import *
+from customtkinter import CTkFont
 
-class AppOgl(OpenGLFrame):
+root = CTk()
+root.title('Font Families')
+fonts=list(CTkFont.families())
+fonts.sort()
 
-    def initgl(self):
-        """Initalize gl states when the frame is created"""
-        GL.glViewport(0, 0, self.width, self.height)
-        GL.glClearColor(0.0, 1.0, 0.0, 0.0)    
-        self.start = time.time()
-        self.nframes = 0
+def populate(frame):
+    '''Put in the fonts'''
+    listnumber = 1
+    for i, item in enumerate(fonts):
+        label = "listlabel" + str(listnumber)
+        label = CTkLabel(frame,text=item,font=(item, 16))
+        label.grid(row=i)
+        label.bind("<Button-1>",lambda e,item=item:copy_to_clipboard(item))
+        listnumber += 1
 
-    def redraw(self):
-        """Render a single frame"""
-        GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-        tm = time.time() - self.start
-        self.nframes += 1
-        print("fps",self.nframes / tm, end="\r" )
+def copy_to_clipboard(item):
+    root.clipboard_clear()
+    root.clipboard_append("font=('" + item.lstrip('@') + "', 12)")
 
+def onFrameConfigure(canvas):
+    '''Reset the scroll region to encompass the inner frame'''
+    canvas.configure(scrollregion=canvas.bbox("all"))
 
-if __name__ == '__main__':
-    root = tkinter.Tk()
-    app = AppOgl(root, width=320, height=200)
-    app.pack(fill=tkinter.BOTH, expand=tkinter.YES)
-    app.animate = 1
-    app.after(100, app.printContext)
-    app.mainloop()
+canvas = CTkCanvas(root, borderwidth=0, background="#ffffff")
+frame = CTkFrame(canvas, background="#ffffff")
+vsb = CTkScrollbar(root, orient="vertical", command=canvas.yview)
+canvas.configure(yscrollcommand=vsb.set)
+
+vsb.pack(side="right", fill="y")
+canvas.pack(side="left", fill="both", expand=True)
+canvas.create_window((4,4), window=frame, anchor="nw")
+
+frame.bind("<Configure>", lambda event, canvas=canvas: onFrameConfigure(canvas))
+
+populate(frame)
+
+root.mainloop()

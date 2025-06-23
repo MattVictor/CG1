@@ -151,6 +151,14 @@ class GLUTFrame2D(OpenGLFrame):
         
         self.redraw()
         
+    def turnShowAxis(self):
+        if(self.showAxis):
+            self.showAxis = False
+        else:
+            self.showAxis = True
+        
+        self.redraw()
+        
     def clearScreen(self):
         self.clicked_points = []
         self.redraw()
