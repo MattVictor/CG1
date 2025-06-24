@@ -121,9 +121,6 @@ class Main():
         self.transformButton = CTkButton(self.auxFrame,text="TRANSFORMAR",font=("Segoe UI Black", 35),text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor,
                                     command=self.TransformPage)
         
-        self.imageButton = CTkButton(self.auxFrame,text="RECORTE",font=("Segoe UI Black", 35),text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor,
-                                    command=self.TransformPage)
-        
         #Menu Desenho
         self.drawLine = CTkButton(self.auxFrame,text="RETA",font=("Segoe UI Black", 35),text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor,
                                   command=self.frameReta)
@@ -137,6 +134,9 @@ class Main():
         
         self.dimension3 = CTkButton(self.auxFrame,text="3D",font=("Segoe UI Black", 35),text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor,
                                     command=self.Transformation3DFrame)
+        
+        self.imageButton = CTkButton(self.auxFrame,text="IMAGEM",font=("Segoe UI Black", 35),text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor,
+                                    command=self.TransformPage)
         
         #Menu Imagem --TODO
 
@@ -447,10 +447,9 @@ class Main():
         
         self.changeFrameType(3)
         
-        self.drawButton.pack(anchor=CENTER,pady=40,ipady=10,ipadx=10)
-        self.ECGButton.pack(anchor=CENTER,pady=40,ipady=10,ipadx=10)
-        self.imageButton.pack(anchor=CENTER,pady=40,ipady=10,ipadx=10)
-        self.transformButton.pack(anchor=CENTER,pady=40,ipady=10,ipadx=10)
+        self.drawButton.pack(anchor=CENTER,pady=50,ipady=10,ipadx=10)
+        self.ECGButton.pack(anchor=CENTER,pady=50,ipady=10,ipadx=10)
+        self.transformButton.pack(anchor=CENTER,pady=50,ipady=10,ipadx=10)
         
     def drawPage(self):
         limpa_frame(self.auxFrame)
@@ -482,8 +481,9 @@ class Main():
         
         self.changeFrameType(3)
         
-        self.dimension2.pack(anchor=CENTER,pady=100,ipady=10,ipadx=10)
-        self.dimension3.pack(anchor=CENTER,pady=100,ipady=10,ipadx=10)
+        self.dimension2.pack(anchor=CENTER,pady=50,ipady=10,ipadx=10)
+        self.dimension3.pack(anchor=CENTER,pady=50,ipady=10,ipadx=10)
+        self.imageButton.pack(anchor=CENTER,pady=50,ipady=10,ipadx=10)
         
     def frameReta(self):
         limpa_frame(self.auxFrame)
