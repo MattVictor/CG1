@@ -15,12 +15,14 @@ class GLUTFrame2D(OpenGLFrame):
         self.coordenadas_Tela = []
         
         self.clicked_points_line = []
+        self.clicked_points_line_cut = []
         self.clicked_points = []
         self.point_color = (1.0,1.0,1.0)
         self.modoEscuro = True
         self.showAxis = True
-        self.recorte = True
+        self.recorte = False
         self.showCohen = False
+        
         self.forma = forma
     
     def initgl(self):
@@ -35,7 +37,20 @@ class GLUTFrame2D(OpenGLFrame):
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         
+        self.defineVariables()
+        
         self.redraw()
+        
+    def defineVariables(self):
+        self.xAxisSize = self.width/2
+        self.yAxisSize = self.height/2
+        
+        self.viewportC = 0.5
+        
+        self.viewportXmin = self.xAxisSize * -(self.viewportC)
+        self.viewportYmin = self.yAxisSize * -(self.viewportC)
+        self.viewportXmax = self.xAxisSize * (self.viewportC)
+        self.viewportYmax = self.yAxisSize * (self.viewportC)
         
     def redraw(self):
         """ Função para desenhar os pontos na tela """
@@ -140,9 +155,16 @@ class GLUTFrame2D(OpenGLFrame):
             self.clicked_points_line.append((1 - (y / self.height)) * self.height - window_height)
             
             if(len(self.clicked_points_line) == 4):
+                self.x1,self.y1,self.x2,self.y2 = self.clicked_points_line[0],self.clicked_points_line[1],self.clicked_points_line[2],self.clicked_points_line[3]
+                self.clicked_points_line = self.cohen_Suterland()
+            
+            print(self.clicked_points_line)
+            
+            if(len(self.clicked_points_line) == 4):
                 self.algoritmoDoisPontos()
                 
                 self.clicked_points_line = []
+                self.clicked_points_line_cut = []
         
         self.redraw()
         
@@ -169,6 +191,115 @@ class GLUTFrame2D(OpenGLFrame):
         self.coordenadas_Mundo.append((f"{(coords[0]):.3f}",f"{(coords[1]):.3f}"))
         self.coordenadas_Tela.append((round(coords[0]+(self.width/2)),round((coords[1]-(self.height/2))*-1)))
     
+    def cohen_Suterland(self):
+        
+        while(True):
+            bit4P1 = [True if (self.y1 > self.viewportYmax) else False,
+                    True if (self.y1 < self.viewportYmin) else False,
+                    True if (self.x1 > self.viewportXmax) else False,
+                    True if (self.x1 < self.viewportXmin) else False]        
+            
+            bit4P2 = [True if (self.y2 > self.viewportYmax) else False,
+                    True if (self.y2 < self.viewportYmin) else False,
+                    True if (self.x2 > self.viewportXmax) else False,
+                    True if (self.x2 < self.viewportXmin) else False]
+            
+            print(self.x1)
+            print(self.y1)
+            print(self.x2)
+            print(self.y2)
+            
+            print(bit4P1)
+            print(bit4P2)
+            
+            bitcheck = self.bitCheck(bit4P1,bit4P2)
+            
+            coefAngular = self.m()
+            
+            if(bitcheck == 0):
+                print("Aceitação trivial")
+                return [self.x1,self.y1,self.x2,self.y2]
+            elif(self.bitCheck(bit4P1,bit4P2) == 1):
+                self.clicked_points_line.clear()
+                self.clicked_points_line_cut.clear()
+                print("Rejeitado")
+                return []
+            else:
+                if(bit4P1[0]):
+                    if coefAngular != 0:
+                        self.x1 = self.interCima()
+                    self.y1 = self.viewportYmax
+                elif(bit4P1[1]):
+                    if coefAngular != 0:
+                        self.x1 = self.interBaixo()
+                    self.y1 = self.viewportYmin
+                elif(bit4P1[2]):
+                    if coefAngular != 0:
+                        self.y1 = self.interDireita()
+                    self.x1 = self.viewportXmax
+                elif(bit4P1[3]):
+                    if coefAngular != 0:
+                        self.y1 = self.interEsquerda()
+                    self.x1 = self.viewportXmin
+                    
+                coefAngular = self.m()
+                    
+                if(bit4P2[0]):
+                    if coefAngular != 0:
+                        self.x2 = self.interCima()
+                    self.y2 = self.viewportYmax
+                elif(bit4P2[1]):
+                    if coefAngular != 0:
+                        self.x2 = self.interBaixo()
+                    self.y2 = self.viewportYmin
+                elif(bit4P2[2]):
+                    if coefAngular != 0:
+                        self.y2 = self.interDireita()
+                    self.x2 = self.viewportXmax
+                elif(bit4P2[3]):
+                    if coefAngular != 0:
+                        self.y2 = self.interEsquerda()
+                    self.x2 = self.viewportXmin
+                print("Candidato a recorte")
+            
+    def bitCheck(self,P1,P2):
+        for i in range(4):
+            if P1[i] and P2[i]:
+                return 1
+            
+        for i in range(4):
+            if P1[i] or P2[i]:
+                return 2
+
+        if(self.x1 == self.x2 and self.y1 == self.y2):
+            return 1
+        
+        return 0
+    
+    def m(self): #Coeficiente Angular da Reta
+        dy = (self.y2 - self.y1)
+        dx = (self.x2 - self.x1)
+        
+        if(dx == 0):
+            return 0
+        
+        if(dy == 0):
+            return 0
+        
+        return dy / dx
+    
+    def interCima(self):
+        return round(self.x1 + ((1/self.m()) * (self.viewportYmax-self.y1)))
+    
+    def interBaixo(self):
+        return round(self.x1 + ((1/self.m()) * (self.viewportYmin-self.y1)))
+    
+    def interDireita(self):
+        return round((self.m() * (self.viewportXmax-self.x1)) + self.y1)
+    
+    def interEsquerda(self):
+        return round((self.m() * (self.viewportXmin-self.x1)) + self.y1)
+    
     def setForma(self,novaForma):
         self.forma = novaForma
     
@@ -189,6 +320,14 @@ class GLUTFrame2D(OpenGLFrame):
             self.showAxis = False
         else:
             self.showAxis = True
+        
+        self.redraw()
+        
+    def turnRecorte(self):
+        if(self.recorte):
+            self.recorte = False
+        else:
+            self.recorte = True
         
         self.redraw()
         

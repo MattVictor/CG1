@@ -160,8 +160,7 @@ class Main():
         self.menu.add_cascade(label='OpenGL', menu=transformacoes2D)
         transformacoes2D.add_command(label='Inverter Cores', command=lambda:[self.glFrame.invertColors()])
         transformacoes2D.add_command(label='Eixos ON/OFF', command=lambda:[self.glFrame.turnShowAxis()])
-        transformacoes2D.add_command(label='Recorte', command=lambda:[limpa_frame(self.formaFrame), 
-                                                                        self.Transformation2DFrame(2,"ROTAÇÃO")])
+        transformacoes2D.add_command(label='Recorte', command=lambda:[self.glFrame.turnRecorte()])
         transformacoes2D.add_command(label='Cohen-Suterland', command=lambda:[self.glFrame.turnCohensuterland()])
         transformacoes2D.add_command(label='Resetar', command=lambda:[self.glFrame.clearScreen()])
         
