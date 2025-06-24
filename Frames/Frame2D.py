@@ -19,7 +19,7 @@ class GLUTFrame2D(OpenGLFrame):
         self.point_color = (1.0,1.0,1.0)
         self.modoEscuro = True
         self.showAxis = True
-        self.recorte = False
+        self.recorte = True
         self.showCohen = False
         self.forma = forma
     
@@ -58,7 +58,8 @@ class GLUTFrame2D(OpenGLFrame):
             glVertex2f(0, 1)
             glEnd()
             
-        if(self.showCohen):
+        if(self.showCohen): 
+            # MOSTRAR BORDAS COHEN-SUTERLAND
             glLineWidth(1)
             glColor3f(0.0, 0.0, 1.0)
             glBegin(GL_LINES)
@@ -91,7 +92,11 @@ class GLUTFrame2D(OpenGLFrame):
         # Primitiva
         glBegin(GL_PIXEL)
         for x, y in self.clicked_points:
-            glVertex2f(x, y)
+            if(self.recorte):
+                if((x > -0.5 and x < 0.5) and (y > -0.5 and y < 0.5)):
+                    glVertex2f(x, y)
+            else:
+                glVertex2f(x, y)
         glEnd()
 
         self.tkSwapBuffers()
