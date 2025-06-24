@@ -20,6 +20,7 @@ class GLUTFrame2D(OpenGLFrame):
         self.modoEscuro = True
         self.showAxis = True
         self.recorte = False
+        self.showCohen = False
         self.forma = forma
     
     def initgl(self):
@@ -56,6 +57,33 @@ class GLUTFrame2D(OpenGLFrame):
             glVertex2f(0, -1)
             glVertex2f(0, 1)
             glEnd()
+            
+        if(self.showCohen):
+            glLineWidth(1)
+            glColor3f(0.0, 0.0, 1.0)
+            glBegin(GL_LINES)
+            glVertex2f(-1, 0.5)
+            glVertex2f(1, 0.5)
+            glEnd()
+
+            glColor3f(0.0, 0.0, 1.0)
+            glBegin(GL_LINES)
+            glVertex2f(0.5, -1)
+            glVertex2f(0.5, 1)
+            glEnd()
+            
+            glLineWidth(1)
+            glColor3f(0.0, 0.0, 1.0)
+            glBegin(GL_LINES)
+            glVertex2f(-1, -0.5)
+            glVertex2f(1, -0.5)
+            glEnd()
+
+            glColor3f(0.0, 0.0, 1.0)
+            glBegin(GL_LINES)
+            glVertex2f(-0.5, -1)
+            glVertex2f(-0.5, 1)
+            glEnd()
 
         # Desenha os pontos clicados
         glColor3f(*self.point_color)
@@ -67,7 +95,7 @@ class GLUTFrame2D(OpenGLFrame):
         glEnd()
 
         self.tkSwapBuffers()
-        
+
     def dadosFornecidos(self,x1=0,y1=0,x2=False,y2=False,raio=False,figura=False):
         if raio:
             clicked_points = self.forma.drawFunction(self.clicked_points_line,[x1,y1], raio)
@@ -156,6 +184,14 @@ class GLUTFrame2D(OpenGLFrame):
             self.showAxis = False
         else:
             self.showAxis = True
+        
+        self.redraw()
+        
+    def turnCohensuterland(self):
+        if(self.showCohen):
+            self.showCohen = False
+        else:
+            self.showCohen = True
         
         self.redraw()
         

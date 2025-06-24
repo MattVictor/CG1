@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import ttk
-from customtkinter import CTk, CTkFrame, CTkLabel, CTkButton, CTkEntry, CTkScrollableFrame
+from customtkinter import CTk, CTkFrame, CTkLabel, CTkButton, CTkEntry, CTkScrollableFrame, CTkCheckBox
 from Frames.Frame2D import GLUTFrame2D
 from Frames.Frame3D import GLUTFrame3D
 from Frames.ecg import ECGFrame
@@ -159,6 +159,7 @@ class Main():
         transformacoes2D.add_command(label='Eixos ON/OFF', command=lambda:[self.glFrame.turnShowAxis()])
         transformacoes2D.add_command(label='Recorte', command=lambda:[limpa_frame(self.formaFrame), 
                                                                         self.Transformation2DFrame(2,"ROTAÇÃO")])
+        transformacoes2D.add_command(label='Cohen-Suterland', command=lambda:[self.glFrame.turnCohensuterland()])
         transformacoes2D.add_command(label='Resetar', command=lambda:[self.glFrame.clearScreen()])
         
         Graphic2D = Menu(self.menu)
@@ -256,13 +257,13 @@ class Main():
         valorRotacao = IntVar()
         
         self.labelX1Trans = CTkLabel(self.auxFrame,text="X", fg_color=self.mainColor, font=("Segoe UI Black", 17))
-        self.entryX1Trans = CTkEntry(self.auxFrame,textvariable=valorXTrans, validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryX1Trans = CTkEntry(self.auxFrame,textvariable=valorXTrans,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
         self.labelY1Trans = CTkLabel(self.auxFrame,text="Y", fg_color=self.mainColor, font=("Segoe UI Black", 17))
-        self.entryY1Trans = CTkEntry(self.auxFrame,textvariable=valorYTrans, validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryY1Trans = CTkEntry(self.auxFrame,textvariable=valorYTrans,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
         self.labelRotacao = CTkLabel(self.auxFrame,text="Angulo", fg_color=self.mainColor, font=("Segoe UI Black", 17))
-        self.entryRotacao = CTkEntry(self.auxFrame,textvariable=valorRotacao, validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryRotacao = CTkEntry(self.auxFrame,textvariable=valorRotacao,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
         #Página das Transformações 3D
         valorXTrans3D = IntVar()
@@ -270,13 +271,13 @@ class Main():
         valorZTrans3D = IntVar()
         
         self.labelX1Trans3D = CTkLabel(self.auxFrame,text="X", fg_color=self.mainColor, font=("Segoe UI Black", 17))
-        self.entryX1Trans3D = CTkEntry(self.auxFrame,textvariable=valorXTrans3D, validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryX1Trans3D = CTkEntry(self.auxFrame,textvariable=valorXTrans3D,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
         self.labelY1Trans3D = CTkLabel(self.auxFrame,text="Y", fg_color=self.mainColor, font=("Segoe UI Black", 17))
-        self.entryY1Trans3D = CTkEntry(self.auxFrame,textvariable=valorYTrans3D, validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryY1Trans3D = CTkEntry(self.auxFrame,textvariable=valorYTrans3D,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
         self.labelZ1Trans3D = CTkLabel(self.auxFrame,text="Z", fg_color=self.mainColor, font=("Segoe UI Black", 17))
-        self.entryZ1Trans3D = CTkEntry(self.auxFrame,textvariable=valorZTrans3D, validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryZ1Trans3D = CTkEntry(self.auxFrame,textvariable=valorZTrans3D,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
         
         #Frame Scrollavel
         self.transformSequency = CTkScrollableFrame(self.auxFrame, orientation=HORIZONTAL, label_text="SEQUENCIA")
@@ -321,25 +322,14 @@ class Main():
             insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
         ])
         
-        self.buttonReflexX = CTkButton(self.auxFrame, text="Reflex em X", font=("Segoe UI Black", 17),
-                                         text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor, command=lambda:[
-            self.quadrado.setPoints(self.transform2D.reflectionX(self.quadrado.getPoints())),
-            self.addTransform(3,data=("X")),
-            self.glFrame.clearScreen(),
-            self.glFrame.dadosFornecidos(figura=self.quadrado),
-            LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
-        ])
+        self.buttonReflexX = CTkCheckBox(self.auxFrame, text="em X", font=("Segoe UI Black", 17),
+                                         text_color=self.auxColor,fg_color=self.mainColor,hover_color=self.selectedColor)
                 
-        self.buttonReflexY = CTkButton(self.auxFrame, text="Reflex em Y", font=("Segoe UI Black", 17),
-                                         text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor, command=lambda:[
-            self.quadrado.setPoints(self.transform2D.reflectionY(self.quadrado.getPoints())),
-            self.addTransform(3,data=("Y")),
-            self.glFrame.clearScreen(),
-            self.glFrame.dadosFornecidos(figura=self.quadrado),
-            LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
-        ])
+        self.buttonReflexY = CTkCheckBox(self.auxFrame, text="em Y", font=("Segoe UI Black", 17),
+                                         fg_color=self.mainColor,hover_color=self.selectedColor)
+        
+        self.buttonReflex = CTkButton(self.auxFrame, text="Refletir", font=("Segoe UI Black", 17),
+                                         text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor, command=self.reflexCheckbox2D)
         
         self.buttonSchear = CTkButton(self.auxFrame, text="Cisalhamento", font=("Segoe UI Black", 17),
                                          text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor, command=lambda:[
@@ -358,6 +348,7 @@ class Main():
                                                               [int(self.entryX1Trans3D.get()),
                                                                int(self.entryY1Trans3D.get()),
                                                                int(self.entryZ1Trans3D.get())])),
+            self.addTransform(0,data=(int(self.entryX1Trans3D.get()),int(self.entryY1Trans3D.get()),int(self.entryZ1Trans3D.get()))),
             self.glFrame.redraw(),
             LIMPA_CT([self.processoDeTrasform]),
             insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
@@ -369,6 +360,7 @@ class Main():
                                                               [int(self.entryX1Trans3D.get()),
                                                                int(self.entryY1Trans3D.get()),
                                                                int(self.entryZ1Trans3D.get())])),
+            self.addTransform(1,data=(int(self.entryX1Trans3D.get()),int(self.entryY1Trans3D.get()),int(self.entryZ1Trans3D.get()))),
             self.glFrame.redraw(),
             LIMPA_CT([self.processoDeTrasform]),
             insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
@@ -378,39 +370,29 @@ class Main():
                                          text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor, command=lambda:[
             self.glFrame.setVertices(self.transform3D.rotation(self.glFrame.vertices, 
             int(self.entryX1Trans3D.get()),int(self.entryY1Trans3D.get()),int(self.entryZ1Trans3D.get()))),
+            self.addTransform(2,data=(int(self.entryX1Trans3D.get()),int(self.entryY1Trans3D.get()),int(self.entryZ1Trans3D.get()))),
             self.glFrame.redraw(),
             LIMPA_CT([self.processoDeTrasform]),
             insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
         ])
         
-        self.buttonReflexXY = CTkButton(self.auxFrame, text="XY", font=("Segoe UI Black", 17),
-                                         text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor, command=lambda:[
-            self.glFrame.setVertices(self.transform3D.reflectionXY(self.glFrame.vertices)),
-            self.glFrame.redraw(),
-            LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
-        ])
+        self.buttonReflexXY = CTkCheckBox(self.auxFrame, text="XY", font=("Segoe UI Black", 17),
+                                         text_color=self.auxColor,fg_color=self.mainColor,hover_color=self.selectedColor)
         
-        self.buttonReflexXZ = CTkButton(self.auxFrame, text="XZ", font=("Segoe UI Black", 17),
-                                         text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor, command=lambda: [
-            self.glFrame.setVertices(self.transform3D.reflectionXZ(self.glFrame.vertices)),
-            self.glFrame.redraw(),
-            LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
-        ])
+        self.buttonReflexXZ = CTkCheckBox(self.auxFrame, text="XZ", font=("Segoe UI Black", 17),
+                                         text_color=self.auxColor,fg_color=self.mainColor,hover_color=self.selectedColor)
         
-        self.buttonReflexYZ = CTkButton(self.auxFrame, text="YZ", font=("Segoe UI Black", 17),
-                                         text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor, command=lambda:[
-            self.glFrame.setVertices(self.transform3D.reflectionYZ(self.glFrame.vertices)),
-            self.glFrame.redraw(),
-            LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
-        ])
+        self.buttonReflexYZ = CTkCheckBox(self.auxFrame, text="YZ", font=("Segoe UI Black", 17),
+                                         text_color=self.auxColor,fg_color=self.mainColor,hover_color=self.selectedColor)
+        
+        self.buttonReflex3D = CTkButton(self.auxFrame, text="Refletir", font=("Segoe UI Black", 17),
+                                         text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor, command=self.reflexCheckbox3D)
         
         self.buttonSchear3D = CTkButton(self.auxFrame, text="Cisalhar", font=("Segoe UI Black", 17),
                                          text_color=self.auxColor,border_color=self.auxColor,border_width=5,fg_color=self.mainColor,hover_color=self.selectedColor, command=lambda:[
             self.glFrame.setVertices(self.transform3D.schear(self.glFrame.vertices, 
             float(self.entryX1Trans3D.get()),float(self.entryY1Trans3D.get()),float(self.entryZ1Trans3D.get()))),
+            self.addTransform(4,data=(float(self.entryX1Trans3D.get()),float(self.entryY1Trans3D.get()),float(self.entryZ1Trans3D.get()))),
             self.glFrame.redraw(),
             LIMPA_CT([self.processoDeTrasform]),
             insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
@@ -590,16 +572,16 @@ class Main():
         self.buttonTranslation.place(relx=0.260,rely=0.225,relheight=0.08,relwidth=0.5)
         self.buttonScale.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
         self.buttonRotation.place(relx=0.6,rely=0.425,relheight=0.08,relwidth=0.3)
-        self.buttonReflexX.place(relx=0.15,rely=0.525,relheight=0.08,relwidth=0.3)
-        self.buttonReflexY.place(relx=0.6,rely=0.525,relheight=0.08,relwidth=0.3)
+        self.buttonReflexX.place(relx=0.1,rely=0.525,relheight=0.08,relwidth=0.3)
+        self.buttonReflexY.place(relx=0.35,rely=0.525,relheight=0.08,relwidth=0.3)
+        self.buttonReflex.place(relx=0.6,rely=0.525,relheight=0.08,relwidth=0.3)
         self.buttonSchear.place(relx=0.260,rely=0.625,relheight=0.08,relwidth=0.5)
         
         self.transformSequency.place(relx=0.05,rely=0.75, relwidth=0.9, relheight=0.125)
         
-        self.glFrame.dadosFornecidos(figura=self.quadrado)
-        
     def Transformation3DFrame(self, typeT=0, txt="TRANSLAÇÃO"):
         limpa_frame(self.auxFrame)
+        limpa_frame(self.transformSequency)
         self.backButton.configure(command=self.TransformPage)
         self.backButton.place(relx=0.05,rely=0.03,relwidth=0.05,relheight=0.05)
         
@@ -608,29 +590,52 @@ class Main():
         
         self.changeFrameType(1)
         
-        self.labelX1Trans3D.place(relx=0.05,rely=0.075,relheight=0.1,relwidth=0.1)
-        self.entryX1Trans3D.place(relx=0.15,rely=0.1,relheight=0.05,relwidth=0.2)
+        self.labelX1Trans3D.place(relx=0.05,rely=0.125,relheight=0.1,relwidth=0.1)
+        self.entryX1Trans3D.place(relx=0.15,rely=0.15,relheight=0.05,relwidth=0.2)
         
-        self.labelY1Trans3D.place(relx=0.35,rely=0.075,relheight=0.1,relwidth=0.1)
-        self.entryY1Trans3D.place(relx=0.45,rely=0.1,relheight=0.05,relwidth=0.2)
+        self.labelY1Trans3D.place(relx=0.35,rely=0.125,relheight=0.1,relwidth=0.1)
+        self.entryY1Trans3D.place(relx=0.45,rely=0.15,relheight=0.05,relwidth=0.2)
         
-        self.labelZ1Trans3D.place(relx=0.65,rely=0.075,relheight=0.1,relwidth=0.1)
-        self.entryZ1Trans3D.place(relx=0.75,rely=0.1,relheight=0.05,relwidth=0.2)
-        
-        self.processoDeTrasform.place(relx=0, rely=0.3, relheight=0.7, relwidth=1)
+        self.labelZ1Trans3D.place(relx=0.65,rely=0.125,relheight=0.1,relwidth=0.1)
+        self.entryZ1Trans3D.place(relx=0.75,rely=0.15,relheight=0.05,relwidth=0.2)
 
-        if typeT == 0:
-            self.buttonTranslation3D.place(relx=0.260,rely=0.2,relheight=0.08,relwidth=0.5)
-        elif typeT == 1:
-            self.buttonScale3D.place(relx=0.260,rely=0.2,relheight=0.08,relwidth=0.5)
-        elif typeT == 2:
-            self.buttonRotation3D.place(relx=0.260,rely=0.2,relheight=0.08,relwidth=0.5)
-        elif typeT == 3:
-            self.buttonReflexXY.place(relx=0.1,rely=0.2,relheight=0.08,relwidth=0.2)
-            self.buttonReflexXZ.place(relx=0.4,rely=0.2,relheight=0.08,relwidth=0.2)
-            self.buttonReflexYZ.place(relx=0.7,rely=0.2,relheight=0.08,relwidth=0.2)
-        elif typeT == 4:
-            self.buttonSchear3D.place(relx=0.260,rely=0.2,relheight=0.08,relwidth=0.5)
+        self.buttonTranslation3D.place(relx=0.260,rely=0.25,relheight=0.08,relwidth=0.5)
+        self.buttonScale3D.place(relx=0.260,rely=0.35,relheight=0.08,relwidth=0.5)
+        self.buttonRotation3D.place(relx=0.260,rely=0.45,relheight=0.08,relwidth=0.5)
+        self.buttonReflexXY.place(relx=0.05,rely=0.55,relheight=0.08,relwidth=0.15)
+        self.buttonReflexXZ.place(relx=0.25,rely=0.55,relheight=0.08,relwidth=0.15)
+        self.buttonReflexYZ.place(relx=0.45,rely=0.55,relheight=0.08,relwidth=0.15)
+        self.buttonReflex3D.place(relx=0.65,rely=0.55,relheight=0.08,relwidth=0.3)
+        self.buttonSchear3D.place(relx=0.260,rely=0.65,relheight=0.08,relwidth=0.5)
+        
+        self.transformSequency.place(relx=0.05,rely=0.75, relwidth=0.9, relheight=0.125)
+    
+    def reflexCheckbox2D(self):
+        if(self.buttonReflexX.get() == 1):
+            self.quadrado.setPoints(self.transform2D.reflectionX(self.quadrado.getPoints()))
+            self.addTransform(3,data=("(X)"))
+    
+        if(self.buttonReflexY.get() == 1):
+            self.quadrado.setPoints(self.transform2D.reflectionY(self.quadrado.getPoints()))
+            self.addTransform(3,data=("(Y)"))
+            
+        self.glFrame.clearScreen()
+        self.glFrame.dadosFornecidos(figura=self.quadrado)
+        
+    def reflexCheckbox3D(self):
+        if(self.buttonReflexXY.get() == 1):
+            self.glFrame.setVertices(self.transform3D.reflectionXY(self.glFrame.vertices))
+            self.addTransform(3,data=("(XY)"))
+    
+        if(self.buttonReflexYZ.get() == 1):
+            self.glFrame.setVertices(self.transform3D.reflectionYZ(self.glFrame.vertices))
+            self.addTransform(3,data=("(YZ)"))
+            
+        if(self.buttonReflexXZ.get() == 1):
+            self.glFrame.setVertices(self.transform3D.reflectionXZ(self.glFrame.vertices))
+            self.addTransform(3,data=("(XZ)"))
+            
+        self.glFrame.redraw()
     
     def setTreeViewLoc(self):
         self.coordinateFrame.place(relx=0.0,rely=0.5,relheight=0.5,relwidth=1)
@@ -646,13 +651,13 @@ class Main():
     def unbindEvents(self,widget):
         for event in widget.bind():
             widget.unbind(event)
-                
+
     def focusTable(self, focused=CTkButton, unfocus=CTkButton):
         focused.configure(fg_color="#999999", text_color="black")
         
         for button in unfocus:
             button.configure(fg_color="#000000", text_color="white")
-            
+
     def VALIDAÇÃO_FLOAT(self):
         self.vald2 = (self.root.register(VALIDAR_FLOAT), '%P')
 
@@ -662,7 +667,7 @@ class Main():
         else:
             self.glFrame.setVertices(points)
         self.processoString = text
-        
+
     def changeFrameType(self, opt):
         if(isinstance(self.mainFrame.winfo_children()[0],CTkLabel)):
             pass
