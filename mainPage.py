@@ -319,6 +319,28 @@ class Main():
         self.buttonSchear3D = CTkButton(self.auxFrame, text="Cisalhar", font=("Segoe UI Black", 17),
                                          command=lambda:[self.TransformSelector3D(4)])
         
+        #Botões das transformações 2D
+        self.buttonTranslationImage = CTkButton(self.auxFrame, text="Transladar", font=("Segoe UI Black", 17),
+                                         command=lambda:[self.TransformSelector(0)])
+        
+        self.buttonScaleImage = CTkButton(self.auxFrame, text="Escalar", font=("Segoe UI Black", 17),
+                                         command=lambda:[self.TransformSelector(1)])
+        
+        self.buttonRotationImage = CTkButton(self.auxFrame, text="Rotacionar", font=("Segoe UI Black", 17),
+                                         command=lambda:[self.TransformSelector(2)])
+        
+        self.buttonReflexXImage = CTkCheckBox(self.auxFrame, text="em X", font=("Segoe UI Black", 17),
+                                        hover_color=self.selectedColor)
+                
+        self.buttonReflexYImage = CTkCheckBox(self.auxFrame, text="em Y", font=("Segoe UI Black", 17),
+                                         hover_color=self.selectedColor)
+        
+        self.buttonReflexImage = CTkButton(self.auxFrame, text="Refletir", font=("Segoe UI Black", 17),
+                                         command=self.reflexCheckbox2D)
+        
+        self.buttonSchearImage = CTkButton(self.auxFrame, text="Cisalhamento", font=("Segoe UI Black", 17),
+                                         command=lambda:[self.TransformSelector(4)])
+        
         #Treeview das coordenadas (Utilizado por todos os widgets acima)
         self.coordinateFrame = Frame(self.auxFrame, bg="red")
         
@@ -434,6 +456,12 @@ class Main():
         
         self.transformSequency.place(relx=0.05,rely=0.75, relwidth=0.9, relheight=0.125)
         
+        self.buttonTranslation.configure(command=lambda:[self.TransformSelectorImage(0)])
+        self.buttonScale.configure(command=lambda:[self.TransformSelectorImage(1)])
+        self.buttonRotation.configure(command=lambda:[self.TransformSelectorImage(2)])
+        self.buttonReflex.configure(command=self.reflexCheckboxImage)
+        self.buttonSchear.configure(command=lambda:[self.TransformSelectorImage(4)])
+        
     def frameReta(self):
         limpa_frame(self.auxFrame)
         self.backButton.configure(command=self.drawPage)
@@ -524,7 +552,13 @@ class Main():
         
         self.transformSequency.place(relx=0.05,rely=0.75, relwidth=0.9, relheight=0.125)
         
-    def Transformation3DFrame(self, typeT=0, txt="TRANSLAÇÃO"):
+        self.buttonTranslation.configure(command=lambda:[self.TransformSelector(0)])
+        self.buttonScale.configure(command=lambda:[self.TransformSelector(1)])
+        self.buttonRotation.configure(command=lambda:[self.TransformSelector(2)])
+        self.buttonReflex.configure(command=self.reflexCheckbox2D)
+        self.buttonSchear.configure(command=lambda:[self.TransformSelector(4)])
+        
+    def Transformation3DFrame(self, typeT=0, txt="TRANSFORMAÇÃO"):
         limpa_frame(self.auxFrame)
         limpa_frame(self.transformSequency)
         self.backButton.configure(command=self.TransformPage)
@@ -602,6 +636,24 @@ class Main():
         self.glFrame.setVertices(transformation)
         
         self.glFrame.redraw()
+        
+    def TransformSelectorImage(self,type):
+        x = float(self.entryX1Trans.get())
+        y = float(self.entryY1Trans.get())
+        angulo = float(self.entryRotacao.get())
+        
+        if(type == 0):
+            self.imageFrame.apply_translation(x,y)
+            self.addTransform(0,data=(x,y))
+        elif(type == 1):
+            self.imageFrame.apply_scale(x,y)
+            self.addTransform(1,data=(x,y))
+        elif(type == 2):
+            self.imageFrame.apply_rotation(angulo)
+            self.addTransform(2,data=(angulo,x,y))
+        elif(type == 4):
+            self.imageFrame.apply_shear(x,y)
+            self.addTransform(4,data=(x,y))
     
     def reflexCheckbox2D(self):
         if(self.buttonReflexX.get() == 1):
@@ -629,6 +681,15 @@ class Main():
             self.addTransform(3,data=("(XZ)"))
             
         self.glFrame.redraw()
+        
+    def reflexCheckboxImage(self):
+        if(self.buttonReflexX.get() == 1):
+            self.imageFrame.apply_reflectionX()
+            self.addTransform(3,data=("(X)"))
+    
+        if(self.buttonReflexY.get() == 1):
+            self.imageFrame.apply_reflectionY()
+            self.addTransform(3,data=("(Y)"))
     
     def setTreeViewLoc(self):
         self.coordinateFrame.place(relx=0.0,rely=0.5,relheight=0.5,relwidth=1)

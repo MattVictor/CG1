@@ -12,22 +12,7 @@ class ImageFrame(CTkFrame):
         self.original_image = None
 
         # Botão de carregamento
-        ctk.CTkButton(self, text="Carregar Imagem", command=self.load_image).pack(pady=10)
-
-        # Botões de transformação
-        frame = ctk.CTkFrame(self, border_width=0)
-        frame.pack()
-
-        self.transformations = {
-            "Escala": self.apply_scale,
-            "Translação": self.apply_translation,
-            "Reflexão": self.apply_reflection,
-            "Cisalhamento": self.apply_shear,
-            "Rotação": self.apply_rotation,
-        }
-
-        for name, method in self.transformations.items():
-            ctk.CTkButton(frame, text=name, command=method).pack(side="left", padx=5)
+        ctk.CTkButton(self, text="CARREGAR IMAGEM", font=("Segoe UI Black", 35), command=self.load_image).pack(pady=30)
 
         self.original_label = ctk.CTkScrollableFrame(self, label_text="Original")
         self.original_label.place(relx=0.025,rely=0.2,relwidth=0.45,relheight=0.7)
@@ -87,8 +72,7 @@ class ImageFrame(CTkFrame):
 
     # ---------- Matrizes de Transformação ----------
 
-    def apply_scale(self):
-        sx, sy = 5, 5
+    def apply_scale(self,sx,sy):
         M = np.array([
             [sx, 0, 0],
             [0, sy, 0],
@@ -96,8 +80,7 @@ class ImageFrame(CTkFrame):
         ])
         self.transform_image(M)
 
-    def apply_translation(self):
-        tx, ty = 50, 30
+    def apply_translation(self,tx,ty):
         M = np.array([
             [1, 0, tx],
             [0, 1, ty],
@@ -105,7 +88,7 @@ class ImageFrame(CTkFrame):
         ])
         self.transform_image(M)
 
-    def apply_reflection(self):
+    def apply_reflectionX(self):
         # Reflexão horizontal em relação ao eixo Y
         M = np.array([
             [-1, 0, self.original_image.shape[1]],  # Inverte x e move para direita
@@ -113,18 +96,26 @@ class ImageFrame(CTkFrame):
             [0, 0, 1]
         ])
         self.transform_image(M)
+        
+    def apply_reflectionY(self):
+        # Reflexão horizontal em relação ao eixo Y
+        M = np.array([
+            [1, 0, 0],  # Inverte x e move para direita
+            [0, -1, self.original_image.shape[1]],
+            [0, 0, 1]
+        ])
+        self.transform_image(M)
 
-    def apply_shear(self):
-        sh_x = 0.5
+    def apply_shear(self,sh_x,sh_y):
         M = np.array([
             [1, sh_x, 0],
-            [sh_x, 1,    0],
+            [sh_y, 1,    0],
             [0, 0,    1]
         ])
         self.transform_image(M)
 
-    def apply_rotation(self):
-        angle = math.radians(90)
+    def apply_rotation(self,angle):
+        angle = math.radians(angle)
         cos_a = math.cos(angle)
         sin_a = math.sin(angle)
         cx, cy = self.original_image.shape[1] // 2, self.original_image.shape[0] // 2
