@@ -107,11 +107,7 @@ class GLUTFrame2D(OpenGLFrame):
         # Primitiva
         glBegin(GL_PIXEL)
         for x, y in self.clicked_points:
-            if(self.recorte):
-                if((x > -0.5 and x < 0.5) and (y > -0.5 and y < 0.5)):
-                    glVertex2f(x, y)
-            else:
-                glVertex2f(x, y)
+            glVertex2f(x, y)
         glEnd()
 
         self.tkSwapBuffers()
@@ -154,11 +150,9 @@ class GLUTFrame2D(OpenGLFrame):
             self.clicked_points_line.append((x / self.width) * self.width - window_width)
             self.clicked_points_line.append((1 - (y / self.height)) * self.height - window_height)
             
-            if(len(self.clicked_points_line) == 4):
+            if(len(self.clicked_points_line) == 4 and self.recorte):
                 self.x1,self.y1,self.x2,self.y2 = self.clicked_points_line[0],self.clicked_points_line[1],self.clicked_points_line[2],self.clicked_points_line[3]
                 self.clicked_points_line = self.cohen_Suterland()
-            
-            print(self.clicked_points_line)
             
             if(len(self.clicked_points_line) == 4):
                 self.algoritmoDoisPontos()

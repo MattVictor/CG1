@@ -1,58 +1,155 @@
-from OpenGL.GL import *
-from OpenGL.GLUT import *
-from OpenGL.GLU import *
+import customtkinter as ctk
+from tkinter import filedialog
+from PIL import Image, ImageTk
+import numpy as np
+import math
 
-# Mapa de bits 5x3 para dígitos
-digit_bitmaps = {
-    '0': ["111", "101", "101", "101", "111"],
-    '1': ["010", "110", "010", "010", "111"],
-    '2': ["111", "001", "111", "100", "111"],
-    '3': ["111", "001", "111", "001", "111"],
-    '4': ["101", "101", "111", "001", "001"],
-    '5': ["111", "100", "111", "001", "111"],
-    '6': ["111", "100", "111", "101", "111"],
-    '7': ["111", "001", "010", "010", "010"],
-    '8': ["111", "101", "111", "101", "111"],
-    '9': ["111", "101", "111", "001", "111"],
-}
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
 
-def draw_digit(digit, x, y, size=0.05):
-    """Desenha um dígito com GL_POINTS a partir da posição (x, y)."""
-    bitmap = digit_bitmaps.get(digit, [])
-    for row_idx, row in enumerate(bitmap):
-        for col_idx, pixel in enumerate(row):
-            if pixel == '1':
-                # Inverte a ordem do y para que o topo da matriz esteja em cima
-                px = x + col_idx * size
-                py = y - row_idx * size
-                glVertex2f(px, py)
+class ImageTransformerApp(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("Transformações com Matrizes")
+        self.geometry("1200x600")
 
-def draw_string(s, x, y, spacing=0.2):
-    """Desenha uma string de números"""
-    glBegin(GL_POINTS)
-    for i, char in enumerate(s):
-        draw_digit(char, x + i * spacing, y)
-    glEnd()
+        self.original_image = None
 
-# Setup da janela
-def display():
-    glClear(GL_COLOR_BUFFER_BIT)
-    glColor3f(1.0, 1.0, 1.0)
+        # Botão de carregamento
+        ctk.CTkButton(self, text="Carregar Imagem", command=self.load_image).pack(pady=10)
 
-    # Desenhar número na posição (-0.9, 0.5)
-    draw_string("1234567890", -0.9, 0.5)
+        # Botões de transformação
+        frame = ctk.CTkFrame(self)
+        frame.pack()
 
-    glFlush()
+        self.transformations = {
+            "Escala": self.apply_scale,
+            "Translação": self.apply_translation,
+            "Reflexão": self.apply_reflection,
+            "Cisalhamento": self.apply_shear,
+            "Rotação": self.apply_rotation,
+        }
 
-# Inicialização
-glutInit()
-glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB)
-glutInitWindowSize(800, 600)
-glutCreateWindow(b"OpenGL Digits with glVertex2f")
-glClearColor(0.0, 0.0, 0.0, 1.0)
-glMatrixMode(GL_PROJECTION)
-glLoadIdentity()
-gluOrtho2D(-1, 1, -1, 1)
+        for name, method in self.transformations.items():
+            ctk.CTkButton(frame, text=name, command=method).pack(side="left", padx=5)
 
-glutDisplayFunc(display)
-glutMainLoop()
+        # Área das imagens
+        self.image_frame = ctk.CTkFrame(self)
+        self.image_frame.pack(pady=10)
+
+        self.original_label = ctk.CTkLabel(self.image_frame, text="Original")
+        self.original_label.grid(row=0, column=0)
+
+        self.transformed_label = ctk.CTkLabel(self.image_frame, text="Transformada")
+        self.transformed_label.grid(row=0, column=1)
+
+    def load_image(self):
+        file_path = filedialog.askopenfilename(filetypes=[("Imagens", "*.png *.jpg *.bmp")])
+        if not file_path:
+            return
+        image = Image.open(file_path).convert("L")  # Tons de cinza
+        self.original_image = np.array(image)
+        self.display_image(self.original_image, self.original_label)
+
+    def display_image(self, img_array, label):
+        image = Image.fromarray(img_array)
+        image = image.resize((round(image.width), round(image.height)))
+        image_tk = ImageTk.PhotoImage(image)
+        label.configure(image=image_tk)
+        label.image = image_tk
+
+    def transform_image(self, matrix, output_size=None):
+        if self.original_image is None:
+            return
+        src = self.original_image
+        h, w = src.shape
+
+        # Define tamanho de saída
+        if output_size is None:
+            output_size = (h * 2, w * 2)
+        out_h, out_w = output_size
+        dst = np.zeros((out_h, out_w), dtype=np.uint8)
+
+        inv_matrix = np.linalg.inv(matrix)  # Usamos inversa para retroprojeção
+
+        for y_dst in range(out_h):
+            for x_dst in range(out_w):
+                # Coordenada no destino → homogênea
+                vec_dst = np.array([x_dst, y_dst, 1])
+                # Aplica inversa para encontrar origem
+                x_src, y_src, _ = inv_matrix @ vec_dst
+                x_src, y_src = int(round(x_src)), int(round(y_src))
+                if 0 <= x_src < w and 0 <= y_src < h:
+                    dst[y_dst, x_dst] = src[y_src, x_src]
+
+        self.display_image(dst, self.transformed_label)
+
+    # ---------- Matrizes de Transformação ----------
+
+    def apply_scale(self):
+        sx, sy = 2, 2
+        M = np.array([
+            [sx, 0, 0],
+            [0, sy, 0],
+            [0,  0, 1]
+        ])
+        self.transform_image(M)
+
+    def apply_translation(self):
+        tx, ty = 50, 30
+        M = np.array([
+            [1, 0, tx],
+            [0, 1, ty],
+            [0, 0, 1]
+        ])
+        self.transform_image(M)
+
+    def apply_reflection(self):
+        # Reflexão horizontal em relação ao eixo Y
+        M = np.array([
+            [-1, 0, self.original_image.shape[1]],  # Inverte x e move para direita
+            [0, 1, 0],
+            [0, 0, 1]
+        ])
+        self.transform_image(M)
+
+    def apply_shear(self):
+        sh_x = 0.5
+        M = np.array([
+            [1, sh_x, 0],
+            [0, 1,    0],
+            [0, 0,    1]
+        ])
+        self.transform_image(M)
+
+    def apply_rotation(self):
+        angle = math.radians(45)
+        cos_a = math.cos(angle)
+        sin_a = math.sin(angle)
+        cx, cy = self.original_image.shape[1] // 2, self.original_image.shape[0] // 2
+
+        # Translação para origem → Rotação → Volta
+        T1 = np.array([
+            [1, 0, -cx],
+            [0, 1, -cy],
+            [0, 0, 1]
+        ])
+
+        R = np.array([
+            [cos_a, -sin_a, 0],
+            [sin_a,  cos_a, 0],
+            [0,      0,     1]
+        ])
+
+        T2 = np.array([
+            [1, 0, cx],
+            [0, 1, cy],
+            [0, 0, 1]
+        ])
+
+        M = T2 @ R @ T1
+        self.transform_image(M)
+
+if __name__ == "__main__":
+    app = ImageTransformerApp()
+    app.mainloop()
