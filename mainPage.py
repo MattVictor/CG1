@@ -3,6 +3,7 @@ from tkinter import ttk
 from customtkinter import CTk, CTkFrame, CTkLabel, CTkButton, CTkEntry, CTkScrollableFrame, CTkCheckBox, set_default_color_theme, set_appearance_mode
 from Frames.Frame2D import GLUTFrame2D
 from Frames.Frame3D import GLUTFrame3D
+from Frames.ImageFrame import ImageFrame
 from Frames.ecg import ECGFrame
 from Forms.Reta import Reta
 from Forms.Circunferencia import Circunferencia
@@ -104,15 +105,14 @@ class Main():
         
         self.labelForma = CTkLabel(self.auxFrame, text="MENU", bg_color=self.mainColor, font=("Segoe UI Black", 40))
         
-        self.formaFrame = Frame(self.auxFrame,bg="gray")
-        #self.formaFrame.place(relx=0.01,rely=0.01,relheight=0.98,relwidth=0.98)
-        
         self.glFrame = GLUTFrame2D(self.mainFrame,width=(self.mainFrame.winfo_width()*0.98),height=(self.mainFrame.winfo_height()*0.98),forma=self.reta)
 
         self.backButton = CTkButton(self.auxFrame,text="<",font=("Segoe UI Black", 30),border_width=0,corner_radius=0)
 
         self.placeHolderlabel = CTkLabel(self.mainFrame,text="COMPUTAÇÃO GRÁFICA 2025.1", bg_color=self.mainColor, font=("Segoe UI Black", 40))
         self.placeHolderlabel.place(relx=0.5,rely=0.5,anchor="c")
+
+        self.imageFrame = ImageFrame(self.mainFrame)
 
         #Menu Principal
         self.drawButton = CTkButton(self.auxFrame,text="DESENHAR",font=("Segoe UI Black", 35),
@@ -139,12 +139,9 @@ class Main():
                                     command=self.Transformation3DFrame)
         
         self.imageButton = CTkButton(self.auxFrame,text="IMAGEM",font=("Segoe UI Black", 35),
-                                    command=self.TransformPage)
+                                    command=self.ImageTransfromPage)
         
         #Menu Imagem --TODO
-
-        #Explicações
-        self.processoDeTrasform = Text(self.formaFrame, font=("Segoe UI Black", 13))
         
         #Criando Menus
         self.menu = Menu(self.root)
@@ -277,37 +274,13 @@ class Main():
         
         #Botões das transformações 2D
         self.buttonTranslation = CTkButton(self.auxFrame, text="Transladar", font=("Segoe UI Black", 17),
-                                         command=lambda:[
-            self.quadrado.setPoints(self.transform2D.transposition(self.quadrado.getPoints(), [int(self.entryX1Trans.get()),int(self.entryY1Trans.get())])),
-            self.glFrame.clearScreen(),
-            self.addTransform(0,data=(int(self.entryX1Trans.get()),int(self.entryY1Trans.get()))),
-            self.glFrame.dadosFornecidos(figura=self.quadrado),
-            LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
-        ])
+                                         command=lambda:[self.TransformSelector(0)])
         
         self.buttonScale = CTkButton(self.auxFrame, text="Escalar", font=("Segoe UI Black", 17),
-                                         command=lambda:[
-            self.quadrado.setPoints(self.transform2D.scale(self.quadrado.getPoints(), [int(self.entryX1Trans.get()),int(self.entryY1Trans.get())])),
-            self.addTransform(1,data=(int(self.entryX1Trans.get()),int(self.entryY1Trans.get()))),
-            self.glFrame.clearScreen(),
-            self.glFrame.dadosFornecidos(figura=self.quadrado),
-            LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
-        ])
+                                         command=lambda:[self.TransformSelector(1)])
         
         self.buttonRotation = CTkButton(self.auxFrame, text="Rotacionar", font=("Segoe UI Black", 17),
-                                         command=lambda:[
-            self.quadrado.setPoints(self.transform2D.rotation(self.quadrado.getPoints(), 
-                                                         int(self.entryRotacao.get()),
-                                                         int(self.entryY1Trans.get()),
-                                                         int(self.entryY1Trans.get()))),
-            self.addTransform(2,data=(int(self.entryRotacao.get()),int(self.entryY1Trans.get()),int(self.entryY1Trans.get()))),
-            self.glFrame.clearScreen(),
-            self.glFrame.dadosFornecidos(figura=self.quadrado),
-            LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
-        ])
+                                         command=lambda:[self.TransformSelector(2)])
         
         self.buttonReflexX = CTkCheckBox(self.auxFrame, text="em X", font=("Segoe UI Black", 17),
                                         hover_color=self.selectedColor)
@@ -319,49 +292,17 @@ class Main():
                                          command=self.reflexCheckbox2D)
         
         self.buttonSchear = CTkButton(self.auxFrame, text="Cisalhamento", font=("Segoe UI Black", 17),
-                                         command=lambda:[
-            self.quadrado.setPoints(self.transform2D.schear(self.quadrado.getPoints(),x=float(self.entryX1Trans.get()),y=float(self.entryY1Trans.get()))),
-            self.addTransform(4,data=(int(self.entryX1Trans.get()),int(self.entryY1Trans.get()))),
-            self.glFrame.clearScreen(),
-            self.glFrame.dadosFornecidos(figura=self.quadrado),
-            LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.transform2D.getExplanationText())
-        ])
+                                         command=lambda:[self.TransformSelector(4)])
         
         #Botões das transformações 3d
         self.buttonTranslation3D = CTkButton(self.auxFrame, text="Transladar", font=("Segoe UI Black", 17),
-                                         command=lambda:[
-            self.glFrame.setVertices(self.transform3D.transposition(self.glFrame.vertices, 
-                                                              [int(self.entryX1Trans3D.get()),
-                                                               int(self.entryY1Trans3D.get()),
-                                                               int(self.entryZ1Trans3D.get())])),
-            self.addTransform(0,data=(int(self.entryX1Trans3D.get()),int(self.entryY1Trans3D.get()),int(self.entryZ1Trans3D.get()))),
-            self.glFrame.redraw(),
-            LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
-        ])
+                                         command=lambda:[self.TransformSelector3D(0)])
         
         self.buttonScale3D = CTkButton(self.auxFrame, text="Escalar", font=("Segoe UI Black", 17),
-                                         command=lambda:[
-            self.glFrame.setVertices(self.transform3D.scale(self.glFrame.vertices, 
-                                                              [int(self.entryX1Trans3D.get()),
-                                                               int(self.entryY1Trans3D.get()),
-                                                               int(self.entryZ1Trans3D.get())])),
-            self.addTransform(1,data=(int(self.entryX1Trans3D.get()),int(self.entryY1Trans3D.get()),int(self.entryZ1Trans3D.get()))),
-            self.glFrame.redraw(),
-            LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
-        ])
+                                         command=lambda:[self.TransformSelector3D(1)])
                 
         self.buttonRotation3D = CTkButton(self.auxFrame, text="Rotacionar", font=("Segoe UI Black", 17),
-                                         command=lambda:[
-            self.glFrame.setVertices(self.transform3D.rotation(self.glFrame.vertices, 
-            int(self.entryX1Trans3D.get()),int(self.entryY1Trans3D.get()),int(self.entryZ1Trans3D.get()))),
-            self.addTransform(2,data=(int(self.entryX1Trans3D.get()),int(self.entryY1Trans3D.get()),int(self.entryZ1Trans3D.get()))),
-            self.glFrame.redraw(),
-            LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
-        ])
+                                         command=lambda:[self.TransformSelector3D(2)])
         
         self.buttonReflexXY = CTkCheckBox(self.auxFrame, text="XY", font=("Segoe UI Black", 17),
                                         hover_color=self.selectedColor)
@@ -376,14 +317,7 @@ class Main():
                                          command=self.reflexCheckbox3D)
         
         self.buttonSchear3D = CTkButton(self.auxFrame, text="Cisalhar", font=("Segoe UI Black", 17),
-                                         command=lambda:[
-            self.glFrame.setVertices(self.transform3D.schear(self.glFrame.vertices, 
-            float(self.entryX1Trans3D.get()),float(self.entryY1Trans3D.get()),float(self.entryZ1Trans3D.get()))),
-            self.addTransform(4,data=(float(self.entryX1Trans3D.get()),float(self.entryY1Trans3D.get()),float(self.entryZ1Trans3D.get()))),
-            self.glFrame.redraw(),
-            LIMPA_CT([self.processoDeTrasform]),
-            insertText(self.processoDeTrasform, self.transform3D.getExplanationText())
-        ])
+                                         command=lambda:[self.TransformSelector3D(4)])
         
         #Treeview das coordenadas (Utilizado por todos os widgets acima)
         self.coordinateFrame = Frame(self.auxFrame, bg="red")
@@ -422,7 +356,6 @@ class Main():
                                                  self.focusTable(self.coordTela, [self.coordMundo, self.coordOpenGL])])
         
         #Bidings Adicionais
-        self.root.bind("t", lambda _: LIMPA_CT([self.processoDeTrasform]))
         self.root.bind("c", lambda _: self.glFrame.clearScreen(), self.shortcut())
         self.root.bind("r", lambda _: self.glFrame.clearScreen())
         self.root.bind("b", lambda _: self.glFrame.resetCamera())
@@ -471,6 +404,35 @@ class Main():
         self.dimension2.pack(anchor=CENTER,pady=50,ipady=10,ipadx=10)
         self.dimension3.pack(anchor=CENTER,pady=50,ipady=10,ipadx=10)
         self.imageButton.pack(anchor=CENTER,pady=50,ipady=10,ipadx=10)
+        
+    def ImageTransfromPage(self):
+        limpa_frame(self.auxFrame)
+        self.backButton.configure(command=self.TransformPage)
+        self.backButton.place(relx=0.05,rely=0.03,relwidth=0.05,relheight=0.05)
+        
+        self.labelForma.configure(text="IMAGEM")
+        self.labelForma.pack(anchor=CENTER,pady=20)
+        
+        self.changeFrameType(4)
+        
+        self.labelX1Trans.place(relx=0.1,rely=0.15,relheight=0.05,relwidth=0.1)
+        self.entryX1Trans.place(relx=0.25,rely=0.15,relheight=0.05,relwidth=0.2)
+        
+        self.labelY1Trans.place(relx=0.5,rely=0.15,relheight=0.05,relwidth=0.1)
+        self.entryY1Trans.place(relx=0.65,rely=0.15,relheight=0.05,relwidth=0.2)
+        
+        self.labelRotacao.place(relx=0.1,rely=0.4425,relheight=0.05,relwidth=0.3)
+        self.entryRotacao.place(relx=0.325,rely=0.4425,relheight=0.05,relwidth=0.2)
+        
+        self.buttonTranslation.place(relx=0.260,rely=0.225,relheight=0.08,relwidth=0.5)
+        self.buttonScale.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
+        self.buttonRotation.place(relx=0.6,rely=0.425,relheight=0.08,relwidth=0.3)
+        self.buttonReflexX.place(relx=0.1,rely=0.525,relheight=0.08,relwidth=0.3)
+        self.buttonReflexY.place(relx=0.35,rely=0.525,relheight=0.08,relwidth=0.3)
+        self.buttonReflex.place(relx=0.6,rely=0.525,relheight=0.08,relwidth=0.3)
+        self.buttonSchear.place(relx=0.260,rely=0.625,relheight=0.08,relwidth=0.5)
+        
+        self.transformSequency.place(relx=0.05,rely=0.75, relwidth=0.9, relheight=0.125)
         
     def frameReta(self):
         limpa_frame(self.auxFrame)
@@ -543,8 +505,6 @@ class Main():
         
         self.changeFrameType(0)
         
-        # self.buttonDesenharQuadrado.place(relx=0.260,rely=0.25,relheight=0.08,relwidth=0.5)
-        
         self.labelX1Trans.place(relx=0.1,rely=0.15,relheight=0.05,relwidth=0.1)
         self.entryX1Trans.place(relx=0.25,rely=0.15,relheight=0.05,relwidth=0.2)
         
@@ -553,8 +513,6 @@ class Main():
         
         self.labelRotacao.place(relx=0.1,rely=0.4425,relheight=0.05,relwidth=0.3)
         self.entryRotacao.place(relx=0.325,rely=0.4425,relheight=0.05,relwidth=0.2)
-        
-        # self.processoDeTrasform.place(relx=0, rely=0.5, relheight=0.5, relwidth=1)
         
         self.buttonTranslation.place(relx=0.260,rely=0.225,relheight=0.08,relwidth=0.5)
         self.buttonScale.place(relx=0.260,rely=0.325,relheight=0.08,relwidth=0.5)
@@ -596,6 +554,54 @@ class Main():
         self.buttonSchear3D.place(relx=0.260,rely=0.65,relheight=0.08,relwidth=0.5)
         
         self.transformSequency.place(relx=0.05,rely=0.75, relwidth=0.9, relheight=0.125)
+    
+    def TransformSelector(self,type):
+        x = float(self.entryX1Trans.get())
+        y = float(self.entryY1Trans.get())
+        angulo = float(self.entryRotacao.get())
+        
+        transformation = 0
+        
+        if(type == 0):
+            transformation = self.transform2D.transposition(self.quadrado.getPoints(), [x,y])
+            self.addTransform(0,data=(x,y))
+        elif(type == 1):
+            transformation = self.transform2D.scale(self.quadrado.getPoints(), [x,y])
+            self.addTransform(1,data=(x,y))
+        elif(type == 2):
+            transformation = self.transform2D.rotation(self.quadrado.getPoints(), angulo,x,y)
+            self.addTransform(2,data=(angulo,x,y))
+        elif(type == 4):
+            transformation = self.transform2D.schear(self.quadrado.getPoints(), x,y)
+            self.addTransform(4,data=(x,y))
+            
+        self.quadrado.setPoints(transformation)
+        self.glFrame.clearScreen()
+        self.glFrame.dadosFornecidos(figura=self.quadrado)
+    
+    def TransformSelector3D(self,type):
+        x = float(self.entryX1Trans3D.get())
+        y = float(self.entryY1Trans3D.get())
+        z = float(self.entryZ1Trans3D.get())
+        
+        transformation = 0
+        
+        if(type == 0):
+            transformation = self.transform3D.transposition(self.glFrame.vertices, [x,y,z])
+            self.addTransform(0,data=(x,y,z))
+        elif(type == 1):
+            transformation = self.transform3D.scale(self.glFrame.vertices, [x,y,z])
+            self.addTransform(1,data=(x,y,z))
+        elif(type == 2):
+            transformation = self.transform3D.rotation(self.glFrame.vertices, x,y,z)
+            self.addTransform(2,data=(x,y,z))
+        elif(type == 4):
+            transformation = self.transform3D.schear(self.glFrame.vertices, x,y,z)
+            self.addTransform(4,data=(x,y,z))
+        
+        self.glFrame.setVertices(transformation)
+        
+        self.glFrame.redraw()
     
     def reflexCheckbox2D(self):
         if(self.buttonReflexX.get() == 1):
@@ -656,12 +662,7 @@ class Main():
         self.processoString = text
 
     def changeFrameType(self, opt):
-        if(isinstance(self.mainFrame.winfo_children()[0],CTkLabel)):
-            pass
-        else:
-            self.glFrame.place_forget()
-        
-        self.glFrame.destroy()
+        limpa_frame(self.mainFrame)
         
         if(opt == 0):
             self.glFrame = GLUTFrame2D(self.mainFrame,width=(self.mainFrame.winfo_width()*0.98),height=(self.mainFrame.winfo_height()*0.98),forma=self.circunferencia)
@@ -672,22 +673,25 @@ class Main():
         elif(opt == 3):
             self.placeHolderlabel.place(relx=0.5,rely=0.5,anchor="c")
             return
+        elif(opt == 4):
+            self.imageFrame.place(relx=0,rely=0,relwidth=1,relheight=1)
+            return
             
         self.glFrame.place(relx=0.01,rely=0.01,relheight=0.98,relwidth=0.98)
         
     def addTransform(self,type,data):
         font = ("Times New Roman", 17)
-        fg = "#CCCCCC"
+        fg = "#333333"
         
         if len(self.transformSequency.winfo_children()) != 0:
-            CTkLabel(self.transformSequency,text=f" → ", font=font).pack(side=LEFT)
+            CTkLabel(self.transformSequency,text=f" → ",fg_color=fg, font=font).pack(side=LEFT)
         
         if(type == 0):
             CTkLabel(self.transformSequency,text=f"T{data}",fg_color=fg, font=font).pack(side=LEFT)
         elif(type == 1):
             CTkLabel(self.transformSequency,text=f"S{data}",fg_color=fg,font=font).pack(side=LEFT)
         elif(type == 2):
-            CTkLabel(self.transformSequency,text=f"R{data}",fg_color=fg,font=font).pack(side=LEFT)
+            CTkLabel(self.transformSequency,text=f"R{data[0]}",fg_color=fg,font=font).pack(side=LEFT)
         elif(type == 3):
             CTkLabel(self.transformSequency,text=f"Re{data}",fg_color=fg,font=font).pack(side=LEFT)
         elif(type == 4):
@@ -699,7 +703,5 @@ class Main():
             self.glFrame.setVertices(cuboBase)
         self.transform2D.resetExplanationText()
         self.transform3D.resetExplanationText()
-        
-        LIMPA_CT([self.processoDeTrasform])
         
 Main()
