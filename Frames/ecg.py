@@ -6,7 +6,8 @@ import math
 class ECGFrame(OpenGLFrame):
     def __init__(self,master, *args, **kw):
         super().__init__(master,*args, **kw)
-        master.after(100, lambda: ECGFrame.loop(self))  # aguarda o contexto OpenGL ficar pronto
+        self.Animado = True
+        master.after(100, lambda: self.loop())  # aguarda o contexto OpenGL ficar pronto
     
     def initgl(self):
         glViewport(0,0,self.width,self.height)
@@ -21,7 +22,7 @@ class ECGFrame(OpenGLFrame):
 
     def update(self):
         self.t += 0.02
-        y = ECGFrame.heartbeat_wave(self.t % 4)
+        y = ECGFrame.heartbeat_wave(self.t % 4.5)
         self.ecg_buffer.append(y)
         if len(self.ecg_buffer) > 300:
             self.ecg_buffer.pop(0)
@@ -61,7 +62,15 @@ class ECGFrame(OpenGLFrame):
             + math.exp(-((x - 3.5)**2) * 10) * 0.15
         )
     
-    def loop(frame):
-        frame.update()
-        frame.redraw()
-        frame.after(16, lambda: ECGFrame.loop(frame))  # 60 FPS
+    def loop(self):
+        self.update()
+        self.redraw()
+        if(self.Animado):
+            self.after(16, lambda: self.loop())  # 60 FPS
+        
+    def turnShowAxis(self):
+        if(self.Animado):
+            self.Animado = False
+        else:
+            self.Animado = True
+            self.loop()

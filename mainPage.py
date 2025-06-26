@@ -580,7 +580,7 @@ class Main():
             y = float(self.entryY1Trans.get())
             angulo = float(self.entryRotacao.get())
         except:
-            messagebox.showerror("Valor Invalido")
+            messagebox.showerror("ERRO","Valor Inválido, Digite um valor decimal")
         
         transformation = 0
         
@@ -607,7 +607,7 @@ class Main():
             y = float(self.entryY1Trans3D.get())
             z = float(self.entryZ1Trans3D.get())
         except:
-            messagebox.showerror("Valor inválido")
+            messagebox.showerror("ERRO","Valor Inválido, Digite um valor decimal")
             return
         
         transformation = 0
@@ -635,7 +635,7 @@ class Main():
             y = float(self.entryY1Trans.get())
             angulo = float(self.entryRotacao.get())
         except:
-            messagebox.showerror("Valor Invalido")
+            messagebox.showerror("ERRO","Valor Inválido, Digite um valor decimal")
             return
         
         if(type == 0):
