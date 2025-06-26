@@ -1,5 +1,4 @@
-from tkinter import *
-from tkinter import ttk
+from tkinter import ttk, Widget, Text, END, Menu, IntVar, HORIZONTAL, CENTER, Scrollbar, RIGHT, Y, LEFT, messagebox, StringVar
 from customtkinter import CTk, CTkFrame, CTkLabel, CTkButton, CTkEntry, CTkScrollableFrame, CTkCheckBox, set_default_color_theme, set_appearance_mode
 from Frames.Frame2D import GLUTFrame2D
 from Frames.Frame3D import GLUTFrame3D
@@ -94,7 +93,6 @@ class Main():
         self.root.mainloop()
         
     def generateWidgets(self):
-        self.processoString = ""
         
         # Widgets Padrão
         self.mainFrame = CTkFrame(self.root,border_width=5)
@@ -167,22 +165,22 @@ class Main():
         Graphic2D.add_command(label='light', command=lambda:[set_appearance_mode("light")])
         
         #Widgets da Reta
-        valorX1Reta = IntVar()
-        valorY1Reta = IntVar()
-        valorX2Reta = IntVar()
-        valorY2Reta = IntVar()
+        valorX1Reta = StringVar()
+        valorY1Reta = StringVar()
+        valorX2Reta = StringVar()
+        valorY2Reta = StringVar()
         
         self.labelX1Reta = CTkLabel(self.auxFrame,text="X1",  font=("Segoe UI Black", 17))
-        self.entryX1Reta = CTkEntry(self.auxFrame,textvariable=valorX1Reta,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryX1Reta = CTkEntry(self.auxFrame,textvariable=valorX1Reta, font=("Segoe UI Black", 17))
         
         self.labelY1Reta = CTkLabel(self.auxFrame,text="Y1",  font=("Segoe UI Black", 17))
-        self.entryY1Reta = CTkEntry(self.auxFrame,textvariable=valorY1Reta,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryY1Reta = CTkEntry(self.auxFrame,textvariable=valorY1Reta, font=("Segoe UI Black", 17))
         
         self.labelX2Reta = CTkLabel(self.auxFrame,text="X2",  font=("Segoe UI Black", 17))
-        self.entryX2Reta = CTkEntry(self.auxFrame,textvariable=valorX2Reta,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryX2Reta = CTkEntry(self.auxFrame,textvariable=valorX2Reta, font=("Segoe UI Black", 17))
         
         self.labelY2Reta = CTkLabel(self.auxFrame,text="Y2",  font=("Segoe UI Black", 17))
-        self.entryY2Reta = CTkEntry(self.auxFrame,textvariable=valorY2Reta,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryY2Reta = CTkEntry(self.auxFrame,textvariable=valorY2Reta, font=("Segoe UI Black", 17))
         
         self.setDDAButton = CTkButton(self.auxFrame, text="DDA", font=("Segoe UI Black", 17),border_width=2,
                                       command=lambda: [self.reta.setAlgoritmo(self.reta.DDA), self.focusTable(self.setDDAButton,[self.setPMedioButton])])
@@ -200,19 +198,19 @@ class Main():
         ])
         
         #Widgets da Circunferencia       
-        valorX1Circ = IntVar()
-        valorY1Circ = IntVar()
+        valorX1Circ = StringVar()
+        valorY1Circ = StringVar()
         
-        valorRaio = IntVar()
+        valorRaio = StringVar()
         
         self.labelX1Circ = CTkLabel(self.auxFrame,text="X1",  font=("Segoe UI Black", 17))
-        self.entryX1Circ = CTkEntry(self.auxFrame,textvariable=valorX1Circ,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryX1Circ = CTkEntry(self.auxFrame,textvariable=valorX1Circ, font=("Segoe UI Black", 17))
         
         self.labelY1Circ = CTkLabel(self.auxFrame,text="Y1",  font=("Segoe UI Black", 17))
-        self.entryY1Circ = CTkEntry(self.auxFrame,textvariable=valorY1Circ,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryY1Circ = CTkEntry(self.auxFrame,textvariable=valorY1Circ, font=("Segoe UI Black", 17))
         
         self.labelRaioCirc = CTkLabel(self.auxFrame,text="Raio",  font=("Segoe UI Black", 17))
-        self.entryRaioCirc = CTkEntry(self.auxFrame,textvariable=valorRaio,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryRaioCirc = CTkEntry(self.auxFrame,textvariable=valorRaio, font=("Segoe UI Black", 17))
         
         self.seteqExplicita = CTkButton(self.auxFrame, text="EQ.\nEXPLICITA", font=("Segoe UI Black", 17),border_width=2,
                                       command=lambda: [self.reta.setAlgoritmo(self.circunferencia.metodo_equacao_explicita), self.focusTable(self.seteqExplicita,[self.setPMCircle,self.setMetPol,self.setMetTrig])])
@@ -236,32 +234,32 @@ class Main():
         ])
         
         #Página das Transformações 2D
-        valorXTrans = IntVar()
-        valorYTrans = IntVar()
-        valorRotacao = IntVar()
+        valorXTrans = StringVar()
+        valorYTrans = StringVar()
+        valorRotacao = StringVar()
         
         self.labelX1Trans = CTkLabel(self.auxFrame,text="X",  font=("Segoe UI Black", 17))
-        self.entryX1Trans = CTkEntry(self.auxFrame,textvariable=valorXTrans,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryX1Trans = CTkEntry(self.auxFrame,textvariable=valorXTrans, font=("Segoe UI Black", 17))
         
         self.labelY1Trans = CTkLabel(self.auxFrame,text="Y",  font=("Segoe UI Black", 17))
-        self.entryY1Trans = CTkEntry(self.auxFrame,textvariable=valorYTrans,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryY1Trans = CTkEntry(self.auxFrame,textvariable=valorYTrans, font=("Segoe UI Black", 17))
         
         self.labelRotacao = CTkLabel(self.auxFrame,text="Angulo",  font=("Segoe UI Black", 17))
-        self.entryRotacao = CTkEntry(self.auxFrame,textvariable=valorRotacao,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryRotacao = CTkEntry(self.auxFrame,textvariable=valorRotacao, font=("Segoe UI Black", 17))
         
         #Página das Transformações 3D
-        valorXTrans3D = IntVar()
-        valorYTrans3D = IntVar()
-        valorZTrans3D = IntVar()
+        valorXTrans3D = StringVar()
+        valorYTrans3D = StringVar()
+        valorZTrans3D = StringVar()
         
         self.labelX1Trans3D = CTkLabel(self.auxFrame,text="X",  font=("Segoe UI Black", 17))
-        self.entryX1Trans3D = CTkEntry(self.auxFrame,textvariable=valorXTrans3D,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryX1Trans3D = CTkEntry(self.auxFrame,textvariable=valorXTrans3D, font=("Segoe UI Black", 17))
         
         self.labelY1Trans3D = CTkLabel(self.auxFrame,text="Y",  font=("Segoe UI Black", 17))
-        self.entryY1Trans3D = CTkEntry(self.auxFrame,textvariable=valorYTrans3D,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryY1Trans3D = CTkEntry(self.auxFrame,textvariable=valorYTrans3D, font=("Segoe UI Black", 17))
         
         self.labelZ1Trans3D = CTkLabel(self.auxFrame,text="Z",  font=("Segoe UI Black", 17))
-        self.entryZ1Trans3D = CTkEntry(self.auxFrame,textvariable=valorZTrans3D,validate='key', validatecommand=self.vald2, font=("Segoe UI Black", 17))
+        self.entryZ1Trans3D = CTkEntry(self.auxFrame,textvariable=valorZTrans3D, font=("Segoe UI Black", 17))
         
         #Frame Scrollavel
         self.transformSequency = CTkScrollableFrame(self.auxFrame, orientation=HORIZONTAL, border_width=0, label_text="SEQUENCIA")
@@ -342,7 +340,7 @@ class Main():
                                          command=lambda:[self.TransformSelector(4)])
         
         #Treeview das coordenadas (Utilizado por todos os widgets acima)
-        self.coordinateFrame = Frame(self.auxFrame, bg="red")
+        self.coordinateFrame = CTkFrame(self.auxFrame, fg_color="red")
         
         self.treeCoordinates = ttk.Treeview(self.coordinateFrame)
         
@@ -590,9 +588,12 @@ class Main():
         self.transformSequency.place(relx=0.05,rely=0.75, relwidth=0.9, relheight=0.125)
     
     def TransformSelector(self,type):
-        x = float(self.entryX1Trans.get())
-        y = float(self.entryY1Trans.get())
-        angulo = float(self.entryRotacao.get())
+        try:
+            x = float(self.entryX1Trans.get())
+            y = float(self.entryY1Trans.get())
+            angulo = float(self.entryRotacao.get())
+        except:
+            messagebox.showerror("Valor Invalido")
         
         transformation = 0
         
@@ -614,9 +615,13 @@ class Main():
         self.glFrame.dadosFornecidos(figura=self.quadrado)
     
     def TransformSelector3D(self,type):
-        x = float(self.entryX1Trans3D.get())
-        y = float(self.entryY1Trans3D.get())
-        z = float(self.entryZ1Trans3D.get())
+        try:
+            x = float(self.entryX1Trans3D.get())
+            y = float(self.entryY1Trans3D.get())
+            z = float(self.entryZ1Trans3D.get())
+        except:
+            messagebox.showerror("Valor inválido")
+            return
         
         transformation = 0
         
@@ -638,9 +643,13 @@ class Main():
         self.glFrame.redraw()
         
     def TransformSelectorImage(self,type):
-        x = float(self.entryX1Trans.get())
-        y = float(self.entryY1Trans.get())
-        angulo = float(self.entryRotacao.get())
+        try:
+            x = float(self.entryX1Trans.get())
+            y = float(self.entryY1Trans.get())
+            angulo = float(self.entryRotacao.get())
+        except:
+            messagebox.showerror("Valor Invalido")
+            return
         
         if(type == 0):
             self.imageFrame.apply_translation(x,y)
@@ -720,7 +729,6 @@ class Main():
             self.quadrado.setPoints(points)
         else:
             self.glFrame.setVertices(points)
-        self.processoString = text
 
     def changeFrameType(self, opt):
         limpa_frame(self.mainFrame)
@@ -762,7 +770,5 @@ class Main():
         self.quadrado.setPoints(quadradoBase)
         if(isinstance(self.glFrame,GLUTFrame3D)):
             self.glFrame.setVertices(cuboBase)
-        self.transform2D.resetExplanationText()
-        self.transform3D.resetExplanationText()
         
 Main()
