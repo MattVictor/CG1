@@ -203,20 +203,21 @@ class Transform3D():
         
         transpositionPoints = newPosition[0]
         
+
         newPosition = self.transposition(newPosition, [transpositionPoints[0]*-1,transpositionPoints[1]*-1, transpositionPoints[2]*-1])
         
-        if x == 0:
-            newPosition = self.schearX(newPosition, y, z)
-        if y == 0:
-            newPosition = self.schearY(newPosition, x, z)
-        if z == 0:
-            newPosition = self.schearZ(newPosition, x, y)
+        if x != 0:
+            newPosition = self.schearX(newPosition, x)
+        if y != 0:
+            newPosition = self.schearY(newPosition, y)
+        if z != 0:
+            newPosition = self.schearZ(newPosition, z)
             
         newPosition = self.transposition(newPosition, transpositionPoints)
             
         return newPosition
     
-    def schearX(self, points, y, z):
+    def schearX(self, points, x):
         newPosition = points
         
         #transformando em coordenadas homogêneas
@@ -224,45 +225,45 @@ class Transform3D():
         
         #matriz para Cisalhamento em X
         schearMatrix = [
-            [1, 0, 0, 0],
-            [y, 1, 0, 0],
-            [z, 0, 1, 0],
-            [0, 0, 0, 1]
-        ]
-        
-        newPosition = self.multiplyMatrix(schearMatrix, homogenCoords)
-        
-        return newPosition
-    
-    def schearY(self, points, x, z):
-        newPosition = points
-        
-        #transformando em coordenadas homogêneas
-        homogenCoords = self.homogenCoordinates(points)
-        
-        #matriz para Cisalhamento em Y
-        schearMatrix = [
-            [1, x, 0, 0],
-            [0, 1, 0, 0],
-            [0, z, 1, 0],
-            [0, 0, 0, 1]
-        ]
-        
-        newPosition = self.multiplyMatrix(schearMatrix, homogenCoords)
-        
-        return newPosition
-    
-    def schearZ(self, points, x, y):
-        newPosition = points
-        
-        #transformando em coordenadas homogêneas
-        homogenCoords = self.homogenCoordinates(points)
-        
-        #matriz para Cisalhamento em Y
-        schearMatrix = [
             [1, 0, x, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1]
+        ]
+        
+        newPosition = self.multiplyMatrix(schearMatrix, homogenCoords)
+        
+        return newPosition
+    
+    def schearY(self, points, y):
+        newPosition = points
+        
+        #transformando em coordenadas homogêneas
+        homogenCoords = self.homogenCoordinates(points)
+        
+        #matriz para Cisalhamento em Y
+        schearMatrix = [
+            [1, 0, 0, 0],
             [0, 1, y, 0],
             [0, 0, 1, 0],
+            [0, 0, 0, 1]
+        ]
+        
+        newPosition = self.multiplyMatrix(schearMatrix, homogenCoords)
+        
+        return newPosition
+    
+    def schearZ(self, points, z):
+        newPosition = points
+        
+        #transformando em coordenadas homogêneas
+        homogenCoords = self.homogenCoordinates(points)
+        
+        #matriz para Cisalhamento em Y
+        schearMatrix = [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [z, 0, 1, 0],
             [0, 0, 0, 1]
         ]
         
