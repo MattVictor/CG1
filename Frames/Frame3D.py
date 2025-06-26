@@ -9,8 +9,6 @@ class GLUTFrame3D(OpenGLFrame):
         super().__init__(master,**kwargs)
         self.position = [500,500,500]
         
-        self.bind("<MouseWheel>", self.zoom)
-        
         self.vertices = [
             [0, 0, 0],
             [ 100, 0, 0],
@@ -34,6 +32,8 @@ class GLUTFrame3D(OpenGLFrame):
         self.forma = forma
     
     def initgl(self):
+        self.GL_PIXELS = GL_LINES
+        
         glClearColor(0.0, 0.0, 0.0, 1.0)  # Fundo preto
         glPointSize(1)
         glEnable(GL_DEPTH_TEST)
@@ -73,7 +73,7 @@ class GLUTFrame3D(OpenGLFrame):
         
     def draw_axes(self):
         glLineWidth(1.0)
-        glBegin(GL_LINES)
+        glBegin(self.GL_PIXELS)
 
         x = self.width/2
         y = self.height/2
@@ -110,17 +110,6 @@ class GLUTFrame3D(OpenGLFrame):
             for vertex in edge:
                 glVertex3fv(self.vertices[vertex])
         glEnd()
-    
-    def zoom(self,event):
-        # respond to Linux or Windows wheel event
-        if event.num == 5 or event.delta == -120:
-            for i in range(len(self.position)):
-                self.position[i] += 10
-        if event.num == 4 or event.delta == 120:
-            for i in range(len(self.position)):
-                self.position[i] -= 10
-        
-        self.redraw()
 
     def setVertices(self, vertex):
         self.vertices = vertex

@@ -85,9 +85,6 @@ class Reta():
         x1,x2 = clicked_points_line[0], clicked_points_line[2]
         y1,y2 = clicked_points_line[1], clicked_points_line[3]
         
-        print(f"{x1} {y1}")
-        print(f"{x2} {y2}")
-        
         dx = abs(x2 - x1)
         dy = abs(y2 - y1)
         

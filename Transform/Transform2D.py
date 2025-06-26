@@ -80,7 +80,7 @@ class Transform2D():
         
         if (x != 0) or (y != 0):
             reposition = True
-            transpositionPoints = newPosition[0]
+            transpositionPoints = (x,y)
         
             newPosition = self.transposition(newPosition, [transpositionPoints[0]*-1,transpositionPoints[1]*-1])
         

@@ -55,8 +55,6 @@ class ImageFrame(CTkFrame):
         dst = np.zeros((out_h, out_w), dtype=np.uint8)
 
         inv_matrix = np.linalg.inv(matrix)  # Usamos inversa para retroprojeção
-
-        print(inv_matrix)
         
         for y_dst in range(out_h):
             for x_dst in range(out_w):
@@ -91,8 +89,8 @@ class ImageFrame(CTkFrame):
     def apply_reflectionX(self):
         # Reflexão horizontal em relação ao eixo Y
         M = np.array([
-            [-1, 0, self.original_image.shape[1]],  # Inverte x e move para direita
-            [0, 1, 0],
+            [1, 0, 0],  # Inverte x e move para direita
+            [0, -1, self.original_image.shape[1]],
             [0, 0, 1]
         ])
         self.transform_image(M)
@@ -100,8 +98,8 @@ class ImageFrame(CTkFrame):
     def apply_reflectionY(self):
         # Reflexão horizontal em relação ao eixo Y
         M = np.array([
-            [1, 0, 0],  # Inverte x e move para direita
-            [0, -1, self.original_image.shape[1]],
+            [-1, 0, self.original_image.shape[1]],  # Inverte x e move para direita
+            [0, 1, 0],
             [0, 0, 1]
         ])
         self.transform_image(M)
