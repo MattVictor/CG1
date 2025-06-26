@@ -11,7 +11,6 @@ class Reta():
         return self.currentFunction(clicked_points)
     
     def DDA(self,clicked_points_line):
-        print("USANDO DDA")
         lighted_pixels = []
         
         x1,x2 = clicked_points_line[0], clicked_points_line[2]
@@ -40,7 +39,6 @@ class Reta():
         return lighted_pixels
     
     def pontoMedio(self, clicked_points_line):
-        print("USANDO PONTO MÉDIO")
         lighted_pixels = []
         
         x1,x2 = clicked_points_line[0], clicked_points_line[2]

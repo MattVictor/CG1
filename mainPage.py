@@ -414,6 +414,7 @@ class Main():
         
     def ImageTransfromPage(self):
         limpa_frame(self.auxFrame)
+        limpa_frame(self.transformSequency)
         self.backButton.configure(command=self.TransformPage)
         self.backButton.place(relx=0.05,rely=0.03,relwidth=0.05,relheight=0.05)
         
@@ -581,6 +582,7 @@ class Main():
             angulo = float(self.entryRotacao.get())
         except:
             messagebox.showerror("ERRO","Valor Inválido, Digite um valor decimal")
+            return
         
         transformation = 0
         

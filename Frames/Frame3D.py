@@ -150,6 +150,12 @@ class GLUTFrame3D(OpenGLFrame):
         
         self.redraw()
         
+    def turnRecorte(self):
+        pass
+        
+    def turnCohensuterland(self):
+        pass     
+
     def clearScreen(self):
         self.vertices = [
             [0, 0, 0],

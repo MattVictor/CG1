@@ -74,3 +74,13 @@ class ECGFrame(OpenGLFrame):
         else:
             self.Animado = True
             self.loop()
+           
+    def turnRecorte(self):
+        pass
+        
+    def turnCohensuterland(self):
+        pass
+            
+    def clearScreen(self):
+        self.ecg_buffer = []
+        self.t = 0
