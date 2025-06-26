@@ -37,6 +37,8 @@ class GLUTFrame2D(OpenGLFrame):
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         
+        print(self.width, self.height)
+        
         self.defineVariables()
         
         self.redraw()
