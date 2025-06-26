@@ -32,9 +32,6 @@ def LIMPA_CT(array):
             objeto.delete("1.0","end")
         else:
             objeto.delete(0,END)
-            
-def insertText(widget=Text, text=str):
-    widget.insert(END, text)
 
 def limpa_frame(frame:Widget):
     for widget in frame.winfo_children():
@@ -46,14 +43,6 @@ def insertDataTreeview(tree=ttk.Treeview, data=[]):
     
     for x, y in data:
         tree.insert(parent='', index='end', text='', values=(x,y))
-
-def VALIDAR_FLOAT(text):
-    if text == '': return True
-    try:
-        value = float(text)
-    except ValueError:
-        return False
-    return 0<=value
 
 class Main():
     def __init__(self):
@@ -83,8 +72,6 @@ class Main():
         self.auxColor = "#FFFFFF"
         self.mainColor = "#000000"
         self.selectedColor = "#333333"
-        
-        self.VALIDAÇÃO_FLOAT()
         
         self.generateWidgets()
         
@@ -721,9 +708,6 @@ class Main():
         for button in unfocus:
             button.configure(fg_color="#000000", text_color="white")
 
-    def VALIDAÇÃO_FLOAT(self):
-        self.vald2 = (self.root.register(VALIDAR_FLOAT), '%P')
-
     def treatReturnTransform(self, points, text):
         if len(points) == 4:
             self.quadrado.setPoints(points)
@@ -760,7 +744,7 @@ class Main():
         elif(type == 1):
             CTkLabel(self.transformSequency,text=f"S{data}",fg_color=fg,font=font).pack(side=LEFT)
         elif(type == 2):
-            CTkLabel(self.transformSequency,text=f"R{data[0]}",fg_color=fg,font=font).pack(side=LEFT)
+            CTkLabel(self.transformSequency,text=f"R({data[0]})",fg_color=fg,font=font).pack(side=LEFT)
         elif(type == 3):
             CTkLabel(self.transformSequency,text=f"Re{data}",fg_color=fg,font=font).pack(side=LEFT)
         elif(type == 4):

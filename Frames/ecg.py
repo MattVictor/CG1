@@ -9,7 +9,11 @@ class ECGFrame(OpenGLFrame):
         master.after(100, lambda: ECGFrame.loop(self))  # aguarda o contexto OpenGL ficar pronto
     
     def initgl(self):
-        glClearColor(0, 0, 0, 1)
+        glViewport(0,0,self.width,self.height)
+        glLoadIdentity()
+        glClearColor(0.0, 0.0, 0.0, 1.0)  # Fundo preto
+        glPointSize(1)  # Tamanho dos pontos
+        
         glColor3f(1, 1, 1)
         glLineWidth(1)
         self.ecg_buffer = []
@@ -17,9 +21,9 @@ class ECGFrame(OpenGLFrame):
 
     def update(self):
         self.t += 0.02
-        y = ECGFrame.heartbeat_wave(self.t % 5)
+        y = ECGFrame.heartbeat_wave(self.t % 4)
         self.ecg_buffer.append(y)
-        if len(self.ecg_buffer) > 500:
+        if len(self.ecg_buffer) > 300:
             self.ecg_buffer.pop(0)
 
     def redraw(self):
@@ -32,9 +36,9 @@ class ECGFrame(OpenGLFrame):
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
 
-        glBegin(GL_LINE_STRIP)
+        glBegin(GL_POINTS)
         for i, y in enumerate(self.ecg_buffer):
-            x = i / 500 * 2 - 1
+            x = i / 300 * 2 - 1
             glVertex2f(x, y)
         glEnd()
 
@@ -43,9 +47,17 @@ class ECGFrame(OpenGLFrame):
     # Função da curva de batimento cardíaco
     def heartbeat_wave(x):
         return (
+            # Componente 1: A Onda R (o pico principal)
+            
             math.exp(-((x - 2)**2) * 10) * 0.8
+            # Componente 2: A Onda Q (o primeiro mergulho)
+            
             - math.exp(-((x - 1.5)**2) * 30) * 0.2
+            # Componente 3: A Onda S (o segundo mergulho)
+            
             - math.exp(-((x - 2.5)**2) * 30) * 0.3
+            
+            # Componente 4: A Onda T (a onda de recuperação)
             + math.exp(-((x - 3.5)**2) * 10) * 0.15
         )
     
