@@ -173,7 +173,7 @@ class Main():
                                       command=lambda: [self.reta.setAlgoritmo(self.reta.DDA), self.focusTable(self.setDDAButton,[self.setPMedioButton])])
         
         self.setPMedioButton = CTkButton(self.auxFrame, text="PONTO\nMEDIO", font=("Segoe UI Black", 17),border_width=2,
-                                         command=lambda: [self.reta.setAlgoritmo(self.reta.pontoMedio), self.focusTable(self.setPMedioButton,[self.setDDAButton])])
+                                         command=lambda: [self.reta.setAlgoritmo(self.reta.DDA), self.focusTable(self.setPMedioButton,[self.setDDAButton])])
         
         self.buttonDesenharReta = CTkButton(self.auxFrame, text="Desenhar", font=("Segoe UI Black", 17),
                                          border_width=2, command=lambda:[
@@ -535,6 +535,8 @@ class Main():
         self.buttonReflexY.place(relx=0.35,rely=0.525,relheight=0.08,relwidth=0.3)
         self.buttonReflex.place(relx=0.6,rely=0.525,relheight=0.08,relwidth=0.3)
         self.buttonSchear.place(relx=0.260,rely=0.625,relheight=0.08,relwidth=0.5)
+        
+        self.buttonDesenharQuadrado.place(relx=0.260,rely=0.90,relheight=0.08,relwidth=0.5)
         
         self.transformSequency.place(relx=0.05,rely=0.75, relwidth=0.9, relheight=0.125)
         

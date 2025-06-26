@@ -2,7 +2,6 @@ __package__
 
 from Forms.Point import Point
 from Forms.Reta import Reta
-import numpy as np
 
 class Quadrado():
     def __init__(self, x1 = 100, y1 = 100, x2 = 200, y2 = 200):
