@@ -79,20 +79,21 @@ class GLUTFrame3D(OpenGLFrame):
         y = self.height/2
         z = self.width/2
 
-        # Eixo X - vermelho
-        glColor3f(1.0, 0.0, 0.0)
-        glVertex3f(-x, 0, 0)
-        glVertex3f(x, 0, 0)
+        if(self.showAxis):
+            # Eixo X - vermelho
+            glColor3f(1.0, 0.0, 0.0)
+            glVertex3f(-x, 0, 0)
+            glVertex3f(x, 0, 0)
 
-        # Eixo Y - verde
-        glColor3f(0.0, 1.0, 0.0)
-        glVertex3f(0, -y, 0)
-        glVertex3f(0, y, 0)
+            # Eixo Y - verde
+            glColor3f(0.0, 1.0, 0.0)
+            glVertex3f(0, -y, 0)
+            glVertex3f(0, y, 0)
 
-        # Eixo Z - azul
-        glColor3f(0.0, 0.0, 1.0)
-        glVertex3f(0, 0, -z)
-        glVertex3f(0, 0, z)
+            # Eixo Z - azul
+            glColor3f(0.0, 0.0, 1.0)
+            glVertex3f(0, 0, -z)
+            glVertex3f(0, 0, z)
 
         glEnd()
 
@@ -107,7 +108,6 @@ class GLUTFrame3D(OpenGLFrame):
         glBegin(GL_LINES)
         for edge in edges:
             for vertex in edge:
-                print(self.vertices[vertex])
                 glVertex3fv(self.vertices[vertex])
         glEnd()
     

@@ -134,9 +134,6 @@ class GLUTFrame2D(OpenGLFrame):
         """ Captura cliques do mouse e converte para coordenadas normalizadas"""
         window_width = self.width/2
         window_height = self.height/2
-
-        print(window_width)
-        print(window_height)
         
         x,y = event.x, event.y
         
@@ -187,7 +184,7 @@ class GLUTFrame2D(OpenGLFrame):
     
     def cohen_Suterland(self):
         
-        while(True):
+        while(True): # CONVERSÃO DE CADA PONTO PARA BINÁRIO (True = 1, False = 0)
             bit4P1 = [True if (self.y1 > self.viewportYmax) else False,
                     True if (self.y1 < self.viewportYmin) else False,
                     True if (self.x1 > self.viewportXmax) else False,
@@ -198,27 +195,18 @@ class GLUTFrame2D(OpenGLFrame):
                     True if (self.x2 > self.viewportXmax) else False,
                     True if (self.x2 < self.viewportXmin) else False]
             
-            print(self.x1)
-            print(self.y1)
-            print(self.x2)
-            print(self.y2)
-            
-            print(bit4P1)
-            print(bit4P2)
-            
+            #CHECAGEM BIT A BIT PARA SABER
             bitcheck = self.bitCheck(bit4P1,bit4P2)
             
             coefAngular = self.m()
             
-            if(bitcheck == 0):
-                print("Aceitação trivial")
+            if(bitcheck == 0): # ACEITAÇÃO TRIVIAL
                 return [self.x1,self.y1,self.x2,self.y2]
-            elif(self.bitCheck(bit4P1,bit4P2) == 1):
+            elif(self.bitCheck(bit4P1,bit4P2) == 1): # REJEITADO
                 self.clicked_points_line.clear()
                 self.clicked_points_line_cut.clear()
-                print("Rejeitado")
                 return []
-            else:
+            else: # CANDIDATO A RECORTE
                 if(bit4P1[0]):
                     if coefAngular != 0:
                         self.x1 = self.interCima()
@@ -254,7 +242,6 @@ class GLUTFrame2D(OpenGLFrame):
                     if coefAngular != 0:
                         self.y2 = self.interEsquerda()
                     self.x2 = self.viewportXmin
-                print("Candidato a recorte")
             
     def bitCheck(self,P1,P2):
         for i in range(4):
@@ -282,16 +269,16 @@ class GLUTFrame2D(OpenGLFrame):
         
         return dy / dx
     
-    def interCima(self):
+    def interCima(self): # RECORTE EM CIMA
         return round(self.x1 + ((1/self.m()) * (self.viewportYmax-self.y1)))
     
-    def interBaixo(self):
+    def interBaixo(self): # RECORTE EM BAIXO
         return round(self.x1 + ((1/self.m()) * (self.viewportYmin-self.y1)))
     
-    def interDireita(self):
+    def interDireita(self): #RECORTE NA DIREITA
         return round((self.m() * (self.viewportXmax-self.x1)) + self.y1)
     
-    def interEsquerda(self):
+    def interEsquerda(self): #RECORTE NA ESQUERDA
         return round((self.m() * (self.viewportXmin-self.x1)) + self.y1)
     
     def setForma(self,novaForma):

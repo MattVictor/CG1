@@ -50,7 +50,7 @@ class ImageFrame(CTkFrame):
 
         # Define tamanho de saída
         if output_size is None:
-            output_size = (h * 5, w * 5)
+            output_size = (h * 5, w * 5) #AJUSTE DA IMAGEM DE SAÍDA, PARA NÃO FICAR CORTADA
         out_h, out_w = output_size
         dst = np.zeros((out_h, out_w), dtype=np.uint8)
 
