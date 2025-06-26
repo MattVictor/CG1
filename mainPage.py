@@ -363,8 +363,8 @@ class Main():
                                                  self.focusTable(self.coordTela, [self.coordMundo, self.coordOpenGL])])
         
         #Bidings Adicionais
-        self.root.bind("c", lambda _: self.glFrame.clearScreen(), self.shortcut())
-        self.root.bind("r", lambda _: self.glFrame.clearScreen())
+        self.root.bind("r", lambda _: [self.shortcut(),self.glFrame.clearScreen()])
+        self.root.bind("c", lambda _: self.glFrame.clearScreen())
         self.root.bind("b", lambda _: self.glFrame.resetCamera())
         
     def startPage(self):

@@ -13,7 +13,7 @@ class ECGFrame(OpenGLFrame):
         glViewport(0,0,self.width,self.height)
         glLoadIdentity()
         glClearColor(0.0, 0.0, 0.0, 1.0)  # Fundo preto
-        glPointSize(1)  # Tamanho dos pontos
+        glPointSize(2)  # Tamanho dos pontos
         
         glColor3f(1, 1, 1)
         glLineWidth(1)
